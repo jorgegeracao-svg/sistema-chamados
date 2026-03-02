@@ -1,0 +1,105 @@
+/* ==========================================================================
+   README — ORGANIZAÇÃO DOS ARQUIVOS CSS
+   Sistema de chamados — Guia de importação e estrutura de arquivos
+   ========================================================================== */
+
+/*
+  ORDEM DE IMPORTAÇÃO (no <head> do HTML):
+  -----------------------------------------
+  1. 00-geral.css               → Variáveis, reset, componentes globais
+  2. 01-login.css               → Tela de autenticação (só importar nessa tela)
+  3. 02-tela-principal.css      → Sidebar, dashboard, filtros e cards
+  4. 03-novo-chamado-e-detalhes.css → Formulário e detalhes do chamado
+  5. 04-etapas.css              → Fluxo de etapas / workflow
+
+
+  MAPA DE ARQUIVOS:
+  -----------------------------------------
+
+  ┌─────────────────────────────────────────────────────────┐
+  │  00-GERAL.CSS  (base de tudo)                           │
+  │  • Variáveis CSS (:root)                                │
+  │  • Reset universal                                      │
+  │  • .form-label / .form-input / .form-select / textarea  │
+  │  • .btn-submit / .btn-cancel                            │
+  │  • .file-upload / .file-upload-btn / .file-name         │
+  │  • .checkbox-item / .tipo-checkbox / .tipo-btn          │
+  │  • .section-title                                       │
+  │  • Correções iOS Safari / touch                         │
+  └─────────────────────────────────────────────────────────┘
+           │ depende de ↓
+  ┌──────────────────────────────────────┐
+  │  01-LOGIN.CSS                        │
+  │  • .login-container                  │
+  │  • .login-form-side / -image-side    │
+  │  • .login-logo / -header / -form     │
+  │  • .password-input-wrapper           │
+  │  • .toggle-password                  │
+  │  • .form-options / .forgot-password  │
+  │  • .btn-login                        │
+  │  • .modal-overlay / .modal-content   │
+  │  • .alert (.success / .error)        │
+  └──────────────────────────────────────┘
+
+  ┌──────────────────────────────────────────────────────────┐
+  │  02-TELA-PRINCIPAL.CSS                                   │
+  │  • body / .main-content (layout raiz)                   │
+  │  • .sidebar + navegação + perfil de usuário             │
+  │  • .sidebar-overlay (mobile)                            │
+  │  • .mobile-header / .menu-toggle                        │
+  │  • .content / .page-header / .page-title                │
+  │  • .filters-container / .filter-input / .filter-select  │
+  │  • .tickets-grid / .no-tickets                          │
+  │  • .ticket-card + cabeçalho, info, rodapé               │
+  │  • .ticket-type-badge (tipo-manutencao/pedido)          │
+  │  • .sla-no-prazo / .sla-atrasado / .sla-proximo         │
+  └──────────────────────────────────────────────────────────┘
+
+  ┌──────────────────────────────────────────────────────────┐
+  │  03-NOVO-CHAMADO-E-DETALHES.CSS                          │
+  │  • .new-ticket-screen (formulário de novo chamado)      │
+  │  • .ticket-header / .back-btn / .ticket-title           │
+  │  • .ticket-form-container / .ticket-form-card           │
+  │  • .form-grid / .form-row-2 / .ticket-fields            │
+  │  • .tipo-manutencao-grid / -checkboxes                  │
+  │  • .form-actions                                        │
+  │  • .ticket-details-screen (versão legada de detalhes)   │
+  │  • .ticket-info-card / .info-row / .info-label          │
+  │  • .ticket-history / .history-message                   │
+  │  • .chamado-detalhes-screen (versão atual com animação) │
+  │  • .chamado-detalhes-header / .chamado-voltar-btn       │
+  │  • .chamado-progresso-wrapper / .progresso-item         │
+  │  • .chamado-etapa-atual-panel                           │
+  │  • .chamado-abas-nav / .chamado-aba-btn / -conteudo     │
+  │  • .chamado-mensagens-lista / .chamado-mensagem-card    │
+  │  • .badge-solicitante / -tecnico / -admin etc.          │
+  └──────────────────────────────────────────────────────────┘
+
+  ┌──────────────────────────────────────────────────────────┐
+  │  04-ETAPAS.CSS                                           │
+  │  • .etapas-container                                    │
+  │  • .etapa-card (.expandida / .concluida / .somente-leitura) │
+  │  • .etapa-header / .etapa-numero / .etapa-status        │
+  │  • .etapa-toggle (chevron animado)                      │
+  │  • .etapa-conteudo (animação de colapso)                │
+  │  • .etapa-dados-anteriores / .dado-item                 │
+  │  • .etapa-form / .form-input-etapa / -textarea / -select│
+  │  • .etapa-acoes / .btn-etapa-primary / -success / -danger │
+  │  • .produtos-lista / .produto-item                      │
+  │  • .file-upload-etapa / .anexos-preview / .anexo-thumb  │
+  │  • .historico-reprovacoes / .reprovacao-item            │
+  │  • .subetapas-container / .subetapa-card                │
+  │  • .chamado-finalizado-banner                           │
+  └──────────────────────────────────────────────────────────┘
+
+
+  CONVENÇÕES:
+  -----------------------------------------
+  • Prefixo .etapa-    → componentes do fluxo de etapas
+  • Prefixo .chamado-  → tela de detalhes do chamado (versão atual)
+  • Prefixo .ticket-   → tela de novo chamado e detalhes (versão legada)
+  • Prefixo .btn-etapa-→ botões de ação específicos das etapas
+  • Prefixo .form-*-etapa → inputs/labels usados dentro das etapas
+  • Sufixo  -screen    → painéis fullscreen que sobrepõem o conteúdo
+  • Sufixo  -mobile    → variantes visíveis apenas em telas pequenas
+*/

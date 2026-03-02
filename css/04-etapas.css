@@ -1,0 +1,1562 @@
+/* ==========================================================================
+   04-ETAPAS.CSS — FLUXO DE ETAPAS DO CHAMADO (WORKFLOW)
+   Contém: Cards de etapa expansíveis, formulários por etapa, subetapas,
+   lista de produtos para orçamento, upload de arquivos, histórico de
+   reprovações e banner de chamado finalizado.
+   Depende de: 00-geral.css (variáveis, reset, botões, inputs)
+   ========================================================================== */
+
+
+/* --------------------------------------------------------------------------
+   CONTAINER DO FLUXO
+   Empilha os cards de etapa verticalmente com espaçamento uniforme.
+   -------------------------------------------------------------------------- */
+.etapas-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px 0;
+}
+
+
+/* ==========================================================================
+   CARD DE ETAPA
+   Caixa que representa uma etapa do fluxo de trabalho.
+   Pode estar em três estados: padrão | expandida | concluída.
+   ========================================================================== */
+.etapa-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 2px solid var(--color-gray-200);
+    overflow: hidden;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+/* Estado: etapa expandida (em edição) — borda e sombra azuis */
+.etapa-card.expandida {
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 12px rgba(0, 149, 219, 0.15);
+}
+
+/* Estado: etapa concluída — borda verde */
+.etapa-card.concluida {
+    border-color: var(--color-success);
+    opacity: 0.95;
+}
+
+
+/* ==========================================================================
+   CABEÇALHO DA ETAPA
+   Barra clicável com número, título, status e botão de expandir/colapsar.
+   ========================================================================== */
+.etapa-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--color-gray-50) 0%, white 100%);
+    border-bottom: 1px solid var(--color-gray-200);
+    transition: background 0.2s;
+}
+
+.etapa-header:hover {
+    background: linear-gradient(135deg, var(--color-gray-100) 0%, var(--color-gray-50) 100%);
+}
+
+/* Fundo azul claro quando expandida */
+.etapa-card.expandida .etapa-header {
+    background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%);
+    border-bottom-color: var(--color-primary);
+}
+
+/* Fundo verde claro quando concluída */
+.etapa-card.concluida .etapa-header {
+    background: linear-gradient(135deg, var(--color-success-light) 0%, #ecfdf5 100%);
+    border-bottom-color: var(--color-success);
+}
+
+/* Lado esquerdo do cabeçalho: número + info */
+.etapa-header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+}
+
+/* Círculo numerado da etapa */
+.etapa-numero {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-mid) 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+    box-shadow: 0 4px 12px rgba(0, 149, 219, 0.3);
+    flex-shrink: 0;
+}
+
+/* Círculo verde quando a etapa está concluída */
+.etapa-card.concluida .etapa-numero {
+    background: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-dark) 100%);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* Área de informações: título + badges de meta */
+.etapa-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.etapa-titulo {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-gray-900);
+    margin-bottom: 4px;
+}
+
+/* Linha com status e categoria */
+.etapa-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* Badge de status da etapa (pill colorida) */
+.etapa-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.etapa-status.em-andamento {
+    background: var(--color-warning-light);
+    color: #92400e;
+}
+
+.etapa-status.concluida {
+    background: var(--color-success-light);
+    color: #065f46;
+}
+
+.etapa-categoria {
+    font-size: 12px;
+    color: var(--color-gray-500);
+    font-weight: 500;
+}
+
+/* Linha com data/hora de conclusão da etapa */
+.etapa-conclusao {
+    font-size: 12px;
+    color: var(--color-gray-500);
+    margin-top: 4px;
+}
+
+.etapa-conclusao strong {
+    color: var(--color-gray-700);
+    font-weight: 600;
+}
+
+/* Botão de expandir/colapsar (chevron) */
+.etapa-toggle {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: var(--color-gray-100);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, transform 0.1s;
+    flex-shrink: 0;
+}
+
+.etapa-toggle:hover  { background: var(--color-gray-200); transform: scale(1.05); }
+.etapa-toggle:active { transform: scale(0.95); }
+
+.etapa-toggle svg {
+    width: 20px;
+    height: 20px;
+    stroke: var(--color-gray-500);
+    fill: none;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform 0.3s;
+}
+
+/* Rotaciona o chevron 180° quando o card está expandido */
+.etapa-card.expandida .etapa-toggle svg { transform: rotate(180deg); }
+
+
+/* ==========================================================================
+   CONTEÚDO EXPANSÍVEL DA ETAPA
+   Animado por transição de max-height (de 0 para 3000px).
+   ========================================================================== */
+.etapa-conteudo {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+/* Expande o conteúdo quando o card está no estado expandido */
+.etapa-card.expandida .etapa-conteudo {
+    max-height: 3000px;  /* Alto o suficiente para qualquer conteúdo */
+}
+
+.etapa-conteudo-inner {
+    padding: 24px;
+}
+
+
+/* ==========================================================================
+   DADOS DA ETAPA ANTERIOR (somente leitura)
+   Exibe informações preenchidas em etapas anteriores para contexto.
+   ========================================================================== */
+.etapa-dados-anteriores {
+    background: var(--color-gray-50);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.etapa-dados-anteriores h4 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+}
+
+/* Par label/valor de cada dado anterior */
+.dado-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 12px;
+}
+
+.dado-item:last-child { margin-bottom: 0; }
+
+.dado-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-gray-500);
+}
+
+.dado-valor {
+    font-size: 14px;
+    color: var(--color-gray-900);
+    font-weight: 500;
+}
+
+
+/* ==========================================================================
+   FORMULÁRIO DA ETAPA
+   Campos para preenchimento das informações da etapa atual.
+   ========================================================================== */
+.etapa-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form-group-etapa {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* Label do campo da etapa */
+.form-label-etapa {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-gray-700);
+}
+
+/* Asterisco vermelho em campos obrigatórios */
+.form-label-etapa.required::after {
+    content: '*';
+    color: var(--color-danger);
+    margin-left: 4px;
+}
+
+/* Inputs, selects e textareas da etapa (mesma base do 00-geral.css) */
+.form-input-etapa,
+.form-select-etapa,
+.form-textarea-etapa {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--color-gray-300);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    color: var(--color-gray-900);
+    background: white;
+    font-family: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-input-etapa:focus,
+.form-select-etapa:focus,
+.form-textarea-etapa:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-focus);
+}
+
+.form-textarea-etapa {
+    min-height: 100px;
+    resize: vertical;
+}
+
+
+/* ==========================================================================
+   BOTÕES DE AÇÃO DA ETAPA
+   Rodapé do formulário com botões de avançar, aprovar ou reprovar.
+   ========================================================================== */
+.etapa-acoes {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--color-gray-200);
+}
+
+/* Botão base das etapas */
+.btn-etapa {
+    padding: 12px 24px;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Azul: avançar para próxima etapa */
+.btn-etapa-primary {
+    background: var(--color-primary);
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 149, 219, 0.3);
+}
+
+.btn-etapa-primary:hover {
+    background: var(--color-primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 149, 219, 0.4);
+}
+
+.btn-etapa-primary:active { transform: translateY(0); }
+
+/* Verde: aprovar/concluir etapa */
+.btn-etapa-success {
+    background: var(--color-success);
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-etapa-success:hover {
+    background: var(--color-success-dark);
+    transform: translateY(-2px);
+}
+
+/* Vermelho: reprovar/rejeitar etapa */
+.btn-etapa-danger {
+    background: var(--color-danger);
+    color: white;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.btn-etapa-danger:hover {
+    background: var(--color-danger-dark);
+    transform: translateY(-2px);
+}
+
+/* Ícone SVG dentro dos botões de ação */
+.btn-etapa svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+
+/* ==========================================================================
+   LISTA DE PRODUTOS (usada na etapa de orçamento)
+   Grade de campos para inserção de itens/quantidades/preços.
+   ========================================================================== */
+.produtos-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Item individual: descrição | quantidade | preço (3 colunas) */
+.produto-item {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 12px;
+    padding: 12px;
+    background: var(--color-gray-50);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-gray-200);
+}
+
+/* Número sequencial do produto (ocupa toda a linha acima dos campos) */
+.produto-numero {
+    grid-column: 1 / -1;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-gray-500);
+    margin-bottom: 4px;
+}
+
+
+/* ==========================================================================
+   UPLOAD DE ARQUIVOS NA ETAPA
+   Botão estilizado + exibição do nome do arquivo + thumbnails de imagens.
+   ========================================================================== */
+.file-upload-etapa {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Botão de seleção de arquivo */
+.file-upload-btn-etapa {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--color-gray-100);
+    color: var(--color-gray-700);
+    border: 1px solid var(--color-gray-300);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.2s, border-color 0.2s;
+    width: fit-content;
+}
+
+.file-upload-btn-etapa:hover {
+    background: var(--color-gray-200);
+    border-color: var(--color-gray-400);
+}
+
+.file-upload-btn-etapa svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+}
+
+/* Nome do arquivo selecionado (em itálico) */
+.file-name-etapa {
+    font-size: 13px;
+    color: var(--color-gray-500);
+    font-style: italic;
+}
+
+/* --- PREVIEW DE IMAGENS ANEXADAS ---
+   Thumbnails clicáveis exibidos após o upload.                            */
+.anexos-preview {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+
+.anexo-thumb {
+    width: 100px;
+    height: 100px;
+    border-radius: var(--radius-md);
+    border: 2px solid var(--color-gray-200);
+    object-fit: cover;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s;
+}
+
+/* Hover no thumbnail: destaca com borda azul e leve aumento */
+.anexo-thumb:hover {
+    border-color: var(--color-primary);
+    transform: scale(1.05);
+}
+
+
+/* ==========================================================================
+   HISTÓRICO DE REPROVAÇÕES
+   Exibido quando a etapa foi reprovada anteriormente; mostra os motivos.
+   ========================================================================== */
+.historico-reprovacoes {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+/* Título em vermelho com ícone de alerta */
+.historico-reprovacoes h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #991b1b;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Card de cada reprovação individual */
+.reprovacao-item {
+    padding: 12px;
+    background: white;
+    border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+}
+
+.reprovacao-item:last-child { margin-bottom: 0; }
+
+/* Meta: data e responsável pela reprovação */
+.reprovacao-meta {
+    font-size: 12px;
+    color: var(--color-gray-500);
+    margin-bottom: 6px;
+}
+
+/* Texto do motivo de reprovação */
+.reprovacao-motivo {
+    font-size: 14px;
+    color: var(--color-gray-900);
+}
+
+
+/* ==========================================================================
+   SUBETAPAS
+   Etapas aninhadas dentro de uma etapa principal, com indentação visual.
+   ========================================================================== */
+
+/* Container indentado com linha vertical azul à esquerda */
+.subetapas-container {
+    margin-left: 32px;
+    margin-top: 16px;
+    padding-left: 20px;
+    border-left: 3px solid #dbeafe;  /* Linha azul que conecta visualmente à etapa pai */
+}
+
+.subetapa-card {
+    background: var(--color-gray-50);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    margin-bottom: 12px;
+    overflow: hidden;
+}
+
+/* Subetapa expandida: fundo branco com borda azul */
+.subetapa-card.expandida {
+    border-color: var(--color-primary);
+    background: white;
+}
+
+.subetapa-header {
+    padding: 12px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background 0.2s;
+}
+
+.subetapa-header:hover { background: var(--color-gray-100); }
+
+.subetapa-card.expandida .subetapa-header { background: #eff6ff; }
+
+.subetapa-titulo {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-gray-700);
+}
+
+
+/* ==========================================================================
+   MODO SOMENTE LEITURA
+   Etapas já concluídas ficam em modo de visualização (inputs desabilitados).
+   ========================================================================== */
+
+/* Leve desfoque para indicar que a etapa não é editável */
+.etapa-card.somente-leitura { opacity: 0.9; }
+
+/* Desativa eventos de mouse no formulário */
+.etapa-card.somente-leitura .etapa-form { pointer-events: none; }
+
+/* Visual de "desabilitado" nos campos */
+.etapa-card.somente-leitura .form-input-etapa,
+.etapa-card.somente-leitura .form-select-etapa,
+.etapa-card.somente-leitura .form-textarea-etapa {
+    background: var(--color-gray-50);
+    color: var(--color-gray-500);
+}
+
+
+/* ==========================================================================
+   BANNER DE CHAMADO FINALIZADO
+   Faixa verde exibida no topo quando o chamado foi encerrado.
+   ========================================================================== */
+.chamado-finalizado-banner {
+    background: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-dark) 100%);
+    color: white;
+    padding: 16px 24px;
+    border-radius: var(--radius-lg);
+    text-align: center;
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.chamado-finalizado-banner svg {
+    width: 24px;
+    height: 24px;
+    stroke: white;
+    fill: none;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+}
+
+
+/* ==========================================================================
+   RESPONSIVIDADE — ETAPAS
+   ========================================================================== */
+
+/* --- Mobile (≤ 768px) --- */
+@media (max-width: 768px) {
+    .etapa-header-left { gap: 12px; }
+
+    /* Círculo menor no mobile */
+    .etapa-numero { width: 40px; height: 40px; font-size: 16px; }
+
+    .etapa-titulo { font-size: 14px; }
+
+    /* Meta em coluna no mobile */
+    .etapa-meta { flex-direction: column; align-items: flex-start; gap: 6px; }
+
+    /* Produto em coluna única */
+    .produto-item { grid-template-columns: 1fr; }
+
+    /* Botões de ação em coluna, ocupando toda a largura */
+    .etapa-acoes { flex-direction: column; }
+    .btn-etapa { width: 100%; justify-content: center; }
+
+    /* Subetapas com indentação menor */
+    .subetapas-container { margin-left: 16px; padding-left: 12px; }
+}
+
+
+/* ==========================================================================
+   ADIÇÕES — 12 ETAPAS
+   Novos estados, subetapas condicionais, formulários específicos por etapa.
+   Preserva todo o CSS anterior sem qualquer alteração.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   ESTADO: AGUARDANDO_CONFIRMACAO (Et. 4 — técnico ainda não confirmou)
+   Card com borda e header amarelo/âmbar para diferenciar de EM_ANDAMENTO.
+   -------------------------------------------------------------------------- */
+.etapa-card.aguardando-confirmacao {
+    border-color: #f59e0b;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+}
+
+.etapa-card.aguardando-confirmacao .etapa-header {
+    background: linear-gradient(135deg, #fef9c3 0%, #fefce8 100%);
+    border-bottom-color: #f59e0b;
+}
+
+.etapa-card.aguardando-confirmacao .etapa-numero {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+/* Badge de status: aguardando confirmação */
+.etapa-status.aguardando {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+/* --------------------------------------------------------------------------
+   ESTADO: CONDICIONAL (etapas que só existem se houver compra — Et. 7, 8)
+   Exibidas com visual tracejado e esmaecido quando ainda não foram ativadas.
+   -------------------------------------------------------------------------- */
+.etapa-card.condicional {
+    border: 2px dashed var(--color-gray-200);
+    opacity: 0.55;
+    box-shadow: none;
+}
+
+.etapa-card.condicional .etapa-numero {
+    background: var(--color-gray-300);
+    box-shadow: none;
+}
+
+.etapa-card.condicional .etapa-header {
+    background: var(--color-gray-50);
+    cursor: default;
+}
+
+/* --------------------------------------------------------------------------
+   SUBETAPAS — novos estados para as 12 etapas
+   -------------------------------------------------------------------------- */
+
+/* Subetapa concluída — borda e header verde */
+.subetapa-card.concluida {
+    border-color: var(--color-success);
+    background: #f0fdf4;
+}
+
+.subetapa-card.concluida .subetapa-header {
+    background: linear-gradient(135deg, #dcfce7 0%, #f0fdf4 100%);
+}
+
+.subetapa-card.concluida .subetapa-titulo {
+    color: #166534;
+}
+
+/* Número da subetapa (círculo menor) */
+.subetapa-numero {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-mid) 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0, 149, 219, 0.25);
+}
+
+.subetapa-card.concluida .subetapa-numero {
+    background: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-dark) 100%);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+}
+
+.subetapa-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+/* --------------------------------------------------------------------------
+   FORMULÁRIOS ESPECÍFICOS POR ETAPA (usados pelo RenderizadorEtapas)
+   -------------------------------------------------------------------------- */
+
+/* Et. 3 — Botões Aprovar / Reprovar */
+.etapa-confirmacao-acoes {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+}
+
+.btn-reprovar {
+    padding: 11px 20px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid #fca5a5;
+    background: #fef2f2;
+    color: #991b1b;
+    transition: background 0.2s, border-color 0.2s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-reprovar:hover {
+    background: #fee2e2;
+    border-color: #f87171;
+    transform: translateY(-1px);
+}
+
+.btn-aprovar {
+    padding: 11px 20px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    background: var(--color-success);
+    color: white;
+    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+    transition: background 0.2s, transform 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-aprovar:hover {
+    background: var(--color-success-dark);
+    transform: translateY(-1px);
+}
+
+/* Et. 4 — Bloco de confirmação do técnico */
+.etapa4-aguardando-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.etapa4-tecnico-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: var(--radius-md);
+}
+
+.etapa4-tecnico-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-mid) 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.etapa4-tecnico-dados {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.etapa4-tecnico-nome {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-gray-900);
+}
+
+.etapa4-tecnico-label {
+    font-size: 12px;
+    color: var(--color-gray-500);
+}
+
+/* Et. 6 — Pergunta de estoque com dois botões grandes */
+.etapa6-pergunta {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-gray-800, #1f2937);
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.etapa6-opcoes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.etapa6-opcao {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 20px 16px;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    border: 2px solid;
+    transition: all 0.2s;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.etapa6-opcao-sim {
+    border-color: #bbf7d0;
+    background: #f0fdf4;
+    color: #166534;
+}
+
+.etapa6-opcao-sim:hover {
+    background: #dcfce7;
+    border-color: #86efac;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.15);
+}
+
+.etapa6-opcao-nao {
+    border-color: #fecaca;
+    background: #fef2f2;
+    color: #991b1b;
+}
+
+.etapa6-opcao-nao:hover {
+    background: #fee2e2;
+    border-color: #f87171;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+}
+
+.etapa6-opcao svg {
+    width: 28px;
+    height: 28px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+}
+
+/* Et. 7.2 — Tabela de produtos */
+.produtos-tabela {
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+
+.produto-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 0;
+    border-bottom: 1px solid var(--color-gray-100);
+    align-items: center;
+}
+
+.produto-row:last-child { border-bottom: none; }
+
+.produto-row-header {
+    background: var(--color-gray-50);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-gray-400);
+}
+
+.produto-row-header > div,
+.produto-row > div {
+    padding: 10px 12px;
+    font-size: 13px;
+}
+
+.produto-row:not(.produto-row-header) > div {
+    border-right: 1px solid var(--color-gray-100);
+}
+
+.produto-row > div:last-child { border-right: none; }
+
+.produto-row input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--color-gray-900);
+    background: transparent;
+}
+
+.produto-row input:focus {
+    background: var(--color-primary-light);
+}
+
+.produto-row-remove {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-gray-300);
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    transition: color 0.15s;
+}
+
+.produto-row-remove:hover { color: var(--color-danger); }
+
+.produto-row-remove svg {
+    width: 14px;
+    height: 14px;
+    stroke: currentColor;
+    fill: none;
+}
+
+.btn-add-produto {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-primary);
+    background: var(--color-primary-light);
+    border: 1px solid #bfdbfe;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.btn-add-produto:hover {
+    background: #dbeafe;
+    border-color: #93c5fd;
+}
+
+.btn-add-produto svg {
+    width: 14px;
+    height: 14px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2.5;
+}
+
+/* Et. 12 — Avaliação com estrelas e confirmação */
+.etapa12-avaliacao {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.avaliacao-stars {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: var(--color-gray-50);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-gray-200);
+}
+
+.star-item {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 36px;
+    color: var(--color-gray-200);
+    transition: color 0.15s, transform 0.1s;
+    line-height: 1;
+    padding: 4px;
+}
+
+.star-item:hover,
+.star-item.selected {
+    color: #f59e0b;
+}
+
+.star-item:hover { transform: scale(1.2); }
+
+.avaliacao-nota {
+    text-align: center;
+    font-size: 13px;
+    color: var(--color-gray-500);
+    font-weight: 500;
+    margin-top: -8px;
+}
+
+/* --------------------------------------------------------------------------
+   BANNER DE CHAMADO FINALIZADO — versão atualizada com avaliação
+   -------------------------------------------------------------------------- */
+.chamado-finalizado-detalhe {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+    margin-top: 8px;
+}
+
+.chamado-finalizado-stars {
+    font-size: 22px;
+    letter-spacing: 2px;
+}
+
+.chamado-finalizado-obs {
+    font-size: 13px;
+    opacity: 0.9;
+    font-weight: 400;
+    text-align: center;
+    max-width: 400px;
+}
+
+/* --------------------------------------------------------------------------
+   RESPONSIVIDADE — novos elementos
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+    .etapa6-opcoes {
+        grid-template-columns: 1fr;
+    }
+
+    .produto-row {
+        grid-template-columns: 1fr 1fr auto;
+    }
+
+    .produto-row > div:nth-child(4) {
+        grid-column: 1 / -1;
+    }
+
+    .etapa4-tecnico-info {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .etapa-confirmacao-acoes {
+        flex-direction: column;
+    }
+
+    .btn-reprovar,
+    .btn-aprovar {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ==========================================================================
+   ABA FORMULÁRIO — PAINEL ACUMULADO DE DADOS
+   ========================================================================== */
+
+.formulario-dados-acumulados {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+
+/* Bloco de dados de cada etapa concluída */
+.form-dados-bloco {
+    background: #fff;
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+}
+
+.form-dados-bloco-titulo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+}
+
+/* Número da etapa no bloco */
+.form-dados-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+
+/* Divisor entre painel de dados e formulário ativo */
+.formulario-divisor {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 16px 0 12px;
+}
+
+.formulario-divisor::before,
+.formulario-divisor::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--color-gray-200);
+}
+
+.formulario-divisor span {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+/* Mensagem de aguardando */
+.formulario-aguardando {
+    margin-top: 14px;
+    padding: 14px 16px;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    color: #92400e;
+}
+
+.formulario-aguardando strong {
+    font-weight: 700;
+}
+
+.formulario-aguardando .formulario-etapa-nome {
+    display: block;
+    font-size: 12px;
+    color: #b45309;
+    margin-top: 4px;
+    font-style: italic;
+}
+
+/* ETAPA 3 — Container da observação */
+.et3-obs-container {
+    background: #fff;
+    border: 1px solid var(--color-gray-200);
+    border-left: 3px solid var(--color-primary);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    margin-bottom: 12px;
+}
+
+/* Container transparente das ações da etapa 3 */
+.et3-acoes-container {
+    background: transparent;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 4px 0;
+}
+
+.et3-acoes-container .btn-etapa {
+    flex: 1;
+}
+
+
+/* ==========================================================================
+   ABA ANEXOS
+   ========================================================================== */
+
+.chamado-sem-anexos {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 48px 24px;
+    color: var(--color-gray-400);
+}
+
+.chamado-sem-anexos svg {
+    width: 40px;
+    height: 40px;
+    stroke: var(--color-gray-300);
+}
+
+.chamado-sem-anexos p {
+    font-size: 14px;
+    font-style: italic;
+}
+
+/* Grupo por etapa */
+.anexos-grupo {
+    margin-bottom: 20px;
+}
+
+.anexos-grupo-titulo {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--color-gray-200);
+}
+
+/* Grid de thumbs */
+.anexos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+}
+
+/* Card individual */
+.anexo-card {
+    background: #fff;
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.anexo-card:hover {
+    box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+/* Thumbnail de imagem */
+.anexo-thumb {
+    width: 100%;
+    aspect-ratio: 1;
+    background-size: cover;
+    background-position: center;
+    background-color: var(--color-gray-100);
+}
+
+/* Thumb para arquivos não-imagem */
+.anexo-thumb-file {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.anexo-thumb-file svg {
+    width: 32px;
+    height: 32px;
+    stroke: var(--color-gray-400);
+}
+
+/* Info abaixo do thumb */
+.anexo-info {
+    padding: 6px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.anexo-nome {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-gray-800);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.anexo-tamanho {
+    font-size: 10px;
+    color: var(--color-gray-400);
+}
+
+
+/* ==========================================================================
+   PÁGINA MEU PERFIL
+   ========================================================================== */
+
+.perfil-wrapper {
+    max-width: 620px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-bottom: 40px;
+}
+
+/* Card de topo: avatar + nome + cargo */
+.perfil-header-card {
+    background: #fff;
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.perfil-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-mid));
+    color: #fff;
+    font-size: 22px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    letter-spacing: 1px;
+}
+
+.perfil-header-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.perfil-nome {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--color-gray-900);
+    margin: 0;
+}
+
+.perfil-cargo {
+    font-size: 13px;
+    color: var(--color-gray-500);
+    font-weight: 500;
+}
+
+/* Stats */
+.perfil-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.perfil-stat {
+    background: #fff;
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.perfil-stat-valor {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--color-gray-900);
+    line-height: 1;
+}
+
+.perfil-stat-label {
+    font-size: 11px;
+    color: var(--color-gray-500);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+/* Seções */
+.perfil-secao {
+    background: #fff;
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.perfil-secao-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--color-gray-100);
+    background: var(--color-gray-50);
+}
+
+.perfil-secao-titulo {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.perfil-btn-editar {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: none;
+    border: 1px solid var(--color-gray-200);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-primary);
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.perfil-btn-editar:hover {
+    background: var(--color-primary-light);
+    border-color: var(--color-primary);
+}
+
+.perfil-btn-editar svg {
+    width: 13px;
+    height: 13px;
+}
+
+/* Dados */
+.perfil-dados {
+    padding: 4px 0;
+}
+
+.perfil-dado-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--color-gray-100);
+}
+
+.perfil-dado-item:last-child {
+    border-bottom: none;
+}
+
+.perfil-dado-label {
+    font-size: 13px;
+    color: var(--color-gray-500);
+    font-weight: 500;
+}
+
+.perfil-dado-valor {
+    font-size: 13px;
+    color: var(--color-gray-900);
+    font-weight: 600;
+    text-align: right;
+}
+
+/* Badges */
+.perfil-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+}
+
+.perfil-badge-green {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+@media (max-width: 480px) {
+    .perfil-stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .perfil-stat-valor { font-size: 22px; }
+}

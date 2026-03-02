@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Chamados - NDS</title>
+
+    <!--
+        CSS — Ordem de importação:
+        1. 00-geral.css                    → Variáveis, reset, componentes globais
+        2. 02-tela-principal.css           → Sidebar, layout, filtros, cards de chamados
+        3. 03-novo-chamado-e-detalhes.css  → Formulário de novo chamado + tela de detalhes
+        4. 04-etapas.css                   → Fluxo de etapas (workflow — 12 etapas)
+        5. 06-user-search.css              → Autocomplete de solicitante
+        6. 05-modal-lembrete.css           → Modal de lembretes
+    -->
+    <link rel="stylesheet" href="css/00-geral.css">
+    <link rel="stylesheet" href="css/02-tela-principal.css">
+    <link rel="stylesheet" href="css/03-novo-chamado-e-detalhes.css">
+    <link rel="stylesheet" href="css/04-etapas.css">
+    <link rel="stylesheet" href="css/06-user-search.css">
+    <link rel="stylesheet" href="css/05-modal-lembrete.css">
+    <link rel="stylesheet" href="css/07-aba-mensagens.css">
+
+    <!-- Auth: verifica sessão antes de renderizar a página -->
+    <script src="js/auth-integration.js"></script>
+</head>
+
+<body>
+
+    <!-- =====================================================================
+         OVERLAY DA SIDEBAR (Mobile)
+         Fundo escuro que aparece quando a sidebar está aberta.
+         Clicar nele fecha a sidebar. Gerenciado via JavaScript.
+    ====================================================================== -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+
+    <!-- =====================================================================
+         SIDEBAR — NAVEGAÇÃO LATERAL
+         Fixa na esquerda em desktop; desliza sobre a tela em mobile.
+    ====================================================================== -->
+    <aside class="sidebar" id="sidebar">
+
+        <!-- Logo NDS -->
+        <div class="logo">
+            <img src="img/logo_nds.png" alt="Logo NDS" class="logo-nds">
+        </div>
+
+        <!-- Divisor abaixo do logo -->
+        <div class="logo-divider"></div>
+
+        <!-- Botão de ação principal: abrir formulário de novo chamado -->
+        <button class="new-ticket-btn" id="btnNovoChamado" aria-label="Abrir formulário de novo chamado">
+            <!-- Ícone de "+" -->
+            <svg class="btn-icon" viewBox="0 0 24 24">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Novo Chamado
+        </button>
+
+        <!-- Itens de navegação principal -->
+        <nav class="nav-section" aria-label="Menu principal">
+            <div class="nav-main">
+
+                <!-- Dashboard -->
+                <div class="nav-item active" data-page="dashboardPage" role="button" tabindex="0">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                    </span>
+                    <span>Dashboard</span>
+                </div>
+
+                <!-- Caixa de Entrada -->
+                <div class="nav-item" data-page="caixaEntradaPage" role="button" tabindex="0">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24">
+                            <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
+                            <path
+                                d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z">
+                            </path>
+                        </svg>
+                    </span>
+                    <span>Aguardando sua ação</span>
+                    <span class="nav-badge" id="badgeEntrada" style="display:none;">0</span>
+                </div>
+
+                <!-- Caixa Log -->
+                <div class="nav-item" data-page="caixaLogPage" role="button" tabindex="0">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                    </span>
+                    <span>Em andamento</span>
+                    <span class="nav-badge" id="badgeLog" style="display:none;">0</span>
+                </div>
+
+                <!-- Caixa de Saída -->
+                <div class="nav-item" data-page="caixaSaidaPage" role="button" tabindex="0">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                    </span>
+                    <span>Finalizados</span>
+                    <span class="nav-badge" id="badgeSaida" style="display:none;">0</span>
+                </div>
+
+            </div>
+
+            <!-- Divisor antes das configurações -->
+            <div class="nav-divider"></div>
+
+            <!-- Configurações (fixas no final da nav) -->
+            <div class="nav-settings">
+                <div class="nav-item" data-page="perfilPage" role="button" tabindex="0">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </span>
+                    <span>Meu Perfil</span>
+                </div>
+                <div class="nav-item" data-page="configPage" role="button" tabindex="0">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path
+                                d="M12 1v6m0 6v6m8.66-13.66l-4.24 4.24m-4.24 4.24l-4.24 4.24m13.66 0l-4.24-4.24m-4.24-4.24l-4.24-4.24">
+                            </path>
+                        </svg>
+                    </span>
+                    <span>Configurações</span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Perfil do usuário + botão de logout (rodapé da sidebar) -->
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <!-- Iniciais do usuário (preenchidas via JavaScript) -->
+                <div class="user-avatar" id="userAvatar">US</div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">Usuário</div>
+                    <div class="user-email" id="userEmail">Carregando...</div>
+                </div>
+                <!-- Botão de logout -->
+                <button class="logout-btn" onclick="logout()" title="Sair do sistema" aria-label="Sair do sistema">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+    </aside>
+    <!-- /SIDEBAR -->
+
+
+    <!-- =====================================================================
+         CONTEÚDO PRINCIPAL
+         Ocupa todo o espaço à direita da sidebar.
+    ====================================================================== -->
+    <main class="main-content">
+
+        <!-- Cabeçalho mobile: visível apenas em telas pequenas -->
+        <header class="mobile-header">
+            <!-- Botão hambúrguer que abre/fecha a sidebar -->
+            <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu de navegação">
+                <svg viewBox="0 0 24 24">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+            <h1 class="mobile-header-title">Sistema de Chamados</h1>
+        </header>
+
+        <!-- Área de conteúdo com scroll -->
+        <div class="content">
+
+            <!-- =============================================================
+                 PÁGINA: DASHBOARD
+                 Visível por padrão (classe .active). Conteúdo inserido via JS.
+            ============================================================== -->
+            <div id="dashboardPage" class="page-content active">
+                <div class="page-header">
+                    <h1 class="page-title">Dashboard</h1>
+                </div>
+                <div class="table-container">
+                    <p>Conteúdo do dashboard...</p>
+                </div>
+            </div>
+
+            <!-- =============================================================
+                 PÁGINA: CAIXA DE ENTRADA
+                 Lista chamados que aguardam ação do usuário logado.
+            ============================================================== -->
+            <div id="caixaEntradaPage" class="page-content">
+                <div class="page-header">
+                    <h1 class="page-title">Aguardando sua ação</h1>
+                    <div class="view-toggle" id="viewToggle" title="Alternar visualização">
+                        <button class="view-toggle-btn" data-view="lista" title="Visualização em lista">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                stroke-linecap="round">
+                                <line x1="3" y1="6" x2="21" y2="6" />
+                                <line x1="3" y1="12" x2="21" y2="12" />
+                                <line x1="3" y1="18" x2="21" y2="18" />
+                            </svg>
+                        </button>
+                        <button class="view-toggle-btn" data-view="grade" title="Visualização em grade">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                stroke-linecap="round">
+                                <rect x="3" y="3" width="7" height="7" />
+                                <rect x="14" y="3" width="7" height="7" />
+                                <rect x="3" y="14" width="7" height="7" />
+                                <rect x="14" y="14" width="7" height="7" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filtros de busca -->
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <input type="text" class="filter-input" id="filtroEntradaNumero"
+                            placeholder="Buscar por número ou nome...">
+                    </div>
+                    <div class="filter-group">
+                        <input type="date" class="filter-input" id="filtroEntradaData">
+                    </div>
+                    <div class="filter-group">
+                        <select class="filter-select" id="filtroEntradaTipo">
+                            <option value="">Todos os tipos</option>
+                            <option value="manutencao">Manutenção</option>
+                            <option value="pedido_anual">Pedido Anual</option>
+                            <option value="pedido_avulso">Pedido Avulso</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Grade de cards — preenchida via JavaScript -->
+                <div class="tickets-grid" id="ticketsEntradaGrid"></div>
+            </div>
+
+            <!-- =============================================================
+                 PÁGINA: CAIXA LOG
+                 Histórico de todos os chamados finalizados/arquivados.
+            ============================================================== -->
+            <div id="caixaLogPage" class="page-content">
+                <div class="page-header">
+                    <h1 class="page-title">Em andamento</h1>
+                    <div class="view-toggle" id="viewToggleLog">
+                        <button class="view-toggle-btn" data-view="lista" title="Visualização em lista">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                stroke-linecap="round">
+                                <line x1="3" y1="6" x2="21" y2="6" />
+                                <line x1="3" y1="12" x2="21" y2="12" />
+                                <line x1="3" y1="18" x2="21" y2="18" />
+                            </svg>
+                        </button>
+                        <button class="view-toggle-btn" data-view="grade" title="Visualização em grade">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                stroke-linecap="round">
+                                <rect x="3" y="3" width="7" height="7" />
+                                <rect x="14" y="3" width="7" height="7" />
+                                <rect x="3" y="14" width="7" height="7" />
+                                <rect x="14" y="14" width="7" height="7" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filtros de busca -->
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <input type="text" class="filter-input" id="filtroLogNumero"
+                            placeholder="Buscar por número ou nome...">
+                    </div>
+                    <div class="filter-group">
+                        <input type="date" class="filter-input" id="filtroLogData">
+                    </div>
+                    <div class="filter-group">
+                        <select class="filter-select" id="filtroLogTipo">
+                            <option value="">Todos os tipos</option>
+                            <option value="manutencao">Manutenção</option>
+                            <option value="pedido_anual">Pedido Anual</option>
+                            <option value="pedido_avulso">Pedido Avulso</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Grade de cards — preenchida via JavaScript -->
+                <div class="tickets-grid" id="ticketsLogGrid"></div>
+            </div>
+
+            <!-- =============================================================
+                 PÁGINA: CAIXA DE SAÍDA
+                 Chamados criados pelo usuário logado (acompanhamento).
+            ============================================================== -->
+            <div id="caixaSaidaPage" class="page-content">
+                <div class="page-header">
+                    <h1 class="page-title">Finalizados</h1>
+                    <div class="view-toggle" id="viewToggleSaida">
+                        <button class="view-toggle-btn" data-view="lista" title="Visualização em lista">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                stroke-linecap="round">
+                                <line x1="3" y1="6" x2="21" y2="6" />
+                                <line x1="3" y1="12" x2="21" y2="12" />
+                                <line x1="3" y1="18" x2="21" y2="18" />
+                            </svg>
+                        </button>
+                        <button class="view-toggle-btn" data-view="grade" title="Visualização em grade">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                stroke-linecap="round">
+                                <rect x="3" y="3" width="7" height="7" />
+                                <rect x="14" y="3" width="7" height="7" />
+                                <rect x="3" y="14" width="7" height="7" />
+                                <rect x="14" y="14" width="7" height="7" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filtros de busca -->
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <input type="text" class="filter-input" id="filtroSaidaNumero"
+                            placeholder="Buscar por número ou nome...">
+                    </div>
+                    <div class="filter-group">
+                        <input type="date" class="filter-input" id="filtroSaidaData">
+                    </div>
+                    <div class="filter-group">
+                        <select class="filter-select" id="filtroSaidaTipo">
+                            <option value="">Todos os tipos</option>
+                            <option value="manutencao">Manutenção</option>
+                            <option value="pedido_anual">Pedido Anual</option>
+                            <option value="pedido_avulso">Pedido Avulso</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Grade de cards — preenchida via JavaScript -->
+                <div class="tickets-grid" id="ticketsSaidaGrid"></div>
+            </div>
+
+            <!-- =============================================================
+                 PÁGINA: MEU PERFIL
+            ============================================================== -->
+            <div id="perfilPage" class="page-content">
+                <div class="page-header">
+                    <h1 class="page-title">Meu Perfil</h1>
+                </div>
+                <div id="perfilContainer"></div>
+            </div>
+
+        </div>
+        <!-- /ÁREA DE CONTEÚDO -->
+
+    </main>
+    <!-- /CONTEÚDO PRINCIPAL -->
+
+
+    <!-- =====================================================================
+         TELA SOBREPOSTA: NOVO CHAMADO
+         Painel que cobre o conteúdo principal ao criar um chamado.
+         Ativado via JavaScript (classe .active) ao clicar em "Novo Chamado".
+    ====================================================================== -->
+    <div class="new-ticket-screen" id="newTicketScreen">
+
+        <!-- Cabeçalho fixo com botão voltar e título -->
+        <div class="ticket-header">
+            <div class="ticket-header-left">
+                <button class="back-btn" id="btnVoltar" aria-label="Voltar para a lista">
+                    <svg viewBox="0 0 24 24">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                </button>
+                <h2 class="ticket-title">Novo Chamado</h2>
+            </div>
+        </div>
+
+        <!-- Formulário de criação de chamado -->
+        <div class="ticket-form-container">
+            <div class="ticket-form-card">
+                <form id="newTicketForm">
+                    <div class="form-grid">
+
+                        <!-- CAMPO: TIPO DE CHAMADO -->
+                        <div class="form-group">
+                            <label class="form-label required">Tipo de Chamado</label>
+                            <select class="form-select" id="ticketType" required>
+                                <option value="">Selecione o tipo</option>
+                                <option value="manutencao">Manutenção</option>
+                                <option value="pedido_anual">Pedido Anual</option>
+                                <option value="pedido_avulso">Pedido Avulso</option>
+                            </select>
+                        </div>
+
+                        <!-- =====================================================
+                             SEÇÃO: MANUTENÇÃO
+                             Oculta por padrão; exibida quando tipo = "manutencao".
+                        ====================================================== -->
+                        <div class="ticket-fields hidden" id="manutencaoFields">
+                            <h3 class="section-title">Detalhes da Manutenção</h3>
+
+                            <!-- Linha com Unidade e Local lado a lado -->
+                            <div class="form-row-2">
+                                <div class="form-group">
+                                    <label class="form-label required">Unidade</label>
+                                    <select class="form-select" id="unidade">
+                                        <option value="">Selecione</option>
+                                        <option value="CANTEIRO ZONA OESTE">CANTEIRO ZONA OESTE</option>
+                                        <option value="CANTEIRO ZONA LESTE">CANTEIRO ZONA LESTE</option>
+                                        <option value="CANTEIRO ZONA SUL">CANTEIRO ZONA SUL</option>
+                                        <option value="CANTEIRO CAIEIRAS">CANTEIRO CAIEIRAS</option>
+                                        <option value="BOSQUE">BOSQUE</option>
+                                        <option value="HUNGRIA">HUNGRIA</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label required">Local</label>
+                                    <select class="form-select" id="local">
+                                        <option value="">Selecione</option>
+                                        <option value="SALA">SALA</option>
+                                        <option value="COZINHA">COZINHA</option>
+                                        <option value="BANHEIRO">BANHEIRO</option>
+                                        <option value="VESTIARIO">VESTIÁRIO</option>
+                                        <option value="REFEITORIO">REFEITÓRIO</option>
+                                        <option value="CPD">CPD</option>
+                                        <option value="PATIO">PÁTIO</option>
+                                        <option value="OUTRO">OUTRO</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Campo extra: especificar local (exibido quando Local = "OUTRO") -->
+                            <div class="form-group hidden" id="localOutroGroup">
+                                <label class="form-label required">Especifique o Local</label>
+                                <input type="text" class="form-input" id="localOutro" placeholder="Digite o local">
+                            </div>
+
+                            <!-- =====================================================
+                                 CAMPO: SOLICITANTE (busca de usuário com autocomplete)
+                                 O dropdown de sugestões e a lógica de seleção são
+                                 gerenciados por js/user-search.js.
+                                 O ID do usuário selecionado fica em #solicitanteId (hidden).
+                            ====================================================== -->
+                            <div class="form-group">
+                                <label class="form-label required">Solicitante</label>
+                                <div class="user-search-wrapper">
+                                    <div class="user-search-input-wrapper">
+                                        <!-- Ícone de lupa (estilizado em 06-user-search.css) -->
+                                        <svg class="search-icon" viewBox="0 0 24 24">
+                                            <circle cx="11" cy="11" r="8"></circle>
+                                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                        </svg>
+                                        <input type="text" class="user-search-input" id="solicitanteSearch"
+                                            placeholder="Pesquisar por nome ou matrícula..." autocomplete="off">
+                                    </div>
+                                    <!-- Dropdown de sugestões (preenchido via js/user-search.js) -->
+                                    <div class="user-search-dropdown" id="solicitanteDropdown" role="listbox"></div>
+                                    <!-- Chip exibido após seleção do usuário -->
+                                    <div class="user-selected-chip" id="solicitanteChip">
+                                        <div class="chip-avatar" id="solicitanteChipAvatar">--</div>
+                                        <span class="chip-name" id="solicitanteChipName"></span>
+                                        <button type="button" class="chip-remove" id="solicitanteChipRemove"
+                                            aria-label="Remover seleção">
+                                            <svg viewBox="0 0 24 24">
+                                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <!-- Campo oculto que armazena o ID do usuário selecionado -->
+                                    <input type="hidden" id="solicitanteId" name="solicitanteId">
+                                </div>
+                            </div>
+
+                            <!-- =====================================================
+                                 CAMPOS: E-MAIL E TELEFONE DO SOLICITANTE
+                                 Dois campos lado a lado para contato.
+                            ====================================================== -->
+                            <div class="form-row-2">
+                                <div class="form-group">
+                                    <label class="form-label required">E-mail do Solicitante</label>
+                                    <input type="email" class="form-input" id="emailSolicitante" name="emailSolicitante"
+                                        placeholder="exemplo@empresa.com.br" autocomplete="email">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Telefone para Contato</label>
+                                    <input type="tel" class="form-input" id="telefoneSolicitante"
+                                        name="telefoneSolicitante" placeholder="(00) 00000-0000" autocomplete="tel"
+                                        maxlength="15">
+                                </div>
+                            </div>
+
+                            <!-- Checkboxes: tipo de manutenção (múltipla seleção) -->
+                            <div class="form-group">
+                                <label class="form-label required">Tipo de Manutenção (Selecione uma ou mais)</label>
+                                <div class="tipo-manutencao-checkboxes">
+                                    <label class="tipo-checkbox">
+                                        <input type="checkbox" name="tipoManutencao" value="ELÉTRICA">
+                                        <span>Elétrica</span>
+                                    </label>
+                                    <label class="tipo-checkbox">
+                                        <input type="checkbox" name="tipoManutencao" value="HIDRÁULICA">
+                                        <span>Hidráulica</span>
+                                    </label>
+                                    <label class="tipo-checkbox">
+                                        <input type="checkbox" name="tipoManutencao" value="PINTURA">
+                                        <span>Pintura</span>
+                                    </label>
+                                    <label class="tipo-checkbox">
+                                        <input type="checkbox" name="tipoManutencao" value="CARPINTARIA">
+                                        <span>Carpintaria</span>
+                                    </label>
+                                    <label class="tipo-checkbox">
+                                        <input type="checkbox" name="tipoManutencao" value="AR CONDICIONADO">
+                                        <span>Ar Condicionado</span>
+                                    </label>
+                                    <label class="tipo-checkbox">
+                                        <input type="checkbox" name="tipoManutencao" value="ESTRUTURA">
+                                        <span>Estrutura</span>
+                                    </label>
+                                    <label class="tipo-checkbox">
+                                        <input type="checkbox" name="tipoManutencao" value="LIMPEZA">
+                                        <span>Limpeza</span>
+                                    </label>
+                                    <label class="tipo-checkbox">
+                                        <input type="checkbox" name="tipoManutencao" value="OUTRO" id="checkOutroTipo">
+                                        <span>Outro</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Campo extra: especificar tipo (exibido quando "Outro" está marcado) -->
+                            <div class="form-group hidden" id="tipoManutencaoOutroGroup">
+                                <label class="form-label required">Especifique o Tipo de Manutenção</label>
+                                <input type="text" class="form-input" id="tipoManutencaoOutro"
+                                    placeholder="Digite o tipo de manutenção">
+                            </div>
+
+                            <!-- Título do chamado -->
+                            <div class="form-group">
+                                <label class="form-label required">Título</label>
+                                <input type="text" class="form-input" id="tituloManutencao"
+                                    placeholder="Breve descrição do problema">
+                            </div>
+
+                            <!-- Observação detalhada -->
+                            <div class="form-group">
+                                
+                                <label class="form-label required">Observação Detalhada</label>
+
+                                <textarea class="form-textarea" id="observacaoManutencao"
+                                    placeholder="Descreva detalhadamente o problema..."></textarea>
+                            </div>
+
+                            <!-- Upload de foto (opcional) -->
+                            <div class="form-group">
+                                <label class="form-label">Foto (Opcional)</label>
+                                <div class="file-upload">
+                                    <label for="fotoUpload" class="file-upload-btn">
+                                        <svg viewBox="0 0 24 24">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                            <polyline points="17 8 12 3 7 8"></polyline>
+                                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                                        </svg>
+                                        Selecionar Foto
+                                    </label>
+                                    <input type="file" id="fotoUpload" accept="image/*" style="display: none;">
+                                    <span class="file-name" id="fileName">Nenhum arquivo selecionado</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /SEÇÃO MANUTENÇÃO -->
+
+                        <!-- =====================================================
+                             SEÇÃO: PEDIDO ANUAL
+                             Oculta por padrão; exibida quando tipo = "pedido_anual".
+                        ====================================================== -->
+                        <div class="ticket-fields hidden" id="pedidoAnualFields">
+                            <h3 class="section-title">Detalhes do Pedido Anual</h3>
+
+                            <div class="form-group">
+                                <label class="form-label required">Descrição do Item</label>
+                                <input type="text" class="form-input" id="descricaoPedidoAnual"
+                                    placeholder="Ex: Notebooks para laboratório">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label required">Quantidade</label>
+                                <input type="number" class="form-input" id="quantidadePedidoAnual" min="1"
+                                    placeholder="0">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label required">Justificativa</label>
+                                <textarea class="form-textarea" id="justificativaPedidoAnual"
+                                    placeholder="Explique a necessidade deste pedido..."></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Documento Anexo (Opcional)</label>
+                                <div class="file-upload">
+                                    <label for="documentoPedidoAnual" class="file-upload-btn">
+                                        <svg viewBox="0 0 24 24">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                            <polyline points="17 8 12 3 7 8"></polyline>
+                                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                                        </svg>
+                                        Selecionar Documento
+                                    </label>
+                                    <input type="file" id="documentoPedidoAnual" accept=".pdf,.doc,.docx"
+                                        style="display: none;">
+                                    <span class="file-name" id="fileNameAnual">Nenhum arquivo selecionado</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /SEÇÃO PEDIDO ANUAL -->
+
+                        <!-- =====================================================
+                             SEÇÃO: PEDIDO AVULSO
+                             Oculta por padrão; exibida quando tipo = "pedido_avulso".
+                        ====================================================== -->
+                        <div class="ticket-fields hidden" id="pedidoAvulsoFields">
+                            <h3 class="section-title">Detalhes do Pedido Avulso</h3>
+
+                            <div class="form-group">
+                                <label class="form-label required">Item Solicitado</label>
+                                <input type="text" class="form-input" id="itemPedidoAvulso" placeholder="Ex: Papel A4">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label required">Quantidade</label>
+                                <input type="number" class="form-input" id="quantidadePedidoAvulso" min="1"
+                                    placeholder="0">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label required">Urgência</label>
+                                <select class="form-select" id="urgenciaPedidoAvulso">
+                                    <option value="">Selecione</option>
+                                    <option value="BAIXA">Baixa</option>
+                                    <option value="MÉDIA">Média</option>
+                                    <option value="ALTA">Alta</option>
+                                    <option value="URGENTE">Urgente</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label required">Motivo</label>
+                                <textarea class="form-textarea" id="motivoPedidoAvulso"
+                                    placeholder="Explique o motivo deste pedido avulso..."></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Documento Anexo (Opcional)</label>
+                                <div class="file-upload">
+                                    <label for="documentoPedidoAvulso" class="file-upload-btn">
+                                        <svg viewBox="0 0 24 24">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                            <polyline points="17 8 12 3 7 8"></polyline>
+                                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                                        </svg>
+                                        Selecionar Documento
+                                    </label>
+                                    <input type="file" id="documentoPedidoAvulso" accept=".pdf,.doc,.docx"
+                                        style="display: none;">
+                                    <span class="file-name" id="fileNameAvulso">Nenhum arquivo selecionado</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /SEÇÃO PEDIDO AVULSO -->
+
+                    </div>
+                    <!-- /form-grid -->
+
+                    <!-- Botões de ação do formulário -->
+                    <div class="form-actions">
+                        <button type="button" class="btn-cancel" id="btnCancelar">Cancelar</button>
+                        <button type="submit" class="btn-submit">Criar Chamado</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+    </div>
+    <!-- /TELA NOVO CHAMADO -->
+
+
+    <!-- =====================================================================
+         TELA SOBREPOSTA: DETALHES DO CHAMADO
+         Desliza da direita para a esquerda ao selecionar um card.
+         Ativada via JavaScript (classe .active).
+    ====================================================================== -->
+    <div class="chamado-detalhes-screen" id="ticketDetailsScreen">
+
+        <div class="chamado-progresso-wrapper">">
+                    <p class="chamado-info-titulo" id="detailsTicketTitle">—</p>
+                </div>
+
+                <!-- Direita: número + botão copiar -->
+                <div class="chamado-info-numero-wrapper">
+                    <span class="chamado-info-numero" id="detailsTicketNumber">#00000000</span>
+                    <button class="chamado-info-copiar" id="btnCopiarNumero" title="Copiar número do chamado"
+                        aria-label="Copiar número">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Divisor -->
+            <div class="chamado-info-divider"></div>
+
+        </div>
+
+        <div class="chamado-abas-wrapper">
+
+            <div class="chamado-abas-nav" role="tablist">
+
+                <button class="chamado-aba-btn" data-aba="fluxo" role="tab" aria-selected="false">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                    </svg>
+                    Resumo
+                </button>
+
+                <button class="chamado-aba-btn active" data-aba="mensagens" role="tab" aria-selected="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    Mensagens
+                    <span class="chamado-aba-badge" id="badgeMensagens">0</span>
+                </button>
+
+                <button class="chamado-aba-btn" data-aba="formulario" role="tab" aria-selected="false">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                    </svg>
+                    Formulário
+                </button>
+
+                <button class="chamado-aba-btn" data-aba="anexos" role="tab" aria-selected="false">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path
+                            d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48">
+                        </path>
+                    </svg>
+                    Anexos
+                </button>
+            </div>
+
+            <div class="chamado-aba-conteudo" id="aba-fluxo" role="tabpanel">
+                <!-- Cards de resumo -->
+                <div class="fluxo-resumo-cards" id="fluxoResumoCards"></div>
+                <!-- Bolinhas de progresso -->
+                <div class="fluxo-progresso-section">
+                    <p class="fluxo-progresso-titulo">Progresso do chamado</p>
+                    <div class="chamado-progresso-scroll">
+                        <div class="chamado-progresso-linha" id="progressoLinha"></div>
+                    </div>
+                </div>
+                <!-- Sumário de etapas -->
+                <div class="fluxo-sumario-section" id="fluxoSumario"></div>
+            </div>
+
+            <div class="chamado-aba-conteudo active" id="aba-mensagens" role="tabpanel">
+                <div class="chamado-mensagens-lista" id="historyMessages"></div>
+            </div>
+
+            <div class="chamado-aba-conteudo" id="aba-formulario" role="tabpanel">
+                <div id="chamadoFormularioContainer"></div>
+            </div>
+
+            <div class="chamado-aba-conteudo" id="aba-anexos" role="tabpanel">
+                <div class="chamado-anexos-lista" id="chamadoAnexosLista">
+                    <div class="chamado-sem-anexos">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                            stroke-linecap="round">
+                            <path
+                                d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48">
+                            </path>
+                        </svg>
+                        <p>Nenhum anexo enviado</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!-- /ABAS -->
+
+    </div>
+    <!-- /TELA DETALHES DO CHAMADO -->
+
+    <!-- =====================================================================
+         MODAL — EDITAR PERFIL
+    ====================================================================== -->
+    <div class="modal-overlay" id="modalEditarPerfil" role="dialog" aria-modal="true">
+        <div class="modal-content" style="max-width:480px;width:100%;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalEditarPerfilTitulo">Editar dados</h3>
+                <button type="button" class="modal-close" id="fecharModalPerfil">
+                    <svg viewBox="0 0 24 24">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div id="modalEditarPerfilCorpo"></div>
+        </div>
+    </div>
+
+
+    <!-- Scripts (carregados no final para não bloquear a renderização) -->
+    <!-- ORDEM IMPORTA: config → chamados → renderizador → helpers → main -->
+    <script src="js/fluxo-config.js"></script>
+    <script src="js/fluxo-chamados.js"></script>
+    <script src="js/renderizador-etapas.js"></script>
+    <script src="js/user-search.js"></script>
+    <script src="js/card-lista.js"></script>
+    <script src="js/card-quadrado.js"></script>
+    <script src="js/aba-mensagens.js"></script>
+    <script src="js/script.js"></script>
+    <script src="js/modal-lembrete.js"></script>
+
+    <!-- Máscara de telefone para o campo de contato -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const telInput = document.getElementById('telefoneSolicitante');
+            if (telInput) {
+                telInput.addEventListener('input', function () {
+                    let v = this.value.replace(/\D/g, '').substring(0, 11);
+                    if (v.length > 10) {
+                        v = v.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3');
+                    } else if (v.length > 6) {
+                        v = v.replace(/^(\d{2})(\d{4})(\d{0,4})$/, '($1) $2-$3');
+                    } else if (v.length > 2) {
+                        v = v.replace(/^(\d{2})(\d{0,5})$/, '($1) $2');
+                    } else if (v.length > 0) {
+                        v = v.replace(/^(\d{0,2})$/, '($1');
+                    }
+                    this.value = v;
+                });
+            }
+        });
+    </script>
+
+</body>
+
+</html>

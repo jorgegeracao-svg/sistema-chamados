@@ -1,0 +1,1050 @@
+/* ==========================================================================
+   02-TELA-PRINCIPAL.CSS — TELA PRINCIPAL / DASHBOARD
+   Contém: Sidebar de navegação, cabeçalho mobile, área de conteúdo,
+   filtros de busca, grade de cards de chamados e badges de status/tipo.
+   Depende de: 00-geral.css (variáveis, reset, botões, inputs)
+   ========================================================================== */
+
+
+/* --------------------------------------------------------------------------
+   LAYOUT RAIZ
+   Divide a tela entre sidebar fixa (196px) e conteúdo principal flexível.
+   -------------------------------------------------------------------------- */
+body {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;   /* Impede scroll no body; cada painel rola individualmente */
+    position: relative;
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    margin-left: var(--sidebar-width);          /* Recua para não sobrepor a sidebar */
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+/* ==========================================================================
+   SIDEBAR — BARRA DE NAVEGAÇÃO LATERAL
+   ========================================================================== */
+
+/* Container principal da sidebar — posição fixa na borda esquerda */
+.sidebar {
+    width: var(--sidebar-width);                /* 196px definido em 00-geral.css */
+    background: #ffffff;
+    border-right: 1px solid #e5e7eb;
+    color: #374151;
+    display: flex;
+    flex-direction: column;
+    padding: 16px 0;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 1000;                              /* Fica acima do conteúdo principal */
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- LOGOTIPO NA SIDEBAR --- */
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    margin-bottom: 0;
+}
+
+.logo-nds {
+    width: 100%;
+    max-width: 120px;
+    height: auto;
+}
+
+/* Linha divisória fina abaixo do logo */
+.logo-divider {
+    width: calc(100% - 24px);
+    height: 1px;
+    background: #e5e7eb;
+    margin: 12px 12px;
+}
+
+/* Quadradinho branco com ícone SVG azul (variante de logo) */
+.logo-icon {
+    width: 36px;
+    height: 36px;
+    background: white;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-icon svg {
+    width: 20px;
+    height: 20px;
+    fill: var(--color-primary);
+}
+
+.logo-text {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* --- ÁREA DE NAVEGAÇÃO --- */
+.nav-section {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.nav-main { flex: 1; }   /* Itens principais empurram as configs para baixo */
+
+/* Linha divisória entre grupos de itens de nav */
+.nav-divider {
+    width: calc(100% - 24px);
+    height: 1px;
+    background: #e5e7eb;
+    margin: 8px 12px;
+}
+
+/* Grupo de configurações fixo no fundo da sidebar */
+.nav-settings {
+    margin-top: auto;
+    padding-bottom: 10px;
+}
+
+/* --- BOTÃO "NOVO CHAMADO" --- */
+.new-ticket-btn {
+    width: calc(100% - 16px);
+    margin: 0 8px 12px;
+    padding: 12px 16px;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.2s, transform 0.1s;
+    letter-spacing: 0.5px;
+}
+
+.new-ticket-btn:hover {
+    background: var(--color-primary-dark);
+}
+
+.new-ticket-btn:active { transform: scale(0.98); }
+
+/* Ícone "+" dentro do botão */
+.new-ticket-btn .btn-icon {
+    width: 18px;
+    height: 18px;
+    stroke: white;
+    fill: none;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* --- ITENS DE NAVEGAÇÃO --- */
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    color: #6b7280;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    margin: 2px 8px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+}
+
+.nav-item:hover {
+    background: #f3f4f6;
+    color: #111827;
+}
+
+/* Item de nav ativo/selecionado */
+.nav-item.active {
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+}
+
+/* Container do ícone SVG do item de nav */
+.nav-icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-icon svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* --- PERFIL DO USUÁRIO (rodapé da sidebar) --- */
+.sidebar-footer {
+    padding: 0 12px;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.user-profile:hover {
+    background: #f3f4f6;
+}
+
+/* Avatar com iniciais do usuário */
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+    background: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+.user-info {
+    flex: 1;
+    min-width: 0;          /* Permite que texto longo seja truncado com ellipsis */
+}
+
+.user-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #111827;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-email {
+    font-size: 11px;
+    color: #6b7280;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Botão de logout posicionado à direita do perfil */
+.logout-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, transform 0.2s;
+    padding: 0;
+}
+
+.logout-btn:hover {
+    background: #fee2e2;
+    transform: translateY(-50%) scale(1.05);
+}
+
+.logout-btn:active { transform: translateY(-50%) scale(0.95); }
+
+.logout-btn svg {
+    width: 16px;
+    height: 16px;
+    stroke: #ef4444;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* --- OVERLAY DA SIDEBAR (mobile) ---
+   Fundo escuro que aparece quando a sidebar está aberta no mobile.
+   Clicar nele fecha a sidebar.                                             */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;          /* Logo abaixo da sidebar (z-index 1000) */
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.sidebar-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+
+/* ==========================================================================
+   CABEÇALHO MOBILE
+   Visível apenas em telas menores; exibe botão de menu e título da página.
+   ========================================================================== */
+.mobile-header {
+    display: none;             /* Escondido no desktop */
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: white;
+    border-bottom: 1px solid var(--color-gray-200);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+/* Botão hambúrguer que abre a sidebar no mobile */
+.menu-toggle {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: transform 0.1s;
+}
+
+.menu-toggle:active { transform: scale(0.95); }
+
+.menu-toggle svg {
+    width: 24px;
+    height: 24px;
+    stroke: var(--color-gray-700);
+    stroke-width: 2;
+    stroke-linecap: round;
+    fill: none;
+}
+
+.mobile-header-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--color-gray-900);
+}
+
+
+/* ==========================================================================
+   ÁREA DE CONTEÚDO PRINCIPAL
+   ========================================================================== */
+
+.content {
+    flex: 1;
+    padding: 40px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;  /* Scroll suave no iOS */
+}
+
+/* Cabeçalho da página (título) */
+.page-header {
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.page-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--color-gray-900);
+}
+
+/* Toggle lista/grade */
+.view-toggle {
+    display: flex;
+    align-items: center;
+    background: var(--color-gray-100);
+    border-radius: 8px;
+    padding: 3px;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+.view-toggle-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, box-shadow 0.15s;
+    color: var(--color-gray-400);
+}
+
+.view-toggle-btn svg {
+    width: 15px;
+    height: 15px;
+    stroke: currentColor;
+    transition: stroke 0.15s;
+}
+
+.view-toggle-btn.active {
+    background: #fff;
+    color: var(--color-primary);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+.view-toggle-btn:hover:not(.active) {
+    color: var(--color-gray-600);
+}
+
+/* Container genérico de tabela/listagem com fundo branco */
+.table-container {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+/* Controle de qual página de conteúdo está visível */
+.page-content { display: none; }
+.page-content.active { display: block; }
+
+
+/* ==========================================================================
+   FILTROS DE BUSCA
+   Grade com 3 colunas: busca por texto | status | tipo.
+   ========================================================================== */
+.filters-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;  /* Busca ocupa mais espaço */
+    gap: 16px;
+    margin-bottom: 24px;
+    background: white;
+    padding: 20px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Inputs e selects dos filtros — mesmos estilos de 00-geral.css */
+.filter-input,
+.filter-select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--color-gray-300);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    color: var(--color-gray-900);
+    background: white;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    font-family: inherit;
+}
+
+.filter-input:focus,
+.filter-select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-focus);
+}
+
+
+/* ==========================================================================
+   GRADE DE CARDS DE CHAMADOS
+   Layout responsivo com colunas automáticas de no mínimo 350px.
+   ========================================================================== */
+.tickets-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Modo grade */
+.tickets-grid.modo-grade {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+/* Mensagem quando não há chamados */
+.no-tickets-wrapper {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--color-gray-500);
+    font-size: 15px;
+}
+
+.no-tickets-wrapper svg {
+    width: 40px;
+    height: 40px;
+    display: block;
+    margin: 0 auto 12px;
+}
+
+
+/* ==========================================================================
+   CARD — MODELO 3 (dois andares: topo + base)
+   ========================================================================== */
+.ticket-card {
+    background: white;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-gray-200);
+    box-shadow: var(--shadow-sm);
+    cursor: default;
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.ticket-card:hover {
+    border-color: #93d4f5;
+    box-shadow: 0 4px 14px rgba(0, 149, 219, 0.11);
+}
+
+/* ---- TOPO: número + título + status + seta ---- */
+.tc-topo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 16px 20px;
+    border-bottom: 1px solid var(--color-gray-100);
+}
+
+.tc-num-tag {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+/* Badge azul sólido com o número */
+.tc-numero {
+    font-size: 13px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: 0.4px;
+    white-space: nowrap;
+    background: var(--color-primary);
+    padding: 5px 13px;
+    border-radius: 5px;
+    box-shadow: 0 2px 6px rgba(0, 149, 219, 0.3);
+}
+
+/* Separador bolinha */
+.tc-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--color-gray-300);
+    flex-shrink: 0;
+}
+
+/* Badge tipo (manutenção, pedido…) */
+.ticket-type-badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    white-space: nowrap;
+}
+
+.ticket-type-badge.tipo-manutencao    { background: #fef3c7; color: #92400e; }
+.ticket-type-badge.tipo-pedido_anual  { background: #dbeafe; color: #1e40af; }
+.ticket-type-badge.tipo-pedido_avulso { background: #d1fae5; color: #065f46; }
+
+/* Título — ocupa o espaço restante */
+.tc-titulo {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-gray-900);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+}
+
+/* Área direita: status + seta */
+.tc-status-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+/* Badge de status */
+.ticket-status-badge {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.badge-andamento  { background: #e0f4ff; color: #0077b6; }
+.badge-finalizado { background: #d1fae5; color: #065f46; }
+
+/* Botão seta */
+.ticket-card-arrow {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: var(--color-gray-100);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.ticket-card-arrow:hover { background: var(--color-primary); }
+.ticket-card-arrow:hover svg { stroke: #fff; }
+.ticket-card-arrow svg {
+    width: 14px;
+    height: 14px;
+    stroke: var(--color-gray-400);
+    fill: none;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: stroke 0.2s;
+}
+
+/* ---- BASE: metadados em grid 2 colunas ---- */
+.tc-base {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 24px;
+    padding: 14px 16px;
+    background: var(--color-gray-50);
+    border-top: 1px solid var(--color-gray-200);
+}
+
+.tc-base-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--color-gray-500);
+}
+
+.tc-base-item svg {
+    width: 13px;
+    height: 13px;
+    stroke: var(--color-primary);
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    flex-shrink: 0;
+    opacity: 0.7;
+}
+
+.tc-base-item strong {
+    color: var(--color-gray-700);
+    font-weight: 600;
+}
+
+.tc-lbl {
+    color: var(--color-gray-400);
+    margin-right: 2px;
+}
+
+
+/* ==========================================================================
+   CARD — MODO GRADE
+   ========================================================================== */
+.modo-grade .ticket-card {
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    cursor: pointer;
+}
+
+.modo-grade .ticket-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 149, 219, 0.13);
+    border-color: var(--color-primary);
+}
+
+/* Cabeçalho: badge tipo + número */
+.grade-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px 10px;
+}
+
+.grade-numero {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--color-primary);
+    letter-spacing: 0.3px;
+}
+
+/* Título do chamado */
+.grade-titulo {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--color-gray-900);
+    padding: 0 16px 14px;
+    line-height: 1.4;
+    margin: 0;
+}
+
+/* Linha de solicitante e data */
+.grade-solicitante {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    font-size: 13px;
+    color: var(--color-gray-500);
+    padding: 6px 16px;
+    text-align: center;
+}
+
+.grade-solicitante svg {
+    width: 16px;
+    height: 16px;
+    stroke: var(--color-gray-400);
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    flex-shrink: 0;
+}
+
+.grade-solicitante strong {
+    color: var(--color-gray-700);
+    font-weight: 600;
+}
+
+/* Rodapé: etapa + responsável */
+.grade-footer {
+    margin-top: auto;
+    padding: 12px 16px;
+    border-top: 1px solid var(--color-gray-100);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.grade-footer-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    gap: 8px;
+}
+
+.grade-footer-label {
+    color: var(--color-gray-400);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.grade-footer-value {
+    color: var(--color-gray-700);
+    font-weight: 600;
+    text-align: right;
+}
+
+/* Status + seta — compatibilidade legada */
+.ticket-card-bottom {
+    display: contents;
+}
+
+
+
+/* ==========================================================================
+   CARD QUADRADO — novo design (classes tq-*)
+   ========================================================================== */
+
+.tcard-quadrado {
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.tq-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px 10px;
+}
+
+.tq-numero {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--color-primary);
+    letter-spacing: 0.3px;
+}
+
+.tq-titulo {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-gray-900);
+    padding: 4px 16px 16px;
+    line-height: 1.4;
+    margin: 0;
+}
+
+.tq-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px 16px;
+    flex: 1;
+}
+
+.tq-info-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: var(--color-gray-500);
+    text-align: center;
+}
+
+.tq-info-item svg {
+    width: 18px;
+    height: 18px;
+    stroke: var(--color-gray-400);
+    flex-shrink: 0;
+}
+
+.tq-info-item strong {
+    color: var(--color-gray-700);
+    font-weight: 600;
+}
+
+.tq-footer {
+    margin-top: auto;
+    padding: 12px 16px;
+    border-top: 1px solid var(--color-gray-100);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.tq-footer-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    gap: 8px;
+}
+
+.tq-footer-label {
+    color: var(--color-gray-400);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.tq-footer-value {
+    color: var(--color-gray-700);
+    font-weight: 600;
+    text-align: right;
+}
+
+.tq-status-andamento { color: #0095db; }
+.tq-status-finalizado { color: #10b981; }
+
+/* ==========================================================================
+   RESPONSIVIDADE
+   ========================================================================== */
+
+/* --- Tablet (≤ 1024px) --- */
+@media (max-width: 1024px) {
+    .content { padding: 30px 24px; }
+    .page-title { font-size: 28px; }
+
+    /* No modo grade reduz colunas em tablet */
+    .tickets-grid.modo-grade {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Filtros: busca em linha própria, status e tipo lado a lado */
+    .filters-container {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .filter-group:first-child {
+        grid-column: 1 / -1;
+    }
+}
+
+/* --- Mobile (≤ 768px) --- */
+@media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); }
+
+    .sidebar.open {
+        transform: translateX(0);
+        box-shadow: 4px 0 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .main-content { margin-left: 0; }
+    .mobile-header { display: flex; }
+
+    .content { padding: 20px 16px; }
+    .page-title { font-size: 24px; }
+    .table-container { padding: 16px; }
+
+    .filters-container {
+        grid-template-columns: 1fr;
+        padding: 16px;
+    }
+
+    /* Em mobile grade vira coluna única */
+    .tickets-grid.modo-grade {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    /* Em mobile — modelo 3: topo vira duas linhas */
+    .tc-topo {
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 14px 12px;
+    }
+
+    /* Número + badge ficam na primeira linha */
+    .tc-num-tag { width: 100%; }
+
+    /* Separador entre num-tag e título some */
+    .tc-topo > .tc-dot { display: none; }
+
+    /* Título ocupa linha inteira e quebra normalmente */
+    .tc-titulo {
+        width: 100%;
+        white-space: normal;
+        font-size: 13px;
+        line-height: 1.4;
+    }
+
+    /* Status + seta ficam à direita do num-tag */
+    .tc-num-tag { flex: 1; }
+    .tc-status-area { flex-shrink: 0; }
+
+    /* Base: grid vira coluna única no mobile */
+    .tc-base {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        padding: 10px 12px;
+    }
+}
+
+/* --- Smartphones pequenos (≤ 480px) --- */
+@media (max-width: 480px) {
+    .mobile-header { padding: 12px 16px; }
+    .mobile-header-title { font-size: 16px; }
+    .menu-toggle { width: 36px; height: 36px; }
+    .content { padding: 16px 12px; }
+    .page-title { font-size: 22px; }
+    .new-ticket-btn { font-size: 14px; padding: 11px 18px; }
+    .nav-item { font-size: 13px; }
+    .sidebar { width: 260px; }  /* Ligeiramente mais larga para telas pequenas */
+}
+
+/* --- Correção de altura para iOS Safari --- */
+@supports (-webkit-touch-callout: none) {
+    .sidebar { height: -webkit-fill-available; }
+}
+
+
+/* --- BADGE DE CONTAGEM NOS ITENS DE NAV --- */
+.nav-badge {
+    margin-left: auto;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    background: white;
+    color: var(--color-primary);
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* Badge vermelho quando há itens na Entrada (ação necessária) */
+.nav-item[data-page="caixaEntradaPage"] .nav-badge {
+    background: #ff4444;
+    color: white;
+}
+
+/* ==========================================================================
+   ADIÇÕES — 12 ETAPAS
+   Novos badges de tipo no card de lista para chamados de manutenção.
+   Preserva todo o CSS anterior sem qualquer alteração.
+   ========================================================================== */
+
+/* Badge tipo "manutenção" já existe (tipo-manutencao). Adicionamos variante
+   para subtipos específicos de manutenção que podem aparecer nos cards */
+.ticket-type-badge.tipo-eletrica    { background: #fff7ed; color: #c2410c; }
+.ticket-type-badge.tipo-hidraulica  { background: #eff6ff; color: #1d4ed8; }
+.ticket-type-badge.tipo-estrutura   { background: #f5f3ff; color: #5b21b6; }
+.ticket-type-badge.tipo-ar          { background: #ecfeff; color: #0e7490; }
+
+/* Badge "aguardando confirmação" nos cards da Caixa de Entrada (Et. 4) */
+.ticket-status-badge.badge-aguardando {
+    background: #fef9c3;
+    color: #854d0e;
+}
+
+/* No modo grade, etapa ativa em aguardando tem cor âmbar */
+.tq-status-aguardando { color: #d97706; }
+
+/* Linha de etapa "condicional" (compra) destacada no card lista */
+.tc-etapa-condicional {
+    font-style: italic;
+    color: var(--color-gray-400);
+}

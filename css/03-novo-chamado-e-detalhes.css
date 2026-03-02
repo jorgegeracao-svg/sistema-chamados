@@ -1,0 +1,1646 @@
+/* ==========================================================================
+   03-NOVO-CHAMADO.CSS — TELA DE NOVO CHAMADO E DETALHES DO CHAMADO
+   Contém: Formulário de abertura de chamado (sobreposição full-screen),
+   tela de detalhes com abas, barra de progresso de etapas, mensagens e
+   card de informações do chamado.
+   Depende de: 00-geral.css (variáveis, reset, botões, checkboxes, inputs)
+               02-tela-principal.css (sidebar, layout raiz)
+   ========================================================================== */
+
+
+/* ==========================================================================
+   TELA DE NOVO CHAMADO
+   Painel deslizante que cobre o conteúdo principal ao criar um chamado.
+   ========================================================================== */
+
+/* Container principal — ocupa o espaço à direita da sidebar */
+.new-ticket-screen {
+    display: none;                  /* Oculto por padrão */
+    position: fixed;
+    top: 0;
+    left: var(--sidebar-width);     /* 196px — começa após a sidebar */
+    right: 0;
+    bottom: 0;
+    background: var(--color-bg);
+    z-index: 100;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Exibe a tela quando a classe .active é adicionada via JavaScript */
+.new-ticket-screen.active { display: block; }
+
+/* --- CABEÇALHO DO FORMULÁRIO (fixo no topo) --- */
+.ticket-header {
+    background: white;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--color-gray-200);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.ticket-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Botão de voltar (seta para esquerda) */
+.back-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: var(--color-gray-100);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, transform 0.1s;
+    flex-shrink: 0;
+}
+
+.back-btn:hover { background: var(--color-gray-200); }
+.back-btn:active { transform: scale(0.95); }
+
+.back-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke: var(--color-gray-700);
+    stroke-width: 2;
+    stroke-linecap: round;
+    fill: none;
+}
+
+.ticket-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--color-gray-900);
+}
+
+/* --- ÁREA DE FORMULÁRIO --- */
+.ticket-form-container {
+    max-width: 1400px;
+    margin: 20px auto;
+    padding: 0 32px;
+}
+
+/* Card branco que envolve o formulário */
+.ticket-form-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+}
+
+/* Grade vertical de grupos de campo */
+.form-grid {
+    display: grid;
+    gap: 18px;
+}
+
+/* Linha com dois campos lado a lado */
+.form-row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- CAMPOS ESPECÍFICOS POR TIPO DE CHAMADO ---
+   Mostrados/ocultados dinamicamente via JavaScript conforme o tipo selecionado. */
+.ticket-fields {
+    display: grid;
+    gap: 16px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-gray-200);
+}
+
+.ticket-fields.hidden { display: none !important; }
+
+/* --- GRADE DE TIPO DE MANUTENÇÃO (3 colunas) --- */
+.tipo-manutencao-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+/* Grade de checkboxes de tipo de manutenção (3 colunas) */
+.tipo-manutencao-checkboxes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+/* --- AÇÕES DO FORMULÁRIO (rodapé) --- */
+.form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--color-gray-200);
+}
+
+/* Os botões .btn-cancel e .btn-submit estão definidos em 00-geral.css */
+
+
+/* ==========================================================================
+   TELA DE DETALHES DO CHAMADO (VERSÃO LEGADA)
+   Painel sobreposto exibindo detalhes do chamado selecionado.
+   Nota: Esta é a versão anterior; o componente atual é .chamado-detalhes-screen
+   ========================================================================== */
+.ticket-details-screen {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: var(--sidebar-width);
+    right: 0;
+    bottom: 0;
+    background: var(--color-bg);
+    z-index: 100;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.ticket-details-screen.active { display: block; }
+
+/* Número do chamado no cabeçalho */
+.ticket-number {
+    font-size: 14px;
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+/* Container central com largura máxima */
+.ticket-details-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 32px;
+}
+
+/* --- CARD DE INFORMAÇÕES DO CHAMADO --- */
+.ticket-info-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+/* Grade de 2 colunas para os campos de informação */
+.info-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-bottom: 16px;
+}
+
+.info-row:last-child { margin-bottom: 0; }
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* Rótulo do campo (em maiúsculas pequenas) */
+.info-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-gray-900);
+}
+
+.sla-status { font-weight: 600; }
+
+/* --- HISTÓRICO DE ATUALIZAÇÕES (estilo timeline) --- */
+.ticket-history {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+.history-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-gray-900);
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--color-primary);
+}
+
+.history-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Cada mensagem do histórico (linha do tempo) */
+.history-message {
+    background: var(--color-gray-50);
+    border-left: 4px solid var(--color-primary);  /* Linha azul à esquerda */
+    border-radius: var(--radius-md);
+    padding: 16px;
+    transition: background 0.2s, box-shadow 0.2s;
+}
+
+.history-message:hover {
+    background: var(--color-gray-100);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Cabeçalho da mensagem: etapa + timestamp */
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.message-etapa {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+.message-time {
+    font-size: 12px;
+    color: var(--color-gray-500);
+}
+
+/* Linha do responsável pela etapa */
+.message-responsavel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-gray-700);
+    margin-bottom: 10px;
+}
+
+.message-icon {
+    width: 16px;
+    height: 16px;
+    stroke: var(--color-primary);
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* Corpo do texto da mensagem/observação */
+.message-observacao {
+    font-size: 14px;
+    color: var(--color-gray-900);
+    line-height: 1.6;
+    padding: 12px;
+    background: white;
+    border-radius: var(--radius-sm);
+}
+
+/* Placeholder quando não há histórico */
+.no-history {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--color-gray-500);
+    font-size: 14px;
+}
+
+/* --- CARD PARA ADICIONAR NOVA ETAPA --- */
+.add-step-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+}
+
+
+/* ==========================================================================
+   TELA DE DETALHES DO CHAMADO (VERSÃO ATUAL — com animação)
+   Painel deslizante da direita com cabeçalho, progresso, abas e conteúdo.
+   ========================================================================== */
+
+/* Container — começa fora da tela (translateX 100%) e desliza para dentro */
+.chamado-detalhes-screen {
+    position: fixed;
+    top: 0;
+    left: var(--sidebar-width);
+    right: 0;
+    bottom: 0;
+    background: #f4f6f9;
+    z-index: 500;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    /* Estado inicial: oculto */
+    display: none;
+}
+
+/* Estado ativo: visível imediatamente */
+.chamado-detalhes-screen.active {
+    display: flex;
+}
+
+/* --- CABEÇALHO DA TELA DE DETALHES --- */
+/* Header base — layout definido na seção abaixo junto com novos estilos */
+
+.chamado-detalhes-titulo-wrapper { min-width: 0; }
+
+/* Linha superior: número + badge de status */
+.chamado-detalhes-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 2px;
+}
+
+.chamado-detalhes-numero {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--color-gray-900);
+}
+
+/* Badge de status do chamado (em aberto / finalizado) */
+.chamado-detalhes-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    background: var(--color-primary-bg);
+    color: #1d4ed8;
+}
+
+.chamado-detalhes-badge.finalizado {
+    background: var(--color-success-light);
+    color: #065f46;
+}
+
+/* Subtítulo (título do chamado truncado) */
+.chamado-detalhes-titulo {
+    font-size: 13px;
+    color: var(--color-gray-500);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Lado direito: pills de meta-informação */
+.chamado-detalhes-header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+/* Pill de informação (data, SLA, etc.) */
+.chamado-meta-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--color-gray-50);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    font-size: 12px;
+    color: var(--color-gray-500);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.chamado-meta-pill svg {
+    width: 14px;
+    height: 14px;
+    stroke: var(--color-gray-400);
+    flex-shrink: 0;
+}
+
+/* --- BARRA DE PROGRESSO DE ETAPAS ---
+   Linha horizontal com círculos numerados e conectores entre etapas.       */
+.chamado-progresso-wrapper {
+    background: var(--color-gray-100);
+    border-bottom: 1px solid var(--color-gray-200);
+    flex-shrink: 0;
+}
+
+/* --- INFO BAR (usuário | título | número) --- */
+.chamado-info-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 28px;
+    gap: 16px;
+}
+
+/* Esquerda: avatar circular + nome */
+.chamado-info-usuario {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    flex: 1;
+}
+
+.chamado-info-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-mid) 100%);
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    letter-spacing: 0.5px;
+}
+
+.chamado-info-nome {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-gray-700);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Centro: título do chamado */
+.chamado-info-titulo-wrapper {
+    flex: 2;
+    text-align: center;
+    min-width: 0;
+    padding: 0 12px;
+}
+
+.chamado-info-titulo {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-gray-900);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Direita: número + botão copiar */
+.chamado-info-numero-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    justify-content: flex-end;
+}
+
+.chamado-info-numero {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-gray-900);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.3px;
+}
+
+.chamado-info-copiar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: var(--color-gray-100);
+    color: var(--color-gray-500);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    flex-shrink: 0;
+}
+
+.chamado-info-copiar svg {
+    width: 14px;
+    height: 14px;
+}
+
+.chamado-info-copiar:hover {
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+}
+
+.chamado-info-copiar.copiado {
+    background: var(--color-success-light);
+    color: var(--color-success);
+}
+
+/* Divisor entre info-bar e bolinhas */
+.chamado-info-divider {
+    height: 1px;
+    background: var(--color-gray-200);
+    margin: 0 28px;
+}
+
+/* Scroll horizontal quando há muitas etapas */
+.chamado-progresso-scroll {
+    overflow-x: auto;
+    padding: 16px 28px;
+    display: flex;
+    justify-content: center;
+}
+
+.chamado-progresso-scroll::-webkit-scrollbar { height: 3px; }
+.chamado-progresso-scroll::-webkit-scrollbar-track { background: var(--color-gray-100); border-radius: 2px; }
+.chamado-progresso-scroll::-webkit-scrollbar-thumb { background: var(--color-gray-300); border-radius: 2px; }
+
+/* Linha de etapas lado a lado */
+.chamado-progresso-linha {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    min-width: max-content;
+    position: relative;
+    padding: 4px 0;
+}
+
+/* Item individual de etapa (círculo + label) */
+.progresso-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    cursor: pointer;
+    min-width: 80px;
+    padding: 0 4px;
+}
+
+/* Conector horizontal entre etapas */
+.progresso-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 18px;
+    left: calc(50% + 18px);
+    width: calc(100% - 36px);
+    height: 2px;
+    background: var(--color-gray-200);
+    z-index: 0;
+}
+
+/* Conector azul para etapas já concluídas */
+.progresso-item.concluida:not(:last-child)::after {
+    background: var(--color-primary);
+}
+
+/* Subetapas são ligeiramente mais estreitas */
+.progresso-item.subetapa { min-width: 68px; }
+
+/* Círculo numerado da etapa */
+.progresso-circulo {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid var(--color-gray-200);
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-gray-400);
+    z-index: 1;
+    position: relative;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+/* Círculo preenchido de azul para etapas concluídas */
+.progresso-item.concluida .progresso-circulo {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+}
+
+/* Círculo com borda azul e sombra para etapa atual */
+.progresso-item.atual .progresso-circulo {
+    background: white;
+    border-color: var(--color-primary);
+    border-width: 2.5px;
+    color: var(--color-primary);
+    box-shadow: 0 0 0 4px rgba(0, 149, 219, 0.12);
+}
+
+/* Subetapas com círculo menor */
+.progresso-item.subetapa .progresso-circulo {
+    width: 30px;
+    height: 30px;
+    font-size: 10px;
+}
+
+.progresso-item:hover .progresso-circulo { transform: scale(1.08); }
+
+/* Ícone de check dentro de etapas concluídas */
+.progresso-check {
+    width: 16px;
+    height: 16px;
+    stroke: white;
+    fill: none;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* Label abaixo do círculo */
+.progresso-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--color-gray-400);
+    text-align: center;
+    margin-top: 6px;
+    line-height: 1.3;
+    max-width: 72px;
+    word-break: break-word;
+    hyphens: auto;
+}
+
+.progresso-item.concluida .progresso-label { color: var(--color-primary); font-weight: 600; }
+.progresso-item.atual .progresso-label     { color: var(--color-primary); font-weight: 700; }
+
+/* --- PAINEL DA ETAPA ATUAL (abaixo do progresso) --- */
+.chamado-etapa-atual-panel {
+    background: white;
+    border-bottom: 1px solid var(--color-gray-200);
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-shrink: 0;
+}
+
+.chamado-etapa-atual-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+/* Ícone quadrado com número da etapa atual */
+.chamado-etapa-atual-icone {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-mid));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 700;
+    flex-shrink: 0;
+    box-shadow: 0 4px 10px rgba(0, 149, 219, 0.25);
+}
+
+/* Rótulo "ETAPA ATUAL" acima do título */
+.chamado-etapa-atual-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--color-gray-400);
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.chamado-etapa-atual-titulo {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--color-gray-900);
+    margin-bottom: 2px;
+}
+
+.chamado-etapa-atual-resp {
+    font-size: 12px;
+    color: var(--color-gray-500);
+}
+
+.chamado-etapa-atual-resp strong {
+    color: var(--color-gray-700);
+    font-weight: 600;
+}
+
+/* Indicação quando o usuário não tem permissão para agir na etapa */
+.chamado-etapa-sem-permissao {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: var(--color-gray-50);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-gray-500);
+    white-space: nowrap;
+}
+
+/* Botão de ação quando o usuário tem permissão */
+.chamado-etapa-com-permissao {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: var(--color-primary);
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+
+.chamado-etapa-com-permissao:hover { background: var(--color-primary-dark); }
+
+/* --- ABAS (Mensagens / Formulário / Anexos) --- */
+.chamado-abas-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* Barra de navegação entre abas */
+.chamado-abas-nav {
+    display: flex;
+    justify-content: center;
+    background: white;
+    border-bottom: 2px solid var(--color-gray-200);
+    flex-shrink: 0;
+    padding: 0 28px;
+}
+
+/* Botão de cada aba */
+.chamado-aba-btn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 13px 20px;
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-gray-500);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;        /* Sobrepõe a borda do container para criar aba selecionada */
+    transition: color 0.2s, background 0.2s;
+}
+
+.chamado-aba-btn svg {
+    width: 15px;
+    height: 15px;
+    stroke: currentColor;
+    flex-shrink: 0;
+}
+
+.chamado-aba-btn:hover {
+    color: var(--color-gray-700);
+    background: var(--color-gray-50);
+}
+
+/* Aba selecionada — borda azul abaixo e texto azul */
+.chamado-aba-btn.active {
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
+}
+
+/* Badge numérico dentro da aba (ex: quantidade de mensagens) */
+.chamado-aba-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    background: var(--color-primary);
+    color: white;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+/* --- CONTEÚDO DAS ABAS --- */
+.chamado-aba-conteudo {
+    display: none;
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 28px;
+    min-height: 0;
+}
+
+.chamado-aba-conteudo.active { display: block; }
+
+/* Container da aba de formulário (largura limitada) */
+#chamadoFormularioContainer { max-width: 640px; }
+
+
+/* ==========================================================================
+   RESPONSIVIDADE — NOVO CHAMADO E DETALHES
+   ========================================================================== */
+
+/* --- Tablet (≤ 1024px) --- */
+@media (max-width: 1024px) {
+    .ticket-form-container { padding: 0 24px; }
+}
+
+/* --- Mobile (≤ 768px) --- */
+@media (max-width: 768px) {
+    /* Formulário de novo chamado ocupa tela inteira */
+    .new-ticket-screen { left: 0; }
+    .ticket-form-container { padding: 0 16px; margin: 16px auto; }
+    .ticket-form-card { padding: 20px 16px; }
+    .ticket-header { padding: 14px 16px; }
+    .ticket-title { font-size: 18px; }
+
+    /* Campos em coluna única */
+    .form-row-2 { grid-template-columns: 1fr; gap: 14px; }
+
+    /* Botões em coluna invertida (Enviar acima do Cancelar) */
+    .form-actions { flex-direction: column-reverse; }
+    .form-actions .btn-cancel,
+    .form-actions .btn-submit { width: 100%; padding: 13px; }
+
+    /* Upload em coluna */
+    .file-upload { flex-direction: column; align-items: stretch; }
+    .file-upload-btn { justify-content: center; }
+    .file-name { text-align: center; font-size: 12px; }
+
+    /* Grade de tipo de manutenção: 2 colunas */
+    .tipo-manutencao-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .tipo-manutencao-checkboxes { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .tipo-checkbox { padding: 10px 12px; }
+    .tipo-checkbox input[type="checkbox"] { width: 16px; height: 16px; }
+    .tipo-checkbox span { font-size: 13px; }
+    .tipo-btn { min-height: 90px; padding: 14px 10px; font-size: 12px; }
+    .tipo-icon { width: 28px; height: 28px; }
+
+    /* Detalhes do chamado — tela cheia */
+    .ticket-details-screen,
+    .chamado-detalhes-screen { left: 0; z-index: 1100; }
+
+    .ticket-details-container { padding: 0 16px; }
+    .ticket-info-card { padding: 16px; }
+    .ticket-history { padding: 16px; }
+    .add-step-card { padding: 16px; }
+
+    /* Info em coluna única */
+    .info-row { grid-template-columns: 1fr; gap: 12px; }
+
+    /* Cabeçalho de detalhes */
+    .chamado-detalhes-header { padding: 8px 12px; }
+    /* Mantém o lado direito visível pois tem botões essenciais */
+
+    .chamado-progresso-wrapper { padding: 12px 16px; }
+
+    /* Painel da etapa atual em coluna */
+    .chamado-etapa-atual-panel {
+        padding: 12px 16px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    /* Abas com scroll horizontal e fonte menor */
+    .chamado-abas-nav { padding: 0 16px; overflow-x: auto; }
+    .chamado-aba-btn { padding: 12px 14px; font-size: 12px; white-space: nowrap; }
+    .chamado-aba-conteudo { padding: 16px; }
+}
+
+/* --- Smartphones pequenos (≤ 480px) --- */
+@media (max-width: 480px) {
+    .ticket-form-card { padding: 16px 12px; }
+    /* Font-size 16px evita zoom automático em inputs no iOS */
+    .form-select,
+    .form-input,
+    .form-textarea { padding: 9px 12px; font-size: 16px; }
+    .form-label { font-size: 12px; }
+}
+
+
+/* ==========================================================================
+   SIDEBAR RECOLHIDA — toggle manual pelo botão do header de detalhes
+   ========================================================================== */
+
+/* Sidebar desliza para fora quando recolhida manualmente */
+.sidebar.sidebar-hidden {
+    transform: translateX(-100%);
+}
+
+/* Tela de detalhes expande para ocupar a tela toda (sem a sidebar) */
+.chamado-detalhes-screen.fullscreen {
+    left: 0;
+}
+
+
+/* ==========================================================================
+   HEADER DE DETALHES — novo layout com ações globais
+   ========================================================================== */
+
+/* Wrapper principal do header */
+.chamado-detalhes-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 0 20px;
+    height: 64px;
+    background: var(--color-primary);
+    border-bottom: none;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    flex-shrink: 0;
+}
+
+/* Lado esquerdo: toggle + info do chamado */
+.chamado-detalhes-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    flex: 1;
+}
+
+/* Lado direito: busca + notif + voltar */
+.chamado-detalhes-header-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+/* Botão genérico do header (toggle, busca, notif, voltar) */
+.det-header-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: none;
+    background: transparent;
+    color: rgba(255,255,255,0.85);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.det-header-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+.det-header-btn:hover {
+    background: rgba(255,255,255,0.15);
+    color: white;
+}
+
+.det-header-btn:active {
+    background: rgba(255,255,255,0.25);
+    transform: scale(0.95);
+}
+
+/* Botão voltar — sem destaque especial (já está no azul) */
+.det-back-btn {
+    color: var(--color-gray-500);
+}
+
+.det-back-btn:hover {
+    background: var(--color-gray-200);
+    color: white;
+}
+
+/* Notificação — badge vermelho */
+.det-notif-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    background: var(--color-danger);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+/* Wrapper do campo de busca expansível */
+.det-search-wrapper {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+/* Campo de busca — oculto por padrão, expande com animação */
+.det-search-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-width 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+/* Estado ativo — campo expande */
+.det-search-wrapper.active .det-search-field {
+    max-width: 380px;
+    opacity: 1;
+    margin-left: 6px;
+    border-color: rgba(255,255,255,0.6);
+    background: rgba(255,255,255,0.18);
+    padding: 0 12px;
+}
+
+.det-search-field input {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 14px;
+    color: white;
+    width: 300px;
+    padding: 8px 0;
+    font-family: inherit;
+}
+
+.det-search-field input::placeholder {
+    color: rgba(255,255,255,0.55);
+}
+
+.det-search-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border: none;
+    background: transparent;
+    color: rgba(255,255,255,0.7);
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.det-search-close svg {
+    width: 15px;
+    height: 15px;
+}
+
+.det-search-close:hover {
+    color: white;
+}
+
+/* Responsivo */
+@media (max-width: 600px) {
+    .det-search-wrapper.active .det-search-field {
+        max-width: 200px;
+    }
+
+    .det-search-field input {
+        width: 150px;
+    }
+}
+
+/* ==========================================================================
+   ABA FLUXO / RESUMO
+   ========================================================================== */
+
+/* --- Seção do progresso dentro da aba --- */
+.fluxo-progresso-section {
+    padding: 20px 20px 8px;
+    border-top: 1px solid var(--color-gray-200);
+    margin-top: 8px;
+}
+
+.fluxo-progresso-titulo {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--color-gray-500);
+    margin-bottom: 16px;
+}
+
+/* --- Grade de cards de resumo --- */
+.fluxo-resumo-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding: 20px 20px 4px;
+}
+
+/* --- Card individual --- */
+.resumo-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    background: var(--color-gray-50);
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.resumo-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Ícone colorido por variante */
+.resumo-card-icone {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.resumo-card-icone svg {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* Variantes de cor */
+.resumo-card-azul    { border-color: #bfdbfe; background: #eff6ff; }
+.resumo-card-azul    .resumo-card-icone { background: #dbeafe; }
+.resumo-card-azul    .resumo-card-icone svg { stroke: #2563eb; }
+
+.resumo-card-verde   { border-color: #bbf7d0; background: #f0fdf4; }
+.resumo-card-verde   .resumo-card-icone { background: #dcfce7; }
+.resumo-card-verde   .resumo-card-icone svg { stroke: #16a34a; }
+
+.resumo-card-laranja { border-color: #fed7aa; background: #fff7ed; }
+.resumo-card-laranja .resumo-card-icone { background: #ffedd5; }
+.resumo-card-laranja .resumo-card-icone svg { stroke: #ea580c; }
+
+.resumo-card-vermelho { border-color: #fecaca; background: #fef2f2; }
+.resumo-card-vermelho .resumo-card-icone { background: #fee2e2; }
+.resumo-card-vermelho .resumo-card-icone svg { stroke: #dc2626; }
+
+.resumo-card-roxo    { border-color: #e9d5ff; background: #faf5ff; }
+.resumo-card-roxo    .resumo-card-icone { background: #f3e8ff; }
+.resumo-card-roxo    .resumo-card-icone svg { stroke: #9333ea; }
+
+/* Textos */
+.resumo-card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.resumo-card-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-gray-500);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.resumo-card-valor {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--color-gray-900);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Responsivo — 1 coluna em telas menores */
+@media (max-width: 560px) {
+    .fluxo-resumo-cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* ==========================================================================
+   SUMÁRIO DE ETAPAS — Aba Fluxo / Resumo
+   ========================================================================== */
+
+.fluxo-sumario-section {
+    padding: 0 20px 20px;
+    border-top: 1px solid var(--color-gray-200);
+    margin-top: 8px;
+    padding-top: 20px;
+}
+
+.fluxo-sumario-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+/* --- Linha de etapa --- */
+.sumario-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    background: white;
+    border-bottom: 1px solid var(--color-gray-100);
+    transition: background 0.15s;
+}
+
+.sumario-row:last-child {
+    border-bottom: none;
+}
+
+.sumario-row:hover {
+    background: var(--color-gray-50);
+}
+
+/* Linha da etapa em andamento — destaque suave */
+.sumario-row-ativo {
+    background: #eff6ff;
+    border-left: 3px solid #0095db;
+}
+
+.sumario-row-ativo:hover {
+    background: #dbeafe;
+}
+
+/* --- Número / ícone de check --- */
+.sumario-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+
+.sumario-num svg {
+    width: 13px;
+    height: 13px;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.sumario-num-ok      { background: #dcfce7; color: #16a34a; }
+.sumario-num-ok svg  { stroke: #16a34a; }
+.sumario-num-ativo   { background: #0095db; color: white; }
+.sumario-num-pendente { background: var(--color-gray-100); color: var(--color-gray-400); }
+
+/* --- Info central --- */
+.sumario-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.sumario-titulo {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-gray-900);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sumario-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 2px;
+}
+
+.sumario-responsavel {
+    font-size: 11px;
+    color: var(--color-gray-500);
+    font-weight: 500;
+}
+
+.sumario-sep {
+    font-size: 11px;
+    color: var(--color-gray-300);
+}
+
+.sumario-data,
+.sumario-usuario {
+    font-size: 11px;
+    color: var(--color-gray-400);
+}
+
+/* --- Badge de status --- */
+.sumario-status {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 20px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.sumario-status-ok       { background: #dcfce7; color: #16a34a; }
+.sumario-status-ativo    { background: #dbeafe; color: #2563eb; }
+.sumario-status-pendente { background: var(--color-gray-100); color: var(--color-gray-400); }
+
+
+/* ==========================================================================
+   ABA FLUXO/RESUMO — layout lado a lado sem scroll externo
+   ========================================================================== */
+
+/* Oculta os containers externos que ficam fora do sistema de abas */
+.fluxo-resumo-cards,
+.fluxo-sumario-section,
+.fluxo-progresso-section {
+    display: none !important;
+}
+
+/* A aba usa flex para colocar sumário e cards lado a lado */
+#aba-fluxo {
+    display: none;          /* padrão — sobrescrito pelo .active */
+    overflow: hidden;
+    padding: 0 !important;
+}
+
+#aba-fluxo.active {
+    display: flex !important;
+    gap: 0;
+    height: calc(100vh - 260px);
+    min-height: 320px;
+    overflow: hidden;
+}
+
+/* Coluna esquerda: sumário de etapas */
+.fluxo-col-sumario {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100%;
+    padding: 20px 20px 20px 24px;
+    border-right: 1px solid var(--color-gray-200);
+}
+
+.fluxo-col-sumario .fluxo-progresso-titulo {
+    flex-shrink: 0;
+    margin-bottom: 12px;
+}
+
+.fluxo-col-sumario .fluxo-sumario-lista {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.fluxo-col-sumario .fluxo-sumario-lista::-webkit-scrollbar { width: 4px; }
+.fluxo-col-sumario .fluxo-sumario-lista::-webkit-scrollbar-track { background: transparent; }
+.fluxo-col-sumario .fluxo-sumario-lista::-webkit-scrollbar-thumb { background: var(--color-gray-200); border-radius: 4px; }
+
+/* Coluna direita: cards de métricas */
+.fluxo-col-cards {
+    flex: 0 0 300px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    align-content: start;
+    padding: 20px;
+    overflow-y: auto;
+    height: 100%;
+}
+
+.fluxo-col-cards::-webkit-scrollbar { width: 4px; }
+.fluxo-col-cards::-webkit-scrollbar-track { background: transparent; }
+.fluxo-col-cards::-webkit-scrollbar-thumb { background: var(--color-gray-200); border-radius: 4px; }
+
+.fluxo-col-cards .resumo-card { padding: 12px; gap: 10px; }
+.fluxo-col-cards .resumo-card-icone { width: 32px; height: 32px; border-radius: 8px; }
+.fluxo-col-cards .resumo-card-icone svg { width: 15px; height: 15px; }
+.fluxo-col-cards .resumo-card-valor { font-size: 13px; }
+.fluxo-col-cards .resumo-card-label { font-size: 10px; }
+
+/* Responsivo */
+@media (max-width: 768px) {
+    #aba-fluxo.active {
+        flex-direction: column;
+        height: auto;
+        overflow-y: auto;
+    }
+
+    .fluxo-col-sumario {
+        border-right: none;
+        border-bottom: 1px solid var(--color-gray-200);
+        height: auto;
+        overflow: visible;
+        padding: 16px;
+    }
+
+    .fluxo-col-cards {
+        flex: none;
+        width: 100%;
+        height: auto;
+        overflow: visible;
+        padding: 16px;
+    }
+}
+
+/* ==========================================================================
+   ADIÇÕES — 12 ETAPAS
+   Classes novas para status, formulários inline e progresso condicional.
+   Preserva todo o CSS anterior sem qualquer alteração.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   BARRA DE PROGRESSO — itens condicionais (Et. 7, 7.x, 8)
+   Exibidos com visual esmaecido quando a etapa ainda não foi ativada.
+   -------------------------------------------------------------------------- */
+.progresso-item.condicional .progresso-circulo {
+    border-color: var(--color-gray-200);
+    background: var(--color-gray-50);
+    color: var(--color-gray-300);
+    border-style: dashed;
+}
+
+.progresso-item.condicional .progresso-label {
+    color: var(--color-gray-300);
+    font-style: italic;
+}
+
+/* Subetapa ativa — anel menor que a etapa principal */
+.progresso-item.subetapa.atual .progresso-circulo {
+    box-shadow: 0 0 0 3px rgba(0, 149, 219, 0.12);
+}
+
+/* --------------------------------------------------------------------------
+   SUMÁRIO — subetapas com indentação visual (classes adicionadas pelo script)
+   -------------------------------------------------------------------------- */
+.sumario-row-sub {
+    padding-left: 32px;
+    background: var(--color-gray-50);
+    border-left: 3px solid #dbeafe;
+}
+
+.sumario-row-sub .sumario-titulo {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-gray-600, #4b5563);
+}
+
+.sumario-row-sub .sumario-num {
+    width: 22px;
+    height: 22px;
+    font-size: 10px;
+}
+
+/* --------------------------------------------------------------------------
+   FORMULÁRIO DA ABA FORMULÁRIO — campos específicos das 12 etapas
+   (renderizados pelo RenderizadorEtapas)
+   -------------------------------------------------------------------------- */
+
+/* Seção de contexto (dados de etapas anteriores mostrados acima do form) */
+.etapa-contexto {
+    background: var(--color-gray-50);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    margin-bottom: 20px;
+}
+
+.etapa-contexto-titulo {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--color-gray-400);
+    margin-bottom: 10px;
+}
+
+.etapa-contexto-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 8px;
+}
+
+.etapa-contexto-item:last-child { margin-bottom: 0; }
+
+.etapa-contexto-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-gray-400);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.etapa-contexto-valor {
+    font-size: 13px;
+    color: var(--color-gray-800, #1f2937);
+    font-weight: 500;
+}
+
+/* Grid de dois campos lado a lado dentro da aba Formulário */
+.etapa-form-row2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+@media (max-width: 480px) {
+    .etapa-form-row2 { grid-template-columns: 1fr; }
+}
+
+/* Separador de seção dentro de formulários de etapa */
+.etapa-form-section-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--color-gray-400);
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--color-gray-200);
+    margin-bottom: 12px;
+}
+
+/* Botões de ação no rodapé da aba Formulário */
+.etapa-form-acoes {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-gray-200);
+    flex-wrap: wrap;
+}
+
+/* --------------------------------------------------------------------------
+   BARRA DE INFO DO CHAMADO — avatar derivado do nome do solicitante
+   -------------------------------------------------------------------------- */
+.det-avatar-initials {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-mid) 100%);
+}
+
+/* No 03-novo-chamado-e-detalhes.css, substitua ou complemente: */
+
+/* fullscreen só deve funcionar em mobile — em desktop mantém a sidebar visível */
+.chamado-detalhes-screen.fullscreen {
+    left: 0; /* comportamento atual */
+}
+
+/* Garante que em desktop a sidebar nunca seja coberta */
+@media (min-width: 769px) {
+    .chamado-detalhes-screen,
+    .chamado-detalhes-screen.fullscreen {
+        left: var(--sidebar-width) !important;
+    }
+}

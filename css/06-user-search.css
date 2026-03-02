@@ -1,0 +1,288 @@
+/* ==========================================================================
+   06-USER-SEARCH.CSS — CAMPO DE BUSCA DE USUÁRIO (SOLICITANTE)
+   Contém: Wrapper, input com ícone de lupa, dropdown de sugestões,
+   chip de seleção e botão de remoção.
+   Depende de: 00-geral.css (variáveis, reset, inputs)
+               03-novo-chamado-e-detalhes.css (contexto do formulário)
+   ========================================================================== */
+
+
+/* --------------------------------------------------------------------------
+   WRAPPER PRINCIPAL
+   Posicionamento relativo para o dropdown absoluto.
+   -------------------------------------------------------------------------- */
+.user-search-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+
+/* --------------------------------------------------------------------------
+   INPUT COM ÍCONE DE LUPA
+   Wrapper interno com o SVG posicionado à esquerda do campo.
+   -------------------------------------------------------------------------- */
+.user-search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* Ícone de lupa — posicionado dentro do input, à esquerda */
+.user-search-input-wrapper .search-icon {
+    position: absolute;
+    left: 12px;
+    width: 16px;
+    height: 16px;
+    stroke: var(--color-gray-400);
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    pointer-events: none;   /* Não captura cliques */
+    flex-shrink: 0;
+    z-index: 1;
+}
+
+/* Campo de texto — herda o estilo de .form-input + padding esquerdo para a lupa */
+.user-search-input {
+    width: 100%;
+    padding: 10px 14px 10px 38px;  /* 38px = 12px margem + 16px ícone + 10px gap */
+    border: 1px solid var(--color-gray-300);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    color: var(--color-gray-900);
+    background: white;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    font-family: inherit;
+}
+
+.user-search-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-focus);
+}
+
+.user-search-input::placeholder {
+    color: var(--color-gray-400);
+}
+
+
+/* --------------------------------------------------------------------------
+   DROPDOWN DE SUGESTÕES
+   Lista flutuante exibida abaixo do input quando há resultados.
+   -------------------------------------------------------------------------- */
+.user-search-dropdown {
+    display: none;              /* Oculto por padrão */
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    z-index: 200;
+    max-height: 240px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Exibido quando a classe .open é adicionada via JavaScript */
+.user-search-dropdown.open {
+    display: block;
+}
+
+/* Scrollbar discreta no dropdown */
+.user-search-dropdown::-webkit-scrollbar {
+    width: 4px;
+}
+
+.user-search-dropdown::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.user-search-dropdown::-webkit-scrollbar-thumb {
+    background: var(--color-gray-200);
+    border-radius: 4px;
+}
+
+
+/* --------------------------------------------------------------------------
+   OPÇÃO DO DROPDOWN
+   Cada resultado da busca: avatar + nome + cargo.
+   -------------------------------------------------------------------------- */
+.user-search-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: background 0.15s;
+    border-bottom: 1px solid var(--color-gray-100);
+}
+
+.user-search-option:last-child {
+    border-bottom: none;
+}
+
+.user-search-option:hover {
+    background: var(--color-primary-light);
+}
+
+/* Círculo com as iniciais do usuário */
+.user-search-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-mid));
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    letter-spacing: 0.5px;
+}
+
+/* Coluna de texto: nome + cargo */
+.user-search-option-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+}
+
+.user-search-option-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-gray-900);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-search-option-role {
+    font-size: 11px;
+    color: var(--color-gray-500);
+    font-weight: 400;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Mensagem de "nenhum resultado" */
+.user-search-empty {
+    padding: 14px 16px;
+    font-size: 13px;
+    color: var(--color-gray-400);
+    text-align: center;
+    font-style: italic;
+}
+
+
+/* --------------------------------------------------------------------------
+   CHIP DE SELEÇÃO
+   Exibido após a seleção de um usuário, substituindo o input de busca.
+   -------------------------------------------------------------------------- */
+.user-selected-chip {
+    display: none;              /* Oculto por padrão */
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px 6px 8px;
+    background: var(--color-primary-light);
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-md);
+    width: fit-content;
+    max-width: 100%;
+    position: relative;        /* Garante que fique acima do input-wrapper */
+    z-index: 2;
+}
+
+/* Exibido quando a classe .visible é adicionada via JavaScript */
+.user-selected-chip.visible {
+    display: inline-flex;
+}
+
+/* Quando o chip está visível, garante que o input-wrapper não sobreponha */
+.user-search-input-wrapper {
+    position: relative;
+    z-index: 1;
+}
+
+/* Círculo com as iniciais (dentro do chip) */
+.chip-avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    letter-spacing: 0.5px;
+}
+
+/* Nome do usuário selecionado */
+.chip-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 260px;
+}
+
+/* Botão "x" para remover a seleção */
+.chip-remove {
+    width: 20px;
+    height: 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    padding: 0;
+    flex-shrink: 0;
+    transition: background 0.15s;
+}
+
+.chip-remove:hover {
+    background: rgba(0, 149, 219, 0.15);
+}
+
+.chip-remove svg {
+    width: 12px;
+    height: 12px;
+    stroke: var(--color-primary);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    fill: none;
+}
+
+
+/* ==========================================================================
+   RESPONSIVIDADE
+   ========================================================================== */
+
+/* --- Mobile (≤ 480px) --- */
+@media (max-width: 480px) {
+    /* Font-size 16px evita o zoom automático do iOS em inputs */
+    .user-search-input {
+        font-size: 16px;
+    }
+
+    .user-search-dropdown {
+        max-height: 200px;
+    }
+
+    .chip-name {
+        max-width: 180px;
+    }
+}
