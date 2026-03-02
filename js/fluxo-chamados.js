@@ -171,7 +171,7 @@ class Chamado {
 
     /**
      * @param {boolean} aprovado     true = confirma | false = reprova
-     * @param {string}  motivo       obrigatório quando reprovado
+     * @param {string} observacao       mensagem opcional para o solicitante
      * @param {Object}  usuario
      */
     confirmarEtapa3(aprovado, motivo, usuario) {

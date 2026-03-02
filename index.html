@@ -20,7 +20,6 @@
     <link rel="stylesheet" href="css/03-novo-chamado-e-detalhes.css">
     <link rel="stylesheet" href="css/04-etapas.css">
     <link rel="stylesheet" href="css/06-user-search.css">
-    <link rel="stylesheet" href="css/05-modal-lembrete.css">
     <link rel="stylesheet" href="css/07-aba-mensagens.css">
 
     <!-- Auth: verifica sessão antes de renderizar a página -->
@@ -45,7 +44,7 @@
 
         <!-- Logo NDS -->
         <div class="logo">
-            <img src="img/logo_nds.png" alt="Logo NDS" class="logo-nds">
+            <img src="img/logo_nds_2.png" alt="Logo NDS" class="logo-nds">
         </div>
 
         <!-- Divisor abaixo do logo -->
@@ -570,7 +569,6 @@
 
                             <!-- Observação detalhada -->
                             <div class="form-group">
-                                
                                 <label class="form-label required">Observação Detalhada</label>
 
                                 <textarea class="form-textarea" id="observacaoManutencao"
@@ -718,7 +716,22 @@
     ====================================================================== -->
     <div class="chamado-detalhes-screen" id="ticketDetailsScreen">
 
-        <div class="chamado-progresso-wrapper">">
+        <div class="chamado-progresso-wrapper">
+
+            <!-- Info bar: usuário | título | número -->
+            <div class="chamado-info-bar">
+
+                <!-- Esquerda: aberto por + status -->
+                <div class="chamado-info-usuario" id="detailsUsuarioInfo">
+                    <div class="chamado-info-avatar" id="detailsUsuarioAvatar">—</div>
+                    <div>
+                        <span class="chamado-info-nome" id="detailsAbertoPor">—</span>
+                        
+                    </div>
+                </div>
+
+                <!-- Centro: título do chamado -->
+                <div class="chamado-info-titulo-wrapper">
                     <p class="chamado-info-titulo" id="detailsTicketTitle">—</p>
                 </div>
 
@@ -740,7 +753,7 @@
             <!-- Divisor -->
             <div class="chamado-info-divider"></div>
 
-        </div>
+        </div><!-- /chamado-progresso-wrapper -->
 
         <div class="chamado-abas-wrapper">
 
@@ -822,16 +835,18 @@
             </div>
 
         </div>
-        <!-- /ABAS -->
 
     </div>
-    <!-- /TELA DETALHES DO CHAMADO -->
+
+
 
     <!-- =====================================================================
          MODAL — EDITAR PERFIL
     ====================================================================== -->
     <div class="modal-overlay" id="modalEditarPerfil" role="dialog" aria-modal="true">
+
         <div class="modal-content" style="max-width:480px;width:100%;">
+
             <div class="modal-header">
                 <h3 class="modal-title" id="modalEditarPerfilTitulo">Editar dados</h3>
                 <button type="button" class="modal-close" id="fecharModalPerfil">
@@ -841,8 +856,10 @@
                     </svg>
                 </button>
             </div>
+
             <div id="modalEditarPerfilCorpo"></div>
         </div>
+
     </div>
 
 
@@ -856,7 +873,6 @@
     <script src="js/card-quadrado.js"></script>
     <script src="js/aba-mensagens.js"></script>
     <script src="js/script.js"></script>
-    <script src="js/modal-lembrete.js"></script>
 
     <!-- Máscara de telefone para o campo de contato -->
     <script>

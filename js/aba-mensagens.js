@@ -492,6 +492,7 @@
         const n = etapa.numero;
 
         if (n === 2) c.concluirEtapa2('', '', observacao, usuarioAtual);
+        else if (n === 3) c.selecionarTecnicoEtapa4('', '', observacao, usuarioAtual);
         else if (n === 4) c.selecionarTecnicoEtapa4('', '', observacao, usuarioAtual);
         else if (n === 5.1) c.concluirSubetapa51('', '', observacao, usuarioAtual);
         else if (n === 5.2) c.concluirSubetapa52('', '', observacao, '', [], usuarioAtual);
@@ -546,6 +547,10 @@
                 );
                 break;
 
+            case 3:
+                add('OBSERVACAO', d.observacao);
+                break;
+
             case 4:
                 add('TÉCNICO RESPONSÁVEL', d.tecnicoNome);
 
@@ -559,15 +564,21 @@
                 add('SELECIONADO POR', d.selecionadoPor);
                 break;
 
+            case 5:
+                add('OBSERVACAO', d.observacao);
+                break;
 
+            case 5.1:
+                add('OBSERVACAO', d.observacao);
+                break;
 
-
-            // ==========================
-            // ETAPA 5.2 - DIAGNÓSTICO
-            // ==========================
             case 5.2:
                 add('DIAGNOSTICO', d.diagnostico);
                 add('MATERIAIS NECESSARIOS', d.materiaisNecessarios);
+                break;
+
+            case 6:
+                add('OBSERVACAO', d.observacao);
                 break;
 
             // ==========================
