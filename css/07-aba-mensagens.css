@@ -1,13 +1,11 @@
 /* ==========================================================================
    07-ABA-MENSAGENS.CSS — CARDS E LAYOUT DA ABA MENSAGENS
    Contém: Lista de mensagens, cards msg-ticket-*, subetapas, formulário
-   inline de ação, badges de perfil, cards legacy (msg-card-op2) e
-   variações de estado (concluída, aguardando, gestor, técnico, etc.).
+   inline de ação, badges de perfil, cards legacy (msg-card-op2),
+   variações de estado e Modelo 3 (msg-sl-*).
 
    Depende de: 00-geral.css (variáveis)
                03-novo-chamado-e-detalhes.css (contexto da tela de detalhes)
-
-   Para adicionar ao <head> logo após 03-novo-chamado-e-detalhes.css.
    ========================================================================== */
 
 
@@ -27,13 +25,60 @@
    CARD BASE (chamado-mensagem-card) — herdado por formulário inline
    ========================================================================== */
 
-/* Card da etapa ativa — destaque com borda azul */
 .msg-card-ativo {
     border-color: var(--color-primary) !important;
     box-shadow: 0 0 0 1px var(--color-primary), 0 2px 8px rgba(0,149,219,0.1) !important;
 }
 
-/* Card individual de mensagem */
+/* Card da etapa ativa — destaque amarelo */
+#cardFormularioInline.msg-ticket-card {
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 1px #f59e0b, 0 2px 10px rgba(245,158,11,0.12);
+}
+
+#cardFormularioInline .msg-ticket-header {
+    background: #fffbeb;
+    border-bottom-color: #fde68a;
+}
+
+#cardFormularioInline .msg-ticket-header:hover {
+    background: #fef9c3;
+}
+
+#cardFormularioInline .msg-ticket-num {
+    background: #f59e0b;
+    box-shadow: 0 2px 6px rgba(245,158,11,0.35);
+}
+
+#cardFormularioInline .msg-ticket-subtexto {
+    color: #d97706;
+}
+
+#cardFormularioInline .msg-ticket-titulo {
+    color: #78350f;
+    font-weight: 600;
+}
+
+#cardFormularioInline .msg-ticket-detalhes-btn {
+    color: #d97706;
+    border-color: #fde68a;
+}
+
+#cardFormularioInline .msg-ticket-detalhes-btn:hover {
+    background: #fef9c3;
+    border-color: #fcd34d;
+}
+
+#cardFormularioInline .msg-ticket-body {
+    background: #fffbeb;
+    border-top-color: #fde68a;
+}
+
+/* Formulário dentro do body do card ativo */
+#cardFormularioInline #areaFormularioAtender {
+    background: white;
+}
+
 .chamado-mensagem-card {
     background: white;
     border-radius: var(--radius-lg);
@@ -42,7 +87,6 @@
     box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 }
 
-/* Cabeçalho da mensagem (fundo cinza claro) */
 .chamado-mensagem-header {
     display: flex;
     align-items: center;
@@ -52,7 +96,6 @@
     border-bottom: 1px solid #f0f0f0;
 }
 
-/* Cabeçalho clicável para colapsar/expandir a mensagem */
 .chamado-mensagem-header-toggle {
     cursor: pointer;
     user-select: none;
@@ -62,7 +105,6 @@
 
 .chamado-mensagem-header-toggle:hover { background: #f0f4f8; }
 
-/* Seta de colapso */
 .msg-toggle-icon {
     width: 16px;
     height: 16px;
@@ -71,7 +113,6 @@
     transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Número sequencial */
 .chamado-mensagem-num {
     font-size: 11px;
     font-weight: 700;
@@ -80,7 +121,6 @@
     letter-spacing: 0.5px;
 }
 
-/* Nome da etapa no header */
 .msg-etapa-titulo {
     font-size: 13px;
     font-weight: 600;
@@ -88,7 +128,6 @@
     flex: 1;
 }
 
-/* Botão de toggle (seta) à direita */
 .msg-toggle-btn {
     display: flex;
     align-items: center;
@@ -104,9 +143,7 @@
     transition: background 0.15s;
 }
 
-.msg-toggle-btn:hover {
-    background: var(--color-gray-200);
-}
+.msg-toggle-btn:hover { background: var(--color-gray-200); }
 
 
 /* ==========================================================================
@@ -193,7 +230,6 @@
     gap: 8px;
 }
 
-/* Badge de perfil do autor */
 .chamado-mensagem-perfil-badge {
     padding: 3px 10px;
     border-radius: 20px;
@@ -203,21 +239,18 @@
     letter-spacing: 0.4px;
 }
 
-/* Cores por perfil */
 .badge-solicitante    { background: #000000; color: #ffffff; }
 .badge-tecnico        { background: #000000; color: #ffffff; }
 .badge-administrativo { background: #000000; color: #ffffff; }
 .badge-comprador      { background: #000000; color: #ffffff; }
 .badge-admin          { background: #000000; color: #ffffff; }
 
-/* Tag de etapa */
 .chamado-mensagem-etapa-tag {
     font-size: 11px;
     color: var(--color-gray-400);
     font-weight: 500;
 }
 
-/* Corpo colapsável */
 .chamado-mensagem-body {
     padding: 14px 16px;
     overflow: hidden;
@@ -235,7 +268,6 @@
     opacity: 0;
 }
 
-/* Autor com avatar (versão legada) */
 .chamado-mensagem-autor {
     display: flex;
     align-items: center;
@@ -243,7 +275,6 @@
     margin-bottom: 10px;
 }
 
-/* Autor no topo do body expandido (versão nova) */
 .msg-body-autor {
     display: flex;
     align-items: center;
@@ -253,7 +284,6 @@
     border-bottom: 1px solid var(--color-gray-100);
 }
 
-/* Círculo com iniciais */
 .chamado-mensagem-avatar {
     width: 30px;
     height: 30px;
@@ -285,7 +315,6 @@
     color: var(--color-gray-400);
 }
 
-/* Lista de campos */
 .chamado-mensagem-campos {
     display: flex;
     flex-direction: column;
@@ -313,6 +342,8 @@
     color: var(--color-gray-900);
     font-weight: 500;
     line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
 }
 
 
@@ -320,12 +351,10 @@
    CARDS MSG-TICKET-* — layout atual (substituiu timeline)
    ========================================================================== */
 
-/* Wrapper externo */
 .msg-ticket-wrapper {
     margin-bottom: 12px;
 }
 
-/* Card principal */
 .msg-ticket-card {
     background: white;
     border-radius: var(--radius-lg);
@@ -339,9 +368,6 @@
     box-shadow: 0 3px 12px rgba(0, 0, 0, 0.09);
 }
 
-/* --------------------------------------------------------------------------
-   HEADER — padrão (etapa pendente/ativa: azul)
-   -------------------------------------------------------------------------- */
 .msg-ticket-header {
     display: flex;
     align-items: center;
@@ -355,105 +381,30 @@
     transition: background 0.15s;
 }
 
-.msg-ticket-header:hover {
-    background: #dbeafe;
-}
+.msg-ticket-header:hover { background: #dbeafe; }
 
-/* --------------------------------------------------------------------------
-   VARIANTE: etapa concluída (verde)
-   -------------------------------------------------------------------------- */
-.msg-ticket-card.concluida .msg-ticket-header {
-    background: #ffffff;
-    border-bottom-color: #ffffff;
-}
-
-.msg-ticket-card.concluida .msg-ticket-header:hover {
-    background: #ffffff;
-}
-
-.msg-ticket-card.concluida .msg-ticket-num {
-    background: #16a34a;
-    box-shadow: 0 2px 6px rgba(22, 163, 74, 0.3);
-}
-
-.msg-ticket-card.concluida .msg-ticket-subtexto {
-    color: #16a34a;
-}
-
-.msg-ticket-card.concluida .msg-ticket-titulo {
-    color: #000000;
-}
-
-.msg-ticket-card.concluida .msg-ticket-detalhes-btn {
-    color: #000000;
-    border-color: #a8a8a8;
-}
-
-.msg-ticket-card.concluida .msg-ticket-detalhes-btn:hover {
-    background: #dcfce7;
-    border-color: #7c7c7c;
-}
-
-.msg-ticket-card.concluida .msg-ticket-body {
-    background: #f1f1f1;
-    border-top-color: #b9b9b9;
-}
-
-.msg-ticket-card.concluida .msg-ticket-divider {
-    background: #caced3;
-}
-
-.msg-ticket-card.concluida .msg-ticket-remetente-nome {
-    color: #1e3a5f;
-}
-
+.msg-ticket-card.concluida .msg-ticket-header          { background: #ffffff; border-bottom-color: #ffffff; }
+.msg-ticket-card.concluida .msg-ticket-header:hover    { background: #ffffff; }
+.msg-ticket-card.concluida .msg-ticket-num             { background: #16a34a; box-shadow: 0 2px 6px rgba(22,163,74,0.3); }
+.msg-ticket-card.concluida .msg-ticket-subtexto        { color: #16a34a; }
+.msg-ticket-card.concluida .msg-ticket-titulo          { color: #000000; }
+.msg-ticket-card.concluida .msg-ticket-detalhes-btn    { color: #000000; border-color: #a8a8a8; }
+.msg-ticket-card.concluida .msg-ticket-detalhes-btn:hover { background: #dcfce7; border-color: #7c7c7c; }
+.msg-ticket-card.concluida .msg-ticket-body            { background: #f1f1f1; border-top-color: #b9b9b9; }
+.msg-ticket-card.concluida .msg-ticket-divider         { background: #caced3; }
+.msg-ticket-card.concluida .msg-ticket-remetente-nome  { color: #1e3a5f; }
 .msg-ticket-card.concluida .msg-ticket-remetente-unidade,
-.msg-ticket-card.concluida .msg-ticket-data-rodape {
-    color: #5b80a0;
-}
+.msg-ticket-card.concluida .msg-ticket-data-rodape     { color: #5b80a0; }
+.msg-ticket-card.concluida .msg-ticket-avatar          { background: rgba(136,136,136,0.12); }
+.msg-ticket-card.concluida .msg-ticket-avatar svg      { stroke: #afafaf; }
+.msg-ticket-card.concluida .msg-ticket-conteudo-linha  { color: #1e3a5f; }
 
-.msg-ticket-card.concluida .msg-ticket-avatar {
-    background: rgba(136, 136, 136, 0.12);
-}
+.msg-ticket-card.aguardando-confirmacao .msg-ticket-header       { background: #fefce8; border-bottom-color: #fde68a; }
+.msg-ticket-card.aguardando-confirmacao .msg-ticket-header:hover { background: #fef9c3; }
+.msg-ticket-card.aguardando-confirmacao .msg-ticket-num          { background: #ca8a04; box-shadow: 0 2px 6px rgba(202,138,4,0.3); }
+.msg-ticket-card.aguardando-confirmacao .msg-ticket-subtexto     { color: #92400e; }
+.msg-ticket-card.aguardando-confirmacao .msg-ticket-titulo       { color: #78350f; }
 
-.msg-ticket-card.concluida .msg-ticket-avatar svg {
-    stroke: #afafaf;
-}
-
-.msg-ticket-card.concluida .msg-ticket-conteudo-linha {
-    color: #1e3a5f;
-}
-
-/* --------------------------------------------------------------------------
-   VARIANTE: aguardando confirmação técnica (Et. 4 — amarelo)
-   -------------------------------------------------------------------------- */
-.msg-ticket-card.aguardando-confirmacao .msg-ticket-header {
-    background: #fefce8;
-    border-bottom-color: #fde68a;
-}
-
-.msg-ticket-card.aguardando-confirmacao .msg-ticket-header:hover {
-    background: #fef9c3;
-}
-
-.msg-ticket-card.aguardando-confirmacao .msg-ticket-num {
-    background: #ca8a04;
-    box-shadow: 0 2px 6px rgba(202, 138, 4, 0.3);
-}
-
-.msg-ticket-card.aguardando-confirmacao .msg-ticket-subtexto {
-    color: #92400e;
-}
-
-.msg-ticket-card.aguardando-confirmacao .msg-ticket-titulo {
-    color: #78350f;
-}
-
-/* --------------------------------------------------------------------------
-   ELEMENTOS DO HEADER
-   -------------------------------------------------------------------------- */
-
-/* Lado esquerdo: número + info */
 .msg-ticket-header-esq {
     display: flex;
     align-items: center;
@@ -461,7 +412,6 @@
     min-width: 0;
 }
 
-/* Círculo com número da etapa */
 .msg-ticket-num {
     width: 34px;
     height: 34px;
@@ -477,7 +427,6 @@
     box-shadow: 0 2px 6px rgba(0, 149, 219, 0.3);
 }
 
-/* Coluna de texto */
 .msg-ticket-header-info {
     display: flex;
     flex-direction: column;
@@ -502,7 +451,6 @@
     text-overflow: ellipsis;
 }
 
-/* Botão "detalhes" com chevron */
 .msg-ticket-detalhes-btn {
     display: flex;
     align-items: center;
@@ -521,12 +469,8 @@
     font-family: inherit;
 }
 
-.msg-ticket-detalhes-btn:hover {
-    background: #dbeafe;
-    border-color: #93c5fd;
-}
+.msg-ticket-detalhes-btn:hover { background: #dbeafe; border-color: #93c5fd; }
 
-/* Chevron (seta de colapso) */
 .msg-ticket-chevron {
     width: 14px;
     height: 14px;
@@ -534,9 +478,6 @@
     transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* --------------------------------------------------------------------------
-   BODY DO CARD (colapsável)
-   -------------------------------------------------------------------------- */
 .msg-ticket-body {
     overflow: hidden;
     max-height: 800px;
@@ -553,9 +494,6 @@
     border-top: none;
 }
 
-/* --------------------------------------------------------------------------
-   REMETENTE
-   -------------------------------------------------------------------------- */
 .msg-ticket-remetente {
     display: flex;
     align-items: center;
@@ -588,18 +526,9 @@
     min-width: 0;
 }
 
-.msg-ticket-remetente-nome {
-    font-size: 13px;
-    font-weight: 700;
-    color: #1e3a5f;
-}
+.msg-ticket-remetente-nome  { font-size: 13px; font-weight: 700; color: #1e3a5f; }
+.msg-ticket-remetente-unidade { font-size: 11px; color: #5b80a0; }
 
-.msg-ticket-remetente-unidade {
-    font-size: 11px;
-    color: #5b80a0;
-}
-
-/* Badge de perfil dentro do card */
 .msg-ticket-perfil-badge {
     padding: 3px 10px;
     border-radius: 20px;
@@ -610,16 +539,12 @@
     flex-shrink: 0;
 }
 
-/* Divisor remetente → conteúdo */
 .msg-ticket-divider {
     height: 1px;
     background: #bfdbfe;
     margin: 0 16px;
 }
 
-/* --------------------------------------------------------------------------
-   CONTEÚDO (campos da etapa)
-   -------------------------------------------------------------------------- */
 .msg-ticket-conteudo {
     margin: 0 16px 14px;
     padding: 12px 14px;
@@ -635,12 +560,11 @@
     font-size: 13px;
     color: #1e3a5f;
     line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
 }
 
-/* Oculta o label (strong) — só mostra o valor */
-.msg-ticket-conteudo-linha strong {
-    display: none;
-}
+.msg-ticket-conteudo-linha strong { display: none; }
 
 .msg-ticket-data-rodape {
     font-size: 11px;
@@ -660,7 +584,6 @@
     position: relative;
 }
 
-/* Linha vertical conectando subetapas */
 .msg-ticket-subs::before {
     content: '';
     position: absolute;
@@ -677,7 +600,6 @@
     margin-top: 6px;
 }
 
-/* Traço horizontal da linha vertical ao card */
 .msg-ticket-sub-item::before {
     content: '';
     position: absolute;
@@ -688,50 +610,177 @@
     background: #bbf7d0;
 }
 
-/* Card de subetapa — mais compacto */
-.msg-ticket-card.msg-ticket-sub .msg-ticket-header {
-    padding: 8px 14px;
+.msg-ticket-card.msg-ticket-sub .msg-ticket-header       { padding: 8px 14px; }
+.msg-ticket-card.msg-ticket-sub .msg-ticket-num          { width: 26px; height: 26px; font-size: 11px; }
+.msg-ticket-card.msg-ticket-sub .msg-ticket-subtexto     { font-size: 9px; }
+.msg-ticket-card.msg-ticket-sub .msg-ticket-titulo       { font-size: 12px; }
+.msg-ticket-card.msg-ticket-sub .msg-ticket-detalhes-btn { font-size: 11px; padding: 3px 10px; }
+.msg-ticket-card.msg-ticket-sub .msg-ticket-remetente    { padding: 8px 14px; }
+.msg-ticket-card.msg-ticket-sub .msg-ticket-conteudo     { padding: 10px 14px 8px; }
+
+
+/* ==========================================================================
+   MODELO 3 — LISTA DE CARDS COLADOS (msg-sl-*)
+   Header estilo Modelo 3 + body existente (msg-ticket-remetente / conteudo)
+   ========================================================================== */
+
+/* Container: todos os cards colados, borda arredondada no conjunto */
+.msg-sl-list {
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--color-gray-200, #e5e7eb);
+    margin-bottom: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
 }
 
-.msg-ticket-card.msg-ticket-sub .msg-ticket-num {
+/* Item */
+.msg-sl-item {
+    background: #fafffe;
+    border-left: 4px solid #16a34a;
+}
+
+.msg-sl-item:not(:last-child) {
+    border-bottom: 1px solid #f3f4f6;
+}
+
+/* Subetapa: borda e fundo mais suaves */
+.msg-sl-item.msg-sl-sub {
+    border-left-color: #86efac;
+    background: #f5fffa;
+}
+
+/* ── Header ── */
+.msg-sl-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 16px;
+}
+
+.msg-sl-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+}
+
+/* Dot verde com check */
+.msg-sl-dot {
     width: 26px;
     height: 26px;
+    border-radius: 50%;
+    background: #16a34a;
+    border: 2px solid #16a34a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.msg-sl-item.msg-sl-sub .msg-sl-dot { width: 20px; height: 20px; }
+
+.msg-sl-chk {
+    width: 12px;
+    height: 12px;
+    stroke: #fff;
+    stroke-width: 2.5;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.msg-sl-item.msg-sl-sub .msg-sl-chk { width: 10px; height: 10px; }
+
+/* Textos do header */
+.msg-sl-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.msg-sl-st {
+    display: none;
+}
+
+.msg-sl-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-gray-700, #374151);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.msg-sl-item.msg-sl-sub .msg-sl-name { font-size: 12px; font-weight: 500; }
+
+/* Botão detalhes */
+.msg-sl-btn {
     font-size: 11px;
+    font-weight: 600;
+    color: var(--color-gray-400, #9ca3af);
+    padding: 4px 10px;
+    border-radius: 16px;
+    border: 1px solid var(--color-gray-200, #e5e7eb);
+    background: #fff;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: background 0.15s, color 0.15s;
+    font-family: inherit;
 }
 
-.msg-ticket-card.msg-ticket-sub .msg-ticket-subtexto {
-    font-size: 9px;
+.msg-sl-btn svg {
+    width: 11px;
+    height: 11px;
+    stroke: var(--color-gray-300, #d1d5db);
+    stroke-width: 2.5;
+    fill: none;
+    transition: transform 0.2s;
 }
 
-.msg-ticket-card.msg-ticket-sub .msg-ticket-titulo {
-    font-size: 12px;
+.msg-sl-btn:hover            { background: #f3f4f6; color: #374151; }
+.msg-sl-btn:hover svg        { stroke: #6b7280; }
+.msg-sl-btn.open svg         { transform: rotate(180deg); }
+
+/* Body colapsável — reutiliza os estilos msg-ticket-* existentes */
+.msg-sl-body {
+    overflow: hidden;
+    max-height: 800px;
+    opacity: 1;
+    background: #f1f1f1;
+    border-top: 1px solid #b9b9b9;
+    transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.25s ease;
 }
 
-.msg-ticket-card.msg-ticket-sub .msg-ticket-detalhes-btn {
-    font-size: 11px;
-    padding: 3px 10px;
+.msg-sl-body.collapsed {
+    max-height: 0;
+    opacity: 0;
+    border-top: none;
 }
 
-.msg-ticket-card.msg-ticket-sub .msg-ticket-remetente {
-    padding: 8px 14px;
-}
-
-.msg-ticket-card.msg-ticket-sub .msg-ticket-conteudo {
-    padding: 10px 14px 8px;
+.msg-sl-item.msg-sl-sub .msg-sl-body {
+    background: #f5fffa;
+    border-top-color: #bbf7d0;
 }
 
 
 /* ==========================================================================
-   FORMULÁRIO INLINE — card da etapa ativa (renderizado via JS)
+   FORMULÁRIO INLINE — card da etapa ativa
    ========================================================================== */
 
-/* Card de formulário inline de técnico (Et. 5.x / 10.x) — fundo amarelo */
 .inline-card-tecnico .chamado-mensagem-header {
     background: #fef9c3;
     border-bottom-color: #fde68a;
 }
 
-/* Pergunta de estoque (Et. 6) */
 .inline-estoque-pergunta {
     font-size: 14px;
     color: var(--color-gray-700);
@@ -744,7 +793,6 @@
     border-left: 3px solid var(--color-primary);
 }
 
-/* Botão "Sim — tem estoque" */
 .btn-estoque-sim {
     padding: 9px 18px;
     border-radius: var(--radius-md);
@@ -757,12 +805,8 @@
     transition: background 0.2s, border-color 0.2s;
 }
 
-.btn-estoque-sim:hover {
-    background: #bbf7d0;
-    border-color: #86efac;
-}
+.btn-estoque-sim:hover { background: #bbf7d0; border-color: #86efac; }
 
-/* Botão "Não — solicitar compra" */
 .btn-estoque-nao {
     padding: 9px 18px;
     border-radius: var(--radius-md);
@@ -775,30 +819,15 @@
     transition: background 0.2s, border-color 0.2s;
 }
 
-.btn-estoque-nao:hover {
-    background: #fee2e2;
-    border-color: #f87171;
-}
+.btn-estoque-nao:hover { background: #fee2e2; border-color: #f87171; }
 
-/* Card do gestor (Et. 11) — destaque roxo */
-.inline-card-gestor .chamado-mensagem-header {
-    background: #f5f3ff;
-    border-bottom-color: #e9d5ff;
-}
-
-.inline-card-gestor .msg-etapa-titulo {
-    color: #6d28d9;
-}
-
-/* Card de confirmação do solicitante (Et. 3) — azul */
-.inline-card-confirmacao .chamado-mensagem-header {
-    background: #eff6ff;
-    border-bottom-color: #bfdbfe;
-}
+.inline-card-gestor .chamado-mensagem-header  { background: #f5f3ff; border-bottom-color: #e9d5ff; }
+.inline-card-gestor .msg-etapa-titulo         { color: #6d28d9; }
+.inline-card-confirmacao .chamado-mensagem-header { background: #eff6ff; border-bottom-color: #bfdbfe; }
 
 
 /* ==========================================================================
-   HISTÓRICO DE REMARCAÇÕES (Et. 3 — quando há recusas anteriores)
+   HISTÓRICO DE REMARCAÇÕES (Et. 3)
    ========================================================================== */
 
 .historico-remarcacoes {
@@ -821,12 +850,7 @@
     gap: 6px;
 }
 
-.historico-remarcacoes h5 svg {
-    width: 14px;
-    height: 14px;
-    stroke: #d97706;
-    fill: none;
-}
+.historico-remarcacoes h5 svg { width: 14px; height: 14px; stroke: #d97706; fill: none; }
 
 .remarcacao-item {
     padding: 8px 12px;
@@ -848,16 +872,11 @@
 
 
 /* ==========================================================================
-   CARD OPÇÃO 2 (msg-card-op2-*) — estilo legado azul flutuante com borda esquerda
+   CARD OPÇÃO 2 (msg-card-op2-*) — legado
    ========================================================================== */
 
-.msg-card-op2-wrapper {
-    padding: 10px 16px 0;
-}
-
-.msg-card-op2-wrapper:last-child {
-    padding-bottom: 10px;
-}
+.msg-card-op2-wrapper         { padding: 10px 16px 0; }
+.msg-card-op2-wrapper:last-child { padding-bottom: 10px; }
 
 .msg-card-op2 {
     background: #eff6ff;
@@ -868,9 +887,7 @@
     transition: box-shadow 0.2s;
 }
 
-.msg-card-op2:hover {
-    box-shadow: 0 2px 12px rgba(0, 149, 219, 0.12);
-}
+.msg-card-op2:hover { box-shadow: 0 2px 12px rgba(0,149,219,0.12); }
 
 .msg-card-op2-header {
     display: flex;
@@ -882,9 +899,7 @@
     transition: background 0.15s;
 }
 
-.msg-card-op2-header:hover {
-    background: #dbeafe;
-}
+.msg-card-op2-header:hover { background: #dbeafe; }
 
 .msg-card-op2-num {
     width: 36px;
@@ -898,69 +913,28 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    box-shadow: 0 2px 8px rgba(0, 149, 219, 0.3);
+    box-shadow: 0 2px 8px rgba(0,149,219,0.3);
 }
 
-.msg-card-op2-info {
-    flex: 1;
-    min-width: 0;
-}
-
-.msg-card-op2-subtexto {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: #3b82f6;
-    margin-bottom: 2px;
-}
-
-.msg-card-op2-titulo {
-    font-size: 13px;
-    font-weight: 700;
-    color: #1e3a5f;
-    margin-bottom: 3px;
-}
-
-.msg-card-op2-resp {
-    font-size: 12px;
-    color: #64748b;
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 5px;
-}
-
-.msg-card-op2-resp strong {
-    color: #0095db;
-    font-weight: 600;
-}
-
-.msg-card-op2-data {
-    font-size: 11px;
-    color: #94a3b8;
-    margin-left: 2px;
-}
+.msg-card-op2-info      { flex: 1; min-width: 0; }
+.msg-card-op2-subtexto  { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #3b82f6; margin-bottom: 2px; }
+.msg-card-op2-titulo    { font-size: 13px; font-weight: 700; color: #1e3a5f; margin-bottom: 3px; }
+.msg-card-op2-resp      { font-size: 12px; color: #64748b; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+.msg-card-op2-resp strong { color: #0095db; font-weight: 600; }
+.msg-card-op2-data      { font-size: 11px; color: #94a3b8; margin-left: 2px; }
 
 .msg-card-op2-body {
     background: white;
     border-top: 1px solid #bfdbfe;
     overflow: hidden;
     max-height: 1000px;
+    opacity: 1;
     transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
                 opacity 0.25s ease;
-    opacity: 1;
 }
 
-.msg-card-op2-body.collapsed {
-    max-height: 0;
-    opacity: 0;
-    border-top: none;
-}
-
-.msg-card-op2-body .chamado-mensagem-campos {
-    padding: 14px 16px;
-}
+.msg-card-op2-body.collapsed { max-height: 0; opacity: 0; border-top: none; }
+.msg-card-op2-body .chamado-mensagem-campos { padding: 14px 16px; }
 
 
 /* ==========================================================================
@@ -971,5 +945,6 @@
     .msg-ticket-detalhes-btn { padding: 3px 8px; font-size: 11px; }
     .msg-ticket-num          { width: 28px; height: 28px; font-size: 11px; }
     .msg-ticket-subs         { padding-left: 14px; }
+    .msg-sl-name             { font-size: 12px; }
+    .msg-sl-btn              { padding: 3px 8px; font-size: 10px; }
 }
-

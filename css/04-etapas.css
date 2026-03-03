@@ -1157,7 +1157,6 @@
 
 /* Bloco de dados de cada etapa concluída */
 .form-dados-bloco {
-    width: 100% ;
     background: #fff;
     border: 1px solid var(--color-gray-200);
     border-radius: var(--radius-md);

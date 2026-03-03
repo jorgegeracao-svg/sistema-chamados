@@ -34,113 +34,104 @@
             container.appendChild(vazio);
         }
 
+        // Wrapper único — cards colados estilo Modelo 3
+        const slWrapper = document.createElement('div');
+        slWrapper.className = 'msg-sl-list';
+
         grupos.forEach(grupo => {
-            const wrapper = document.createElement('div');
-            wrapper.className = 'msg-ticket-wrapper';
-            let html = '';
-            if (grupo.etapa) html += _buildCardHTML(grupo.etapa, false);
-            if (grupo.subs.length > 0) {
-                html += '<div class="msg-ticket-subs">';
-                grupo.subs.forEach(sub => { html += '<div class="msg-ticket-sub-item">' + _buildCardHTML(sub, true) + '</div>'; });
-                html += '</div>';
+            if (grupo.etapa) {
+                slWrapper.appendChild(_buildSlItem(grupo.etapa, false));
             }
-            wrapper.innerHTML = html;
-            _bindToggle(wrapper);
-            container.appendChild(wrapper);
+            grupo.subs.forEach(sub => {
+                slWrapper.appendChild(_buildSlItem(sub, true));
+            });
         });
 
+        container.appendChild(slWrapper);
         _renderFormularioInline(chamado, container);
     }
 
 
     // =========================================================================
-    // HTML DE UM CARD DE ETAPA
+    // ITEM ESTILO MODELO 3
     // =========================================================================
 
     const _badgeClasses = {
-        SOLICITANTE: 'badge-solicitante',
-        TECNICO: 'badge-tecnico',
+        SOLICITANTE:    'badge-solicitante',
+        TECNICO:        'badge-tecnico',
         ADMINISTRATIVO: 'badge-administrativo',
-        COMPRADOR: 'badge-comprador',
-        GESTOR: 'badge-admin'
+        COMPRADOR:      'badge-comprador',
+        GESTOR:         'badge-admin'
     };
 
-    function _buildCardHTML(msg, isSub) {
+    function _buildSlItem(msg, isSub) {
         const badgeClass = _badgeClasses[msg.categoria] || 'badge-admin';
-        const label = (window.CATEGORIA_LABEL || {})[msg.categoria] || msg.categoria;
-        const campos = _extrairCamposMensagem(msg.numero, msg.dados || {});
-        const cardClass = isSub ? 'msg-ticket-card concluida msg-ticket-sub' : 'msg-ticket-card concluida';
+        const label      = (window.CATEGORIA_LABEL || {})[msg.categoria] || msg.categoria;
+        const campos     = _extrairCamposMensagem(msg.numero, msg.dados || {});
+        const uid        = 'sl-detail-' + String(msg.numero).replace('.', '_');
 
+        const item = document.createElement('div');
+        item.className = 'msg-sl-item' + (isSub ? ' msg-sl-sub' : '');
 
-        const camposHTML = campos.map(c => '<p class="msg-ticket-conteudo-linha"><strong>' + c.label + ':</strong> ' + c.valor + '</p>').join('');
+        // ── HEADER (Modelo 3)
+        const header = document.createElement('div');
+        header.className = 'msg-sl-header';
+        header.innerHTML =
+            '<div class="msg-sl-left">'
+            +   '<div class="msg-sl-dot">'
+            +     '<svg class="msg-sl-chk" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>'
+            +   '</div>'
+            +   '<div class="msg-sl-info">'
+            +     '<span class="msg-sl-name">ETAPA ' + msg.numero + ' — ' + msg.titulo.toUpperCase() + '</span>'
+            +   '</div>'
+            + '</div>'
+            + '<button class="msg-sl-btn" aria-label="Expandir">'
+            +   'detalhes'
+            +   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">'
+            +     '<polyline points="18 15 12 9 6 15"></polyline>'
+            +   '</svg>'
+            + '</button>';
 
-        return '<div style="display:flex;flex-direction:column;">'
-            + '<div class="' + cardClass + '">'
-            + '<div class="msg-ticket-header msg-ticket-toggle">'
-            + '<div class="msg-ticket-header-esq">'
-            + '<div class="msg-ticket-num">' + msg.numero + '</div>'
-            + '<div class="msg-ticket-header-info">'
-            + '<span class="msg-ticket-subtexto">Etapa concluida</span>'
-            + '<span class="msg-ticket-titulo">Etapa ' + msg.numero + ' - ' + msg.titulo + '</span>'
-            + '</div>'
-            + '</div>'
-            + '<button class="msg-ticket-detalhes-btn msg-ticket-toggle" aria-label="Expandir">detalhes'
-            + '<svg class="msg-ticket-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">'
-            + '<polyline points="18 15 12 9 6 15"></polyline></svg></button>'
-            + '</div>'
-            + '<div class="msg-ticket-body collapsed">'
-            + '<div class="msg-ticket-remetente">'
-            + '<div class="msg-ticket-avatar">'
-            + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">'
-            + '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>'
-            + '<circle cx="12" cy="7" r="4"></circle></svg>'
-            + '</div>'
-            + '<div class="msg-ticket-remetente-info">'
-            + '<span class="msg-ticket-remetente-nome">' + msg.conclusao.usuario + '</span>'
-            + '<span class="msg-ticket-remetente-unidade">' + label + '</span>'
-            + '</div>'
-            + '<span class="msg-ticket-perfil-badge ' + badgeClass + '">' + label.toUpperCase() + '</span>'
+        // ── BODY colapsável (conteúdo igual ao anterior)
+        const body = document.createElement('div');
+        body.className = 'msg-sl-body collapsed';
+        body.id = uid;
+
+        const camposHTML = campos.map(c =>
+            '<p class="msg-ticket-conteudo-linha"><strong>' + c.label + ':</strong> ' + c.valor + '</p>'
+        ).join('');
+
+        body.innerHTML =
+            '<div class="msg-ticket-remetente">'
+            +   '<div class="msg-ticket-avatar">'
+            +     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">'
+            +       '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>'
+            +       '<circle cx="12" cy="7" r="4"></circle>'
+            +     '</svg>'
+            +   '</div>'
+            +   '<div class="msg-ticket-remetente-info">'
+            +     '<span class="msg-ticket-remetente-nome">' + msg.conclusao.usuario + '</span>'
+            +     '<span class="msg-ticket-remetente-unidade">' + label + '</span>'
+            +   '</div>'
+            +   '<span class="msg-ticket-perfil-badge ' + badgeClass + '">' + label.toUpperCase() + '</span>'
             + '</div>'
             + '<div class="msg-ticket-divider"></div>'
             + '<div class="msg-ticket-conteudo">'
-            + camposHTML
-            + '<span class="msg-ticket-data-rodape">' + formatarDataHora(msg.conclusao.dataHora) + '</span>'
-            + '</div>'
-            + '</div>'
-            + '</div>'
+            +   camposHTML
+            +   '<span class="msg-ticket-data-rodape">' + formatarDataHora(msg.conclusao.dataHora) + '</span>'
             + '</div>';
-    }
 
+        item.appendChild(header);
+        item.appendChild(body);
 
-
-    // =========================================================================
-    // TOGGLE EXPAND / COLLAPSE
-    // =========================================================================
-
-    function _bindToggle(wrapper) {
-        wrapper.querySelectorAll('.msg-ticket-card').forEach(card => {
-            const body = card.querySelector('.msg-ticket-body');
-            const chevron = card.querySelector('.msg-ticket-chevron');
-            const btn = card.querySelector('.msg-ticket-detalhes-btn');
-            const header = card.querySelector('.msg-ticket-header');
-
-            // Corrige o estado inicial do chevron (body começa collapsed = fechado)
-            if (chevron) chevron.style.transform = 'rotate(0deg)';
-
-            function toggle(e) {
-                e.stopPropagation();
-                const isCollapsed = body.classList.contains('collapsed');
-                body.classList.toggle('collapsed', !isCollapsed);
-                if (chevron) chevron.style.transform = isCollapsed ? 'rotate(180deg)' : 'rotate(0deg)';
-            }
-
-            // Apenas o botão e o header disparam o toggle (sem duplicar)
-            btn?.addEventListener('click', toggle);
-            header?.addEventListener('click', function (e) {
-                // Só dispara se o clique não veio do botão
-                if (!e.target.closest('.msg-ticket-detalhes-btn')) toggle(e);
-            });
+        // toggle expand/collapse
+        header.querySelector('.msg-sl-btn').addEventListener('click', function () {
+            const isCollapsed = body.classList.contains('collapsed');
+            body.classList.toggle('collapsed', !isCollapsed);
+            this.classList.toggle('open', isCollapsed);
         });
+
+        return item;
     }
 
 
@@ -149,76 +140,90 @@
     // =========================================================================
 
     function _renderFormularioInline(chamado, container) {
-        const etapa = getEtapaAtiva(chamado);
+        const etapa = window.getEtapaAtiva(chamado);
         if (!etapa || chamado.status === 'FINALIZADO') return;
 
-        const pode = podeAtenderEtapa(etapa, usuarioAtual.perfil);
+        const pode        = window.podeAtenderEtapa(etapa, window.usuarioAtual.perfil);
         const responsavel = (window.CATEGORIA_LABEL || {})[etapa.categoria] || etapa.categoria;
-        const badgeClass = _badgeClasses[etapa.categoria] || 'badge-admin';
+        const badgeClass  = _badgeClasses[etapa.categoria] || 'badge-admin';
 
         const wrapper = document.createElement('div');
-        wrapper.className = 'msg-timeline-item';
+        wrapper.className = 'msg-ticket-wrapper';
 
         if (pode) {
             const isConfirmacao = etapa.numero === 3;
-            const isEstoque = etapa.numero === 6;
-            const isGestor = etapa.numero === 11;
+            const isEstoque     = etapa.numero === 6;
+            const isGestor      = etapa.numero === 11;
             const isTecnicoConf = etapa.numero === 4 && etapa.status === 'AGUARDANDO_CONFIRMACAO';
 
             wrapper.innerHTML =
-                '<div class="chamado-mensagem-card msg-card-ativo" id="cardFormularioInline" style="border-color:#d4b800;overflow:hidden;">'
-
-                + '<div class="chamado-mensagem-header" style="background:#fffde7;border-bottom:1px solid #f0e000;">'
-                + '<span class="msg-etapa-titulo" style="color:#7a6000;font-weight:600;">Etapa ' + etapa.numero + ' - ' + etapa.titulo + '</span>'
-                + '<span class="chamado-mensagem-perfil-badge ' + badgeClass + '" style="margin-left:auto;">' + responsavel + '</span>'
+                '<div class="msg-ticket-card" id="cardFormularioInline">'
+                + '<div class="msg-ticket-header" id="areaAtenderBtn">'
+                +   '<div class="msg-ticket-header-esq">'
+                +     '<div class="msg-ticket-num">' + etapa.numero + '</div>'
+                +     '<div class="msg-ticket-header-info">'
+                +       '<span class="msg-ticket-subtexto">Sua ação é necessária</span>'
+                +       '<span class="msg-ticket-titulo">ETAPA ' + etapa.numero + ' — ' + etapa.titulo.toUpperCase() + '</span>'
+                +     '</div>'
+                +   '</div>'
+                +   '<div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">'
+                +     '<button class="msg-ticket-detalhes-btn" id="btnAtenderChamado">'
+                +       'Atender'
+                +       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="msg-ticket-chevron"><polyline points="6 9 12 15 18 9"/></svg>'
+                +     '</button>'
+                +   '</div>'
                 + '</div>'
-
-                + '<div id="areaAtenderBtn" style="background:#fffde7;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:16px;">'
-                + '<span style="font-size:14px;color:#9a7c00;font-style:italic;">Aguardando a sua ação.</span>'
-                + '<button class="btn-submit" id="btnAtenderChamado" style="white-space:nowrap;flex-shrink:0;">Atender o Chamado</button>'
+                + '<div class="msg-ticket-body collapsed" id="areaFormularioAtender">'
+                +   '<div style="padding:16px;">'
+                +     _buildFormularioInlineHTML(etapa, isConfirmacao, isEstoque, isGestor, isTecnicoConf)
+                +     '<div id="areaCancelarAtender" style="margin-top:12px;display:flex;justify-content:flex-end;">'
+                +       '<button class="msg-ticket-detalhes-btn" id="btnCancelarAtender">Cancelar</button>'
+                +     '</div>'
+                +   '</div>'
                 + '</div>'
-
-                + '<div class="chamado-mensagem-body" id="areaFormularioAtender" style="display:none;">'
-                + _buildFormularioInlineHTML(etapa, isConfirmacao, isEstoque, isGestor, isTecnicoConf)
-                + '</div>'
-
-                + '</div>'
-
-                + '<div id="areaCancelarAtender" style="display:none;margin-top:8px;">'
-                + '<button class="btn-cancel" id="btnCancelarAtender">Cancelar</button>'
                 + '</div>';
 
             container.appendChild(wrapper);
 
-            wrapper.querySelector('#btnAtenderChamado').addEventListener('click', function () {
-                wrapper.querySelector('#areaAtenderBtn').style.display = 'none';
-                const areaForm = wrapper.querySelector('#areaFormularioAtender');
-                areaForm.style.display = 'block';
-                wrapper.querySelector('#areaCancelarAtender').style.display = 'block';
-                areaForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                setTimeout(function () {
-                    const primeiro = areaForm.querySelector('textarea, input, select');
-                    if (primeiro) primeiro.focus();
-                }, 300);
+            const btnAtender  = wrapper.querySelector('#btnAtenderChamado');
+            const areaForm    = wrapper.querySelector('#areaFormularioAtender');
+            const chevron     = btnAtender.querySelector('.msg-ticket-chevron');
+
+            btnAtender.addEventListener('click', function () {
+                const aberto = !areaForm.classList.contains('collapsed');
+                if (aberto) {
+                    areaForm.classList.add('collapsed');
+                    btnAtender.innerHTML = 'Atender <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="msg-ticket-chevron"><polyline points="6 9 12 15 18 9"/></svg>';
+                } else {
+                    areaForm.classList.remove('collapsed');
+                    btnAtender.innerHTML = 'Fechar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="msg-ticket-chevron" style="transform:rotate(180deg)"><polyline points="6 9 12 15 18 9"/></svg>';
+                    areaForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    setTimeout(function () {
+                        const primeiro = areaForm.querySelector('textarea, input, select');
+                        if (primeiro) primeiro.focus();
+                    }, 300);
+                }
             });
 
             wrapper.querySelector('#btnCancelarAtender').addEventListener('click', function () {
-                wrapper.querySelector('#areaFormularioAtender').style.display = 'none';
-                wrapper.querySelector('#areaCancelarAtender').style.display = 'none';
-                wrapper.querySelector('#areaAtenderBtn').style.display = 'flex';
+                areaForm.classList.add('collapsed');
+                btnAtender.innerHTML = 'Atender <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="msg-ticket-chevron"><polyline points="6 9 12 15 18 9"/></svg>';
             });
 
             _bindFormularioInlineEvents(wrapper, chamado, etapa, isConfirmacao, isEstoque, isGestor, isTecnicoConf);
 
         } else {
             wrapper.innerHTML =
-                '<div class="chamado-mensagem-card">'
-                + '<div class="chamado-mensagem-header">'
-                + '<span class="msg-etapa-titulo">Etapa ' + etapa.numero + ' - ' + etapa.titulo + '</span>'
-                + '<span class="chamado-mensagem-perfil-badge ' + badgeClass + '" style="margin-left:auto;">' + responsavel + '</span>'
-                + '</div>'
-                + '<div class="chamado-mensagem-body">'
-                + '<p style="font-size:13px;color:var(--color-gray-500);font-style:italic;">Aguardando acao de: <strong style="color:var(--color-gray-700);">' + responsavel + '</strong></p>'
+                '<div class="msg-ticket-card">'
+                + '<div class="msg-ticket-header" style="cursor:default;">'
+                +   '<div class="msg-ticket-header-esq">'
+                +     '<div class="msg-ticket-num">' + etapa.numero + '</div>'
+                +     '<div class="msg-ticket-header-info">'
+                +       '<span class="msg-ticket-subtexto">Aguardando</span>'
+                +       '<span class="msg-ticket-titulo">ETAPA ' + etapa.numero + ' — ' + etapa.titulo.toUpperCase() + '</span>'
+                +     '</div>'
+                +   '</div>'
+                +   '<span class="chamado-mensagem-perfil-badge ' + badgeClass + '" style="display:none;">' + responsavel + '</span>'
                 + '</div>'
                 + '</div>';
             container.appendChild(wrapper);
@@ -291,50 +296,37 @@
         }
 
         if (etapa.numero === 4 && !isTecnicoConf) {
-
             const todosUsuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
-
             const tecnicos = todosUsuarios.filter(u =>
-                u.status !== 'Desligado' &&
-                u.status !== 'Inativo' &&
+                u.status !== 'Desligado' && u.status !== 'Inativo' &&
                 (u.perfil === 'TECNICO' || u.perfil === 'ADMIN')
             );
-
             const opcoes = tecnicos.map(t =>
-                '<option value="' + t.usuario + '" data-nome="' + t.nomeCompleto + '">' +
-                t.nomeCompleto + ' (' + t.usuario + ')' +
-                '</option>'
+                '<option value="' + t.usuario + '" data-nome="' + t.nomeCompleto + '">'
+                + t.nomeCompleto + ' (' + t.usuario + ')'
+                + '</option>'
             ).join('');
 
             return '<div class="form-group" style="margin-bottom:14px;">'
                 + '<label class="form-label">Técnico Responsável</label>'
-                + '<select id="inlineTecnico" class="form-input">'
-                + '<option value="">Selecione...</option>'
-                + opcoes
-                + '</select>'
+                + '<select id="inlineTecnico" class="form-input"><option value="">Selecione...</option>' + opcoes + '</select>'
                 + '</div>'
-
                 + '<div class="form-group" style="margin-bottom:14px;">'
                 + '<label class="form-label">Data da Avaliação</label>'
                 + '<input type="date" id="inlineDataAvaliacao" class="form-input">'
                 + '</div>'
-
                 + '<div class="form-group" style="margin-bottom:14px;">'
                 + '<label class="form-label">Horário</label>'
                 + '<input type="time" id="inlineHoraAvaliacao" class="form-input">'
                 + '</div>'
-
                 + '<div class="form-group" style="margin-bottom:16px;">'
                 + '<label class="form-label">Mensagem ao Técnico</label>'
                 + '<textarea id="inlineObservacao" class="form-textarea" rows="3"></textarea>'
                 + '</div>'
-
                 + '<div style="display:flex;gap:10px;justify-content:flex-end;">'
                 + '<button id="btnInlineComunicarTecnico" class="btn-submit">Comunicar Técnico</button>'
                 + '</div>';
         }
-
-
 
         return '<div class="form-group" style="margin-bottom:16px;">'
             + '<label class="form-label">Observacao</label>'
@@ -356,81 +348,60 @@
             wrapper.querySelector('#btnInlineAvancar').addEventListener('click', function () {
                 const data = wrapper.querySelector('#inlineDataAgendamento').value;
                 const hora = wrapper.querySelector('#inlineHoraAgendamento').value;
-                const obs = wrapper.querySelector('#inlineObservacao').value.trim();
+                const obs  = wrapper.querySelector('#inlineObservacao').value.trim();
                 if (!data) { const el = wrapper.querySelector('#inlineDataAgendamento'); el.style.borderColor = 'var(--color-danger)'; el.focus(); return; }
                 if (!hora) { const el = wrapper.querySelector('#inlineHoraAgendamento'); el.style.borderColor = 'var(--color-danger)'; el.focus(); return; }
-                const c = reidratarChamado(window.gerenciadorChamados.chamados.find(x => x.id == chamado.id));
-                c.concluirEtapa2(data, hora, obs, usuarioAtual);
+                const c = window.reidratarChamado(window.gerenciadorChamados.chamados.find(x => x.id == chamado.id));
+                c.concluirEtapa2(data, hora, obs, window.usuarioAtual);
                 window.gerenciadorChamados.atualizarChamado(c);
-                reRenderizarDetalhes(c.id);
+                window.reRenderizarDetalhes(c.id);
             });
             return;
         }
 
         if (etapa.numero === 4 && !isTecnicoConf) {
-
-            wrapper.querySelector('#btnInlineComunicarTecnico')
-                .addEventListener('click', function () {
-
-                    const tecnicoSelect = wrapper.querySelector('#inlineTecnico');
-                    const tecnicoUsuario = tecnicoSelect.value;
-                    const tecnicoNome = tecnicoSelect.options[tecnicoSelect.selectedIndex]?.dataset.nome || '';
-
-                    const data = wrapper.querySelector('#inlineDataAvaliacao').value;
-                    const hora = wrapper.querySelector('#inlineHoraAvaliacao').value;
-                    const obs = wrapper.querySelector('#inlineObservacao').value.trim();
-
-                    if (!tecnicoUsuario || !data || !hora) return;
-
-                    const c = reidratarChamado(
-                        window.gerenciadorChamados.chamados.find(x => x.id == chamado.id)
-                    );
-
-                    c.selecionarTecnicoEtapa4(
-                        tecnicoUsuario,
-                        tecnicoNome,
-                        obs,
-                        usuarioAtual
-                    );
-
-                    const etapaObj = c._getEtapa(4);
-                    if (etapaObj) {
-                        etapaObj.dados.dataAvaliacao = data;
-                        etapaObj.dados.horaAvaliacao = hora;
-                    }
-
-                    window.gerenciadorChamados.atualizarChamado(c);
-                    reRenderizarDetalhes(c.id);
-                });
-
+            wrapper.querySelector('#btnInlineComunicarTecnico').addEventListener('click', function () {
+                const sel        = wrapper.querySelector('#inlineTecnico');
+                const tecUsuario = sel.value;
+                const tecNome    = sel.options[sel.selectedIndex]?.dataset.nome || '';
+                const data       = wrapper.querySelector('#inlineDataAvaliacao').value;
+                const hora       = wrapper.querySelector('#inlineHoraAvaliacao').value;
+                const obs        = wrapper.querySelector('#inlineObservacao').value.trim();
+                if (!tecUsuario || !data || !hora) return;
+                const c = window.reidratarChamado(window.gerenciadorChamados.chamados.find(x => x.id == chamado.id));
+                c.selecionarTecnicoEtapa4(tecUsuario, tecNome, obs, window.usuarioAtual);
+                const etapaObj = c._getEtapa(4);
+                if (etapaObj) { etapaObj.dados.dataAvaliacao = data; etapaObj.dados.horaAvaliacao = hora; }
+                window.gerenciadorChamados.atualizarChamado(c);
+                window.reRenderizarDetalhes(c.id);
+            });
             return;
         }
 
-
         if (isTecnicoConf) {
             wrapper.querySelector('#btnInlineConfirmarTecnico').addEventListener('click', function () {
-                const c = reidratarChamado(window.gerenciadorChamados.chamados.find(x => x.id == chamado.id));
-                c.tecnicoConfirmarEtapa4(usuarioAtual);
+                const c = window.reidratarChamado(window.gerenciadorChamados.chamados.find(x => x.id == chamado.id));
+                c.tecnicoConfirmarEtapa4(window.usuarioAtual);
                 window.gerenciadorChamados.atualizarChamado(c);
-                reRenderizarDetalhes(c.id);
+                window.reRenderizarDetalhes(c.id);
             });
             return;
         }
 
         if (isConfirmacao) {
             wrapper.querySelector('#btnInlineAprovar').addEventListener('click', function () {
-                const c = reidratarChamado(window.gerenciadorChamados.chamados.find(x => x.id == chamado.id));
-                c.confirmarEtapa3(true, '', usuarioAtual);
+                const c = window.reidratarChamado(window.gerenciadorChamados.chamados.find(x => x.id == chamado.id));
+                c.confirmarEtapa3(true, '', window.usuarioAtual);
                 window.gerenciadorChamados.atualizarChamado(c);
-                reRenderizarDetalhes(c.id);
+                window.reRenderizarDetalhes(c.id);
             });
             wrapper.querySelector('#btnInlineReprovar').addEventListener('click', function () {
                 const motivo = wrapper.querySelector('#inlineMotivo').value.trim();
                 if (!motivo) { const el = wrapper.querySelector('#inlineMotivo'); el.style.borderColor = 'var(--color-danger)'; el.focus(); return; }
-                const c = reidratarChamado(window.gerenciadorChamados.chamados.find(x => x.id == chamado.id));
-                c.confirmarEtapa3(false, motivo, usuarioAtual);
+                const c = window.reidratarChamado(window.gerenciadorChamados.chamados.find(x => x.id == chamado.id));
+                c.confirmarEtapa3(false, motivo, window.usuarioAtual);
                 window.gerenciadorChamados.atualizarChamado(c);
-                reRenderizarDetalhes(c.id);
+                window.reRenderizarDetalhes(c.id);
             });
             return;
         }
@@ -438,17 +409,17 @@
         if (isEstoque) {
             wrapper.querySelector('#btnInlineEstoqueSim').addEventListener('click', function () {
                 const obs = wrapper.querySelector('#inlineObservacao').value.trim();
-                const c = reidratarChamado(window.gerenciadorChamados.chamados.find(x => x.id == chamado.id));
-                c.concluirEtapa6(true, obs, usuarioAtual);
+                const c = window.reidratarChamado(window.gerenciadorChamados.chamados.find(x => x.id == chamado.id));
+                c.concluirEtapa6(true, obs, window.usuarioAtual);
                 window.gerenciadorChamados.atualizarChamado(c);
-                reRenderizarDetalhes(c.id);
+                window.reRenderizarDetalhes(c.id);
             });
             wrapper.querySelector('#btnInlineEstoqueNao').addEventListener('click', function () {
                 const obs = wrapper.querySelector('#inlineObservacao').value.trim();
-                const c = reidratarChamado(window.gerenciadorChamados.chamados.find(x => x.id == chamado.id));
-                c.concluirEtapa6(false, obs, usuarioAtual);
+                const c = window.reidratarChamado(window.gerenciadorChamados.chamados.find(x => x.id == chamado.id));
+                c.concluirEtapa6(false, obs, window.usuarioAtual);
                 window.gerenciadorChamados.atualizarChamado(c);
-                reRenderizarDetalhes(c.id);
+                window.reRenderizarDetalhes(c.id);
             });
             return;
         }
@@ -457,10 +428,10 @@
             wrapper.querySelector('#btnInlineAvancar').addEventListener('click', function () {
                 const parecer = wrapper.querySelector('#inlineObservacao').value.trim();
                 if (!parecer) { wrapper.querySelector('#inlineObservacao').focus(); return; }
-                const c = reidratarChamado(window.gerenciadorChamados.chamados.find(x => x.id == chamado.id));
-                c.aprovarEtapa11(parecer, usuarioAtual);
+                const c = window.reidratarChamado(window.gerenciadorChamados.chamados.find(x => x.id == chamado.id));
+                c.aprovarEtapa11(parecer, window.usuarioAtual);
                 window.gerenciadorChamados.atualizarChamado(c);
-                reRenderizarDetalhes(c.id);
+                window.reRenderizarDetalhes(c.id);
             });
             return;
         }
@@ -478,22 +449,22 @@
     // =========================================================================
 
     function _concluirEtapaGenerica(chamado, etapa, observacao) {
-        const c = reidratarChamado(window.gerenciadorChamados.chamados.find(x => x.id == chamado.id));
+        const c = window.reidratarChamado(window.gerenciadorChamados.chamados.find(x => x.id == chamado.id));
         const n = etapa.numero;
 
-        if (n === 2) c.concluirEtapa2('', '', observacao, usuarioAtual);
-        else if (n === 3) c.selecionarTecnicoEtapa4('', '', observacao, usuarioAtual);
-        else if (n === 4) c.selecionarTecnicoEtapa4('', '', observacao, usuarioAtual);
-        else if (n === 5.1) c.concluirSubetapa51('', '', observacao, usuarioAtual);
-        else if (n === 5.2) c.concluirSubetapa52('', '', observacao, '', [], usuarioAtual);
-        else if (n === 7.1) c.concluirSubetapa71([], observacao, 'NORMAL', usuarioAtual);
-        else if (n === 7.2) c.concluirSubetapa72('', '', [], 0, observacao, null, usuarioAtual);
-        else if (n === 7.3) c.concluirSubetapa73('', '', '', observacao, usuarioAtual);
-        else if (n === 8) c.concluirEtapa8('', '', observacao, [], usuarioAtual);
-        else if (n === 9) c.concluirEtapa9('', '', '', observacao, usuarioAtual);
-        else if (n === 10.1) c.concluirSubetapa101('', '', [], observacao, usuarioAtual);
-        else if (n === 10.2) c.concluirSubetapa102('', '', observacao, '', [], usuarioAtual);
-        else if (n === 12) c.concluirEtapa12('SATISFEITO', 5, observacao, usuarioAtual);
+        if      (n === 2)    c.concluirEtapa2('', '', observacao, window.usuarioAtual);
+        else if (n === 3)    c.selecionarTecnicoEtapa4('', '', observacao, window.usuarioAtual);
+        else if (n === 4)    c.selecionarTecnicoEtapa4('', '', observacao, window.usuarioAtual);
+        else if (n === 5.1)  c.concluirSubetapa51('', '', observacao, window.usuarioAtual);
+        else if (n === 5.2)  c.concluirSubetapa52('', '', observacao, '', [], window.usuarioAtual);
+        else if (n === 7.1)  c.concluirSubetapa71([], observacao, 'NORMAL', window.usuarioAtual);
+        else if (n === 7.2)  c.concluirSubetapa72('', '', [], 0, observacao, null, window.usuarioAtual);
+        else if (n === 7.3)  c.concluirSubetapa73('', '', '', observacao, window.usuarioAtual);
+        else if (n === 8)    c.concluirEtapa8('', '', observacao, [], window.usuarioAtual);
+        else if (n === 9)    c.concluirEtapa9('', '', '', observacao, window.usuarioAtual);
+        else if (n === 10.1) c.concluirSubetapa101('', '', [], observacao, window.usuarioAtual);
+        else if (n === 10.2) c.concluirSubetapa102('', '', observacao, '', [], window.usuarioAtual);
+        else if (n === 12)   c.concluirEtapa12('SATISFEITO', 5, observacao, window.usuarioAtual);
 
         const etapaObj = c._getEtapa ? c._getEtapa(n) : null;
         if (etapaObj && etapaObj.dados && !etapaObj.dados.observacao) {
@@ -501,7 +472,7 @@
         }
 
         window.gerenciadorChamados.atualizarChamado(c);
-        reRenderizarDetalhes(c.id);
+        window.reRenderizarDetalhes(c.id);
     }
 
 
@@ -510,87 +481,37 @@
     // =========================================================================
 
     function _extrairCamposMensagem(numeroEtapa, d) {
-
         const campos = [];
-        const add = (label, valor) => {
-            if (valor) campos.push({ label, valor });
-        };
+        const add = (label, valor) => { if (valor) campos.push({ label, valor }); };
 
         switch (numeroEtapa) {
-
-            // ==========================
-            // ETAPA 1 - ABERTURA
-            // ==========================
             case 1:
                 add('OBSERVACAO', d.observacao);
                 break;
-
-            // ==========================
-            // ETAPA 2 - AGENDAMENTO
-            // ==========================
             case 2:
-                if (d.dataAgendamento)
-                    add('OBSERVACAO', d.observacao);
-                add('DATA AGENDADA',
-                    _fmtData(d.dataAgendamento) +
-                    (d.horaAgendamento ? ' às ' + d.horaAgendamento : '')
-                );
+                if (d.dataAgendamento) add('OBSERVACAO', d.observacao);
+                add('DATA AGENDADA', _fmtData(d.dataAgendamento) + (d.horaAgendamento ? ' às ' + d.horaAgendamento : ''));
                 break;
-
-            // ==========================
-            // ETAPA 3 - x
-            // ==========================
             case 3:
                 add('OBSERVACAO', d.observacao);
                 break;
-
-            // ==========================
-            // ETAPA 4 - x
-            // ==========================
             case 4:
                 add('TÉCNICO RESPONSÁVEL', d.tecnicoNome);
-
-                if (d.dataAvaliacao)
-                    add('DATA DA AVALIAÇÃO',
-                        _fmtData(d.dataAvaliacao) +
-                        (d.horaAvaliacao ? ' às ' + d.horaAvaliacao : '')
-                    );
-
+                if (d.dataAvaliacao) add('DATA DA AVALIAÇÃO', _fmtData(d.dataAvaliacao) + (d.horaAvaliacao ? ' às ' + d.horaAvaliacao : ''));
                 add('MENSAGEM AO TÉCNICO', d.observacao);
                 add('SELECIONADO POR', d.selecionadoPor);
                 break;
-
-            // ==========================
-            // ETAPA 5 - x
-            // ==========================
-            case 5:
-                add('OBSERVACAO', d.observacao);
-                break;
-
-            case 5.1:
-                add('OBSERVACAO', d.observacao);
-                break;
-
+            case 5:   add('OBSERVACAO', d.observacao); break;
+            case 5.1: add('OBSERVACAO', d.observacao); break;
             case 5.2:
                 add('DIAGNOSTICO', d.diagnostico);
                 add('MATERIAIS NECESSARIOS', d.materiaisNecessarios);
                 break;
-
-            // ==========================
-            // ETAPA 6 - x
-            // ==========================
-            case 6:
-                add('OBSERVACAO', d.observacao);
-                break;
-
-            // ==========================
-            // ETAPA 10.2 - EXECUÇÃO
-            // ==========================
+            case 6:   add('OBSERVACAO', d.observacao); break;
             case 10.2:
                 add('SERVICO EXECUTADO', d.descricaoServico);
                 add('MATERIAIS UTILIZADOS', d.materiaisUsados);
                 break;
-
             default:
                 add('STATUS', 'Etapa concluída.');
         }
@@ -604,11 +525,10 @@
         return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
     }
 
-
+s
     // =========================================================================
     // EXPOSICAO GLOBAL
     // =========================================================================
-
     window.renderMensagens = renderMensagens;
 
 })();

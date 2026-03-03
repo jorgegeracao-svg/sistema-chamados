@@ -642,13 +642,12 @@
     color: white;
 }
 
-/* Círculo com borda azul e sombra para etapa atual */
+/* Círculo amarelo sólido para etapa atual */
 .progresso-item.atual .progresso-circulo {
-    background: white;
-    border-color: var(--color-primary);
-    border-width: 2.5px;
-    color: var(--color-primary);
-    box-shadow: 0 0 0 4px rgba(0, 149, 219, 0.12);
+    background: #f59e0b;
+    border-color: #f59e0b;
+    color: white;
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.18);
 }
 
 /* Subetapas com círculo menor */
@@ -685,7 +684,7 @@
 }
 
 .progresso-item.concluida .progresso-label { color: var(--color-primary); font-weight: 600; }
-.progresso-item.atual .progresso-label     { color: var(--color-primary); font-weight: 700; }
+.progresso-item.atual .progresso-label     { color: #d97706; font-weight: 700; }
 
 /* --- PAINEL DA ETAPA ATUAL (abaixo do progresso) --- */
 .chamado-etapa-atual-panel {

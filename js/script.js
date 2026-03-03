@@ -1337,6 +1337,7 @@ document.addEventListener('DOMContentLoaded', function () {
     window.podeAtenderEtapa = podeAtenderEtapa;
     window.reidratarChamado = reidratarChamado;
     window.reRenderizarDetalhes = reRenderizarDetalhes;
+    window.usuarioAtual = usuarioAtual;
 
     console.log(`✅ Sistema iniciado | Usuário: ${usuarioAtual.usuario} | Perfil: ${usuarioAtual.perfil}`);
     atualizarBadgesNav();
