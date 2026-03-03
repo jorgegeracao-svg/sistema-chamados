@@ -22,7 +22,7 @@
 // VARIÁVEIS GLOBAIS
 // =============================================================================
 let currentTicketId = null;  // ID do chamado aberto na tela de detalhes
-let usuarioAtual    = null;  // Objeto do usuário logado (preenchido no DOMContentLoaded)
+let usuarioAtual = null;  // Objeto do usuário logado (preenchido no DOMContentLoaded)
 
 
 // =============================================================================
@@ -37,7 +37,7 @@ function getEtapaAtivaGlobal(chamado) {
     if (!chamado.etapas) return null;
     for (const etapa of chamado.etapas) {
         const ativa = etapa.status === 'EM_ANDAMENTO' ||
-                      etapa.status === 'AGUARDANDO_CONFIRMACAO';
+            etapa.status === 'AGUARDANDO_CONFIRMACAO';
         if (ativa) {
             if (etapa.subetapas?.length > 0) {
                 const subAtiva = etapa.subetapas.find(s => s.status === 'EM_ANDAMENTO');
@@ -68,11 +68,11 @@ function getResponsavelEtapaAtiva(chamado) {
 function formatarDataHora(data) {
     if (!data) return '-';
     const d = new Date(data);
-    const dd   = String(d.getDate()).padStart(2, '0');
-    const mm   = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
     const yyyy = d.getFullYear();
-    const hh   = String(d.getHours()).padStart(2, '0');
-    const min  = String(d.getMinutes()).padStart(2, '0');
+    const hh = String(d.getHours()).padStart(2, '0');
+    const min = String(d.getMinutes()).padStart(2, '0');
     return `${dd}/${mm}/${yyyy}, ${hh}:${min}`;
 }
 
@@ -90,33 +90,33 @@ document.addEventListener('DOMContentLoaded', function () {
     // -------------------------------------------------------------------------
     // Referências aos elementos do DOM
     // -------------------------------------------------------------------------
-    const btnNovoChamado          = document.getElementById('btnNovoChamado');
-    const btnVoltar               = document.getElementById('btnVoltar');
-    const btnCancelar             = document.getElementById('btnCancelar');
-    const newTicketScreen         = document.getElementById('newTicketScreen');
-    const newTicketForm           = document.getElementById('newTicketForm');
-    const menuToggle              = document.getElementById('menuToggle');
-    const sidebar                 = document.getElementById('sidebar');
-    const sidebarOverlay          = document.getElementById('sidebarOverlay');
-    const ticketTypeSelect        = document.getElementById('ticketType');
-    const manutencaoFields        = document.getElementById('manutencaoFields');
-    const pedidoAnualFields       = document.getElementById('pedidoAnualFields');
-    const pedidoAvulsoFields      = document.getElementById('pedidoAvulsoFields');
-    const localSelect             = document.getElementById('local');
-    const localOutroGroup         = document.getElementById('localOutroGroup');
-    const checkOutroTipo          = document.getElementById('checkOutroTipo');
+    const btnNovoChamado = document.getElementById('btnNovoChamado');
+    const btnVoltar = document.getElementById('btnVoltar');
+    const btnCancelar = document.getElementById('btnCancelar');
+    const newTicketScreen = document.getElementById('newTicketScreen');
+    const newTicketForm = document.getElementById('newTicketForm');
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const ticketTypeSelect = document.getElementById('ticketType');
+    const manutencaoFields = document.getElementById('manutencaoFields');
+    const pedidoAnualFields = document.getElementById('pedidoAnualFields');
+    const pedidoAvulsoFields = document.getElementById('pedidoAvulsoFields');
+    const localSelect = document.getElementById('local');
+    const localOutroGroup = document.getElementById('localOutroGroup');
+    const checkOutroTipo = document.getElementById('checkOutroTipo');
     const tipoManutencaoOutroGroup = document.getElementById('tipoManutencaoOutroGroup');
-    const fotoUpload              = document.getElementById('fotoUpload');
-    const fileName                = document.getElementById('fileName');
-    const documentoPedidoAnual    = document.getElementById('documentoPedidoAnual');
-    const fileNameAnual           = document.getElementById('fileNameAnual');
-    const documentoPedidoAvulso   = document.getElementById('documentoPedidoAvulso');
-    const fileNameAvulso          = document.getElementById('fileNameAvulso');
-    const ticketDetailsScreen     = document.getElementById('ticketDetailsScreen');
-    const btnVoltarDetalhes       = document.getElementById('btnVoltarDetalhes');
-    const btnNotificacoes         = document.getElementById('btnNotificacoes');
-    const navItems                = document.querySelectorAll('.nav-item');
-    const pages                   = document.querySelectorAll('.page-content');
+    const fotoUpload = document.getElementById('fotoUpload');
+    const fileName = document.getElementById('fileName');
+    const documentoPedidoAnual = document.getElementById('documentoPedidoAnual');
+    const fileNameAnual = document.getElementById('fileNameAnual');
+    const documentoPedidoAvulso = document.getElementById('documentoPedidoAvulso');
+    const fileNameAvulso = document.getElementById('fileNameAvulso');
+    const ticketDetailsScreen = document.getElementById('ticketDetailsScreen');
+    const btnVoltarDetalhes = document.getElementById('btnVoltarDetalhes');
+    const btnNotificacoes = document.getElementById('btnNotificacoes');
+    const navItems = document.querySelectorAll('.nav-item');
+    const pages = document.querySelectorAll('.page-content');
 
 
     // =========================================================================
@@ -155,11 +155,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /** Mapa de categoria → perfis que podem atender */
     const CATEGORIA_MAP = {
-        'SOLICITANTE':    ['SOLICITANTE', 'ADMIN'],
+        'SOLICITANTE': ['SOLICITANTE', 'ADMIN'],
         'ADMINISTRATIVO': ['ADMINISTRATIVO', 'ADMIN'],
-        'TECNICO':        ['TECNICO', 'ADMIN'],
-        'COMPRADOR':      ['COMPRADOR', 'ADMINISTRATIVO', 'ADMIN'],
-        'GESTOR':         ['ADMIN']
+        'TECNICO': ['TECNICO', 'ADMIN'],
+        'COMPRADOR': ['COMPRADOR', 'ADMINISTRATIVO', 'ADMIN'],
+        'GESTOR': ['ADMIN']
     };
 
     function podeAtenderEtapa(etapa, perfil) {
@@ -208,7 +208,7 @@ document.addEventListener('DOMContentLoaded', function () {
      */
     function _chamadoPassaPorMim(c) {
         const perfil = usuarioAtual.perfil;
-        const nome   = usuarioAtual.nomeCompleto;
+        const nome = usuarioAtual.nomeCompleto;
 
         const todasEtapas = [];
         (c.etapas || []).forEach(e => {
@@ -226,8 +226,8 @@ document.addEventListener('DOMContentLoaded', function () {
     function atualizarBadgesNav() {
         const contagens = {
             badgeEntrada: getChamadosEntrada().length,
-            badgeLog:     getChamadosLog().length,
-            badgeSaida:   getChamadosSaida().length
+            badgeLog: getChamadosLog().length,
+            badgeSaida: getChamadosSaida().length
         };
         Object.entries(contagens).forEach(([id, count]) => {
             const el = document.getElementById(id);
@@ -251,9 +251,9 @@ document.addEventListener('DOMContentLoaded', function () {
             const targetPage = document.getElementById(targetPageId);
             if (targetPage) targetPage.classList.add('active');
             if (targetPageId === 'caixaEntradaPage') renderTickets('entrada');
-            if (targetPageId === 'caixaLogPage')     renderTickets('log');
-            if (targetPageId === 'caixaSaidaPage')   renderTickets('saida');
-            if (targetPageId === 'perfilPage')       renderPerfilPage();
+            if (targetPageId === 'caixaLogPage') renderTickets('log');
+            if (targetPageId === 'caixaSaidaPage') renderTickets('saida');
+            if (targetPageId === 'perfilPage') renderPerfilPage();
             if (window.innerWidth <= 768) closeSidebar();
 
             // Fechar tela de detalhes se estiver aberta ao navegar pela sidebar
@@ -325,7 +325,7 @@ document.addEventListener('DOMContentLoaded', function () {
         _hideAllTicketFields();
         localOutroGroup?.classList.add('hidden');
         tipoManutencaoOutroGroup?.classList.add('hidden');
-        if (fileName)     fileName.textContent     = 'Nenhum arquivo selecionado';
+        if (fileName) fileName.textContent = 'Nenhum arquivo selecionado';
         if (fileNameAnual) fileNameAnual.textContent = 'Nenhum arquivo selecionado';
         if (fileNameAvulso) fileNameAvulso.textContent = 'Nenhum arquivo selecionado';
 
@@ -333,7 +333,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const chip = document.getElementById('solicitanteChip');
         const hiddenId = document.getElementById('solicitanteId');
         const inputWrapper = document.querySelector('.user-search-input-wrapper');
-        const searchInput  = document.getElementById('solicitanteSearch');
+        const searchInput = document.getElementById('solicitanteSearch');
         if (chip) chip.classList.remove('visible');
         if (hiddenId) hiddenId.value = '';
         if (inputWrapper) inputWrapper.style.display = '';
@@ -352,9 +352,9 @@ document.addEventListener('DOMContentLoaded', function () {
     ticketTypeSelect?.addEventListener('change', (e) => {
         _hideAllTicketFields();
         const v = e.target.value;
-        if (v === 'manutencao'    && manutencaoFields)    manutencaoFields.classList.remove('hidden');
-        if (v === 'pedido_anual'  && pedidoAnualFields)   pedidoAnualFields.classList.remove('hidden');
-        if (v === 'pedido_avulso' && pedidoAvulsoFields)  pedidoAvulsoFields.classList.remove('hidden');
+        if (v === 'manutencao' && manutencaoFields) manutencaoFields.classList.remove('hidden');
+        if (v === 'pedido_anual' && pedidoAnualFields) pedidoAnualFields.classList.remove('hidden');
+        if (v === 'pedido_avulso' && pedidoAvulsoFields) pedidoAvulsoFields.classList.remove('hidden');
     });
 
     document.querySelectorAll('input[name="tipoManutencao"]').forEach(cb => {
@@ -389,12 +389,12 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!selectedType) { alert('Selecione o tipo de chamado'); return; }
 
         if (selectedType === 'manutencao') {
-            const unidade    = document.getElementById('unidade')?.value;
-            const local      = localSelect?.value;
-            const titulo     = document.getElementById('tituloManutencao')?.value.trim();
+            const unidade = document.getElementById('unidade')?.value;
+            const local = localSelect?.value;
+            const titulo = document.getElementById('tituloManutencao')?.value.trim();
             const observacao = document.getElementById('observacaoManutencao')?.value.trim();
-            const email      = document.getElementById('emailSolicitante')?.value.trim();
-            const contato    = document.getElementById('telefoneSolicitante')?.value.trim();
+            const email = document.getElementById('emailSolicitante')?.value.trim();
+            const contato = document.getElementById('telefoneSolicitante')?.value.trim();
 
             const tiposManutencao = Array.from(
                 document.querySelectorAll('input[name="tipoManutencao"]:checked')
@@ -412,7 +412,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert('Especifique o tipo de manutenção'); return;
             }
 
-            const localFinal  = local === 'OUTRO'
+            const localFinal = local === 'OUTRO'
                 ? document.getElementById('localOutro').value.trim()
                 : local;
             const tiposFinais = tiposManutencao.map(t =>
@@ -459,29 +459,29 @@ document.addEventListener('DOMContentLoaded', function () {
     function renderTickets(tipo) {
         const gridIds = {
             entrada: 'ticketsEntradaGrid',
-            log:     'ticketsLogGrid',
-            saida:   'ticketsSaidaGrid'
+            log: 'ticketsLogGrid',
+            saida: 'ticketsSaidaGrid'
         };
         const filtroIds = {
             entrada: { texto: 'filtroEntradaNumero', data: 'filtroEntradaData', tipo: 'filtroEntradaTipo' },
-            log:     { texto: 'filtroLogNumero',     data: 'filtroLogData',     tipo: 'filtroLogTipo'     },
-            saida:   { texto: 'filtroSaidaNumero',   data: 'filtroSaidaData',   tipo: 'filtroSaidaTipo'   }
+            log: { texto: 'filtroLogNumero', data: 'filtroLogData', tipo: 'filtroLogTipo' },
+            saida: { texto: 'filtroSaidaNumero', data: 'filtroSaidaData', tipo: 'filtroSaidaTipo' }
         };
 
         const grid = document.getElementById(gridIds[tipo]);
         if (!grid) return;
 
         const textoFiltro = (document.getElementById(filtroIds[tipo].texto)?.value || '').trim().toLowerCase();
-        const dataFiltro  = document.getElementById(filtroIds[tipo].data)?.value || '';
-        const tipoFiltro  = document.getElementById(filtroIds[tipo].tipo)?.value || '';
+        const dataFiltro = document.getElementById(filtroIds[tipo].data)?.value || '';
+        const tipoFiltro = document.getElementById(filtroIds[tipo].tipo)?.value || '';
 
         const listas = { entrada: getChamadosEntrada, log: getChamadosLog, saida: getChamadosSaida };
         let lista = listas[tipo]();
 
         if (textoFiltro) {
             lista = lista.filter(c => {
-                const numero     = String(c._numero || c.id || '').toLowerCase();
-                const titulo     = (c.titulo || '').toLowerCase();
+                const numero = String(c._numero || c.id || '').toLowerCase();
+                const titulo = (c.titulo || '').toLowerCase();
                 const solicitante = (c.etapas?.[0]?.conclusao?.usuario || c._solicitanteUsuario || '').toLowerCase();
                 return numero.includes(textoFiltro) || titulo.includes(textoFiltro) || solicitante.includes(textoFiltro);
             });
@@ -526,12 +526,12 @@ document.addEventListener('DOMContentLoaded', function () {
     // Listeners dos filtros
     [
         { texto: 'filtroEntradaNumero', data: 'filtroEntradaData', tipo: 'filtroEntradaTipo', caixa: 'entrada' },
-        { texto: 'filtroLogNumero',     data: 'filtroLogData',     tipo: 'filtroLogTipo',     caixa: 'log'     },
-        { texto: 'filtroSaidaNumero',   data: 'filtroSaidaData',   tipo: 'filtroSaidaTipo',   caixa: 'saida'   }
+        { texto: 'filtroLogNumero', data: 'filtroLogData', tipo: 'filtroLogTipo', caixa: 'log' },
+        { texto: 'filtroSaidaNumero', data: 'filtroSaidaData', tipo: 'filtroSaidaTipo', caixa: 'saida' }
     ].forEach(({ texto, data, tipo, caixa }) => {
-        document.getElementById(texto)?.addEventListener('input',  () => renderTickets(caixa));
-        document.getElementById(data)?.addEventListener('change',  () => renderTickets(caixa));
-        document.getElementById(tipo)?.addEventListener('change',  () => renderTickets(caixa));
+        document.getElementById(texto)?.addEventListener('input', () => renderTickets(caixa));
+        document.getElementById(data)?.addEventListener('change', () => renderTickets(caixa));
+        document.getElementById(tipo)?.addEventListener('change', () => renderTickets(caixa));
     });
 
 
@@ -548,10 +548,10 @@ document.addEventListener('DOMContentLoaded', function () {
         window.chamadoAtual = chamado;
 
         // Preencher cabeçalho
-        const numero  = chamado._numero || chamado.id;
-        const numEl   = document.getElementById('detailsTicketNumber');
+        const numero = chamado._numero || chamado.id;
+        const numEl = document.getElementById('detailsTicketNumber');
         const titleEl = document.getElementById('detailsTicketTitle');
-        if (numEl)   numEl.textContent   = '#' + String(numero).padStart(8, '0');
+        if (numEl) numEl.textContent = '#' + String(numero).padStart(8, '0');
         if (titleEl) titleEl.textContent = chamado.titulo;
 
         const abertoPorEl = document.getElementById('detailsAbertoPor');
@@ -561,7 +561,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const badge = document.getElementById('detailsStatusBadge');
         if (badge) {
             badge.textContent = chamado.status === 'FINALIZADO' ? 'Finalizado' : 'Em andamento';
-            badge.className   = 'chamado-detalhes-badge' + (chamado.status === 'FINALIZADO' ? ' finalizado' : '');
+            badge.className = 'chamado-detalhes-badge' + (chamado.status === 'FINALIZADO' ? ' finalizado' : '');
         }
 
         // Botão copiar número
@@ -637,12 +637,12 @@ document.addEventListener('DOMContentLoaded', function () {
         etapasConfig.forEach(cfg => {
             // Etapas condicionais ausentes (ex: Et.7 quando estoque=SIM): ocultar
             const existeNoFluxo = cfg.num in etapasMap ||
-                                  !cfg.condicional ||
-                                  chamado.status === 'FINALIZADO';
+                !cfg.condicional ||
+                chamado.status === 'FINALIZADO';
 
-            const status    = etapasMap[cfg.num];
+            const status = etapasMap[cfg.num];
             const concluida = status === 'CONCLUIDA';
-            const atual     = status === 'EM_ANDAMENTO' || status === 'AGUARDANDO_CONFIRMACAO';
+            const atual = status === 'EM_ANDAMENTO' || status === 'AGUARDANDO_CONFIRMACAO';
 
             const item = document.createElement('div');
             item.className = [
@@ -658,17 +658,37 @@ document.addEventListener('DOMContentLoaded', function () {
             circulo.className = 'progresso-circulo';
             circulo.innerHTML = concluida
                 ? `<svg class="progresso-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>`
-                : cfg.num;
+                : '';
 
             const label = document.createElement('div');
             label.className = 'progresso-label';
-            label.textContent = cfg.label;
+            label.textContent = cfg.sub ? `Sub ${cfg.num}` : `Etapa ${cfg.num}`;
 
             item.appendChild(circulo);
             item.appendChild(label);
             container.appendChild(item);
-        });
-    }
+        }); // forEach fecha aqui
+
+        // Bolinha visual "Finalizado" — fora do forEach
+        const itemFinal = document.createElement('div');
+        itemFinal.className = 'progresso-item ' + (chamado.status === 'FINALIZADO' ? 'concluida' : 'pendente condicional');
+
+        const circuloFinal = document.createElement('div');
+        circuloFinal.className = 'progresso-circulo';
+        circuloFinal.innerHTML = chamado.status === 'FINALIZADO'
+            ? `<svg class="progresso-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg><span class="progresso-num">✓</span>`
+            : `✓`;
+
+        const labelFinal = document.createElement('div');
+        labelFinal.className = 'progresso-label';
+        labelFinal.textContent = 'Finalizado';
+
+        itemFinal.appendChild(circuloFinal);
+        itemFinal.appendChild(labelFinal);
+        container.appendChild(itemFinal);
+    } // função fecha aqui
+
+
 
 
     // =========================================================================
@@ -687,11 +707,11 @@ document.addEventListener('DOMContentLoaded', function () {
         abaFluxo.appendChild(colSumario);
         abaFluxo.appendChild(colCards);
 
-        const agora       = new Date();
+        const agora = new Date();
         const dataAbertura = chamado.dataCriacao ? new Date(chamado.dataCriacao) : null;
-        const diasAberto  = dataAbertura ? Math.floor((agora - dataAbertura) / 86400000) : null;
-        const etapaAtiva  = getEtapaAtiva(chamado);
-        const finalizado  = chamado.status === 'FINALIZADO';
+        const diasAberto = dataAbertura ? Math.floor((agora - dataAbertura) / 86400000) : null;
+        const etapaAtiva = getEtapaAtiva(chamado);
+        const finalizado = chamado.status === 'FINALIZADO';
 
         // Tempo na etapa atual
         let horasEtapa = null;
@@ -717,7 +737,7 @@ document.addEventListener('DOMContentLoaded', function () {
             : diasAberto;
 
         const etapasConcluidas = (chamado.etapas || []).filter(e => e.status === 'CONCLUIDA').length;
-        const totalEtapas      = (chamado.etapas || []).length;
+        const totalEtapas = (chamado.etapas || []).length;
 
         // Cards de métricas
         const metricas = [
@@ -725,25 +745,25 @@ document.addEventListener('DOMContentLoaded', function () {
                 icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>`,
                 label: 'Data de abertura',
                 valor: dataAbertura ? formatarDataHora(chamado.dataCriacao) : '-',
-                cor:   'azul'
+                cor: 'azul'
             },
             {
                 icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`,
                 label: finalizado ? 'Duração total' : 'Dias em andamento',
                 valor: diasTotal !== null ? `${diasTotal} dia${diasTotal !== 1 ? 's' : ''}` : '-',
-                cor:   diasTotal > 7 ? 'laranja' : 'verde'
+                cor: 'azul'
             },
             {
                 icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>`,
                 label: 'Etapa atual',
                 valor: getNomeEtapaAtiva(chamado),
-                cor:   finalizado ? 'verde' : 'azul'
+                cor: finalizado ? 'verde' : 'azul'
             },
             {
                 icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`,
                 label: finalizado ? 'Finalizado por' : 'Setor responsável',
                 valor: getResponsavelEtapaAtiva(chamado),
-                cor:   'roxo'
+                cor: 'azul'
             },
             {
                 icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`,
@@ -751,13 +771,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 valor: horasEtapa !== null
                     ? (horasEtapa < 1 ? `${Math.round(horasEtapa * 60)} min` : `${horasEtapa}h`)
                     : (finalizado ? 'Concluído' : '-'),
-                cor:   horasEtapa > 48 ? 'vermelho' : horasEtapa > 24 ? 'laranja' : 'verde'
+                cor: 'azul'
             },
             {
                 icone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>`,
                 label: 'Etapas concluídas',
                 valor: `${etapasConcluidas} de ${totalEtapas}`,
-                cor:   etapasConcluidas === totalEtapas ? 'verde' : 'azul'
+                cor: 'azul'
             }
         ];
 
@@ -789,16 +809,16 @@ document.addEventListener('DOMContentLoaded', function () {
         lista.className = 'fluxo-sumario-lista';
 
         (window.FLUXO_MANUTENCAO || []).forEach(cfg => {
-            const etapa       = etapasMap[cfg.num];
-            const concluida   = etapa?.status === 'CONCLUIDA';
+            const etapa = etapasMap[cfg.num];
+            const concluida = etapa?.status === 'CONCLUIDA';
             const emAndamento = etapa?.status === 'EM_ANDAMENTO' || etapa?.status === 'AGUARDANDO_CONFIRMACAO';
             const responsavel = (window.CATEGORIA_LABEL || {})[cfg.categoria] || cfg.categoria;
-            const dataConc    = etapa?.conclusao?.dataHora ? formatarDataHora(etapa.conclusao.dataHora) : null;
-            const usuario     = etapa?.conclusao?.usuario || null;
+            const dataConc = etapa?.conclusao?.dataHora ? formatarDataHora(etapa.conclusao.dataHora) : null;
+            const usuario = etapa?.conclusao?.usuario || null;
 
             const statusLabel = concluida ? 'Concluída' : emAndamento ? 'Em andamento' : 'Pendente';
             const statusClass = concluida ? 'sumario-status-ok' : emAndamento ? 'sumario-status-ativo' : 'sumario-status-pendente';
-            const numClass    = concluida ? 'sumario-num-ok' : emAndamento ? 'sumario-num-ativo' : 'sumario-num-pendente';
+            const numClass = concluida ? 'sumario-num-ok' : emAndamento ? 'sumario-num-ativo' : 'sumario-num-pendente';
 
             // Ocultar condicionais que não foram ativadas no fluxo deste chamado
             if (cfg.condicional && !etapa) return;
@@ -808,15 +828,15 @@ document.addEventListener('DOMContentLoaded', function () {
             row.innerHTML = `
                 <div class="sumario-num ${numClass}">
                     ${concluida
-                        ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`
-                        : cfg.num}
+                    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`
+                    : cfg.num}
                 </div>
                 <div class="sumario-info">
                     <div class="sumario-titulo">${cfg.label}</div>
                     <div class="sumario-meta">
                         <span class="sumario-responsavel">${responsavel}</span>
                         ${dataConc ? `<span class="sumario-sep">·</span><span class="sumario-data">${dataConc}</span>` : ''}
-                        ${usuario  ? `<span class="sumario-sep">·</span><span class="sumario-usuario">${usuario}</span>` : ''}
+                        ${usuario ? `<span class="sumario-sep">·</span><span class="sumario-usuario">${usuario}</span>` : ''}
                     </div>
                 </div>
                 <span class="sumario-status ${statusClass}">${statusLabel}</span>`;
@@ -1043,7 +1063,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.addEventListener('keydown', (e) => {
         if (e.key !== 'Escape') return;
-        if (sidebar?.classList.contains('open'))           closeSidebar();
+        if (sidebar?.classList.contains('open')) closeSidebar();
         if (newTicketScreen?.classList.contains('active')) closeTicketScreen();
         if (ticketDetailsScreen?.classList.contains('active')) {
             ticketDetailsScreen.classList.remove('active', 'fullscreen');
@@ -1076,7 +1096,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return todasEtapas.some(e => e.conclusao?.usuario === u.nomeCompleto)
                 || c._solicitanteUsuario === u.usuario;
         });
-        const abertos     = meus.filter(c => c.status !== 'FINALIZADO').length;
+        const abertos = meus.filter(c => c.status !== 'FINALIZADO').length;
         const finalizados = meus.filter(c => c.status === 'FINALIZADO').length;
 
         container.innerHTML = `
@@ -1196,16 +1216,16 @@ document.addEventListener('DOMContentLoaded', function () {
             `);
             document.getElementById('cancelarEditarContato')?.addEventListener('click', fecharModalPerfil);
             document.getElementById('salvarContato')?.addEventListener('click', () => {
-                const email    = document.getElementById('editEmail').value.trim();
+                const email = document.getElementById('editEmail').value.trim();
                 const telefone = document.getElementById('editTelefone').value.trim();
                 const usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
                 const idx = usuarios.findIndex(x => x.usuario === u.usuario);
                 if (idx >= 0) {
-                    usuarios[idx].email    = email;
+                    usuarios[idx].email = email;
                     usuarios[idx].telefone = telefone;
                     localStorage.setItem('usuarios', JSON.stringify(usuarios));
                 }
-                usuarioAtual.email    = email;
+                usuarioAtual.email = email;
                 usuarioAtual.telefone = telefone;
                 fecharModalPerfil();
                 renderPerfilPage();
@@ -1234,12 +1254,12 @@ document.addEventListener('DOMContentLoaded', function () {
             `);
             document.getElementById('cancelarSenha')?.addEventListener('click', fecharModalPerfil);
             document.getElementById('salvarSenha')?.addEventListener('click', () => {
-                const atual     = document.getElementById('senhaAtual').value;
-                const nova      = document.getElementById('novaSenha').value;
+                const atual = document.getElementById('senhaAtual').value;
+                const nova = document.getElementById('novaSenha').value;
                 const confirmar = document.getElementById('confirmarSenha').value;
-                const erroEl    = document.getElementById('senhaErro');
-                const usuarios  = JSON.parse(localStorage.getItem('usuarios') || '[]');
-                const user      = usuarios.find(x => x.usuario === u.usuario);
+                const erroEl = document.getElementById('senhaErro');
+                const usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
+                const user = usuarios.find(x => x.usuario === u.usuario);
                 if (!user || user.senha !== atual) {
                     erroEl.textContent = 'Senha atual incorreta.'; erroEl.style.display = 'block'; return;
                 }
@@ -1279,7 +1299,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // TOGGLE LISTA / GRADE
     // =========================================================================
 
-    const GRIDS   = { entrada: 'ticketsEntradaGrid', log: 'ticketsLogGrid', saida: 'ticketsSaidaGrid' };
+    const GRIDS = { entrada: 'ticketsEntradaGrid', log: 'ticketsLogGrid', saida: 'ticketsSaidaGrid' };
     const TOGGLES = { entrada: 'viewToggle', log: 'viewToggleLog', saida: 'viewToggleSaida' };
 
     let modoVisualiz = localStorage.getItem('modoVisualizacao') || 'lista';
@@ -1313,9 +1333,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // =========================================================================
     // EXPOR FUNÇÕES INTERNAS PARA MÓDULOS EXTERNOS (aba-mensagens.js, etc.)
     // =========================================================================
-    window.getEtapaAtiva        = getEtapaAtiva;
-    window.podeAtenderEtapa     = podeAtenderEtapa;
-    window.reidratarChamado     = reidratarChamado;
+    window.getEtapaAtiva = getEtapaAtiva;
+    window.podeAtenderEtapa = podeAtenderEtapa;
+    window.reidratarChamado = reidratarChamado;
     window.reRenderizarDetalhes = reRenderizarDetalhes;
 
     console.log(`✅ Sistema iniciado | Usuário: ${usuarioAtual.usuario} | Perfil: ${usuarioAtual.perfil}`);

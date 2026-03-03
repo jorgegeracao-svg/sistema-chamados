@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="css/02-tela-principal.css">
     <link rel="stylesheet" href="css/03-novo-chamado-e-detalhes.css">
     <link rel="stylesheet" href="css/04-etapas.css">
+    <link rel="stylesheet" href="css/05-progresso-etapas.css">
     <link rel="stylesheet" href="css/06-user-search.css">
     <link rel="stylesheet" href="css/07-aba-mensagens.css">
 
@@ -716,26 +717,24 @@
     ====================================================================== -->
     <div class="chamado-detalhes-screen" id="ticketDetailsScreen">
 
+        <!-- Info bar: usuário | título | número -->
         <div class="chamado-progresso-wrapper">
-
-            <!-- Info bar: usuário | título | número -->
             <div class="chamado-info-bar">
 
-                <!-- Esquerda: aberto por + status -->
+                <!-- Esquerda: aberto por -->
                 <div class="chamado-info-usuario" id="detailsUsuarioInfo">
                     <div class="chamado-info-avatar" id="detailsUsuarioAvatar">—</div>
                     <div>
                         <span class="chamado-info-nome" id="detailsAbertoPor">—</span>
-                        
                     </div>
                 </div>
 
-                <!-- Centro: título do chamado -->
+                <!-- Centro: título -->
                 <div class="chamado-info-titulo-wrapper">
                     <p class="chamado-info-titulo" id="detailsTicketTitle">—</p>
                 </div>
 
-                <!-- Direita: número + botão copiar -->
+                <!-- Direita: número + copiar -->
                 <div class="chamado-info-numero-wrapper">
                     <span class="chamado-info-numero" id="detailsTicketNumber">#00000000</span>
                     <button class="chamado-info-copiar" id="btnCopiarNumero" title="Copiar número do chamado"
@@ -749,23 +748,20 @@
                 </div>
 
             </div>
-
-            <!-- Divisor -->
             <div class="chamado-info-divider"></div>
-
         </div><!-- /chamado-progresso-wrapper -->
 
+        <!-- BARRA DE PROGRESSO (fora do wrapper, antes das abas) -->
+        <div class="chamado-progresso-barra">
+            <div class="chamado-progresso-scroll">
+                <div id="progressoLinha"></div>
+            </div>
+        </div>
+
+        <!-- ABAS -->
         <div class="chamado-abas-wrapper">
 
             <div class="chamado-abas-nav" role="tablist">
-
-                <button class="chamado-aba-btn" data-aba="fluxo" role="tab" aria-selected="false">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                    </svg>
-                    Resumo
-                </button>
 
                 <button class="chamado-aba-btn active" data-aba="mensagens" role="tab" aria-selected="true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -796,30 +792,34 @@
                     </svg>
                     Anexos
                 </button>
+
+                <button class="chamado-aba-btn" data-aba="fluxo" role="tab" aria-selected="false">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                    </svg>
+                    Resumo
+                </button>
+
             </div>
 
+            <!-- ABA: RESUMO -->
             <div class="chamado-aba-conteudo" id="aba-fluxo" role="tabpanel">
-                <!-- Cards de resumo -->
                 <div class="fluxo-resumo-cards" id="fluxoResumoCards"></div>
-                <!-- Bolinhas de progresso -->
-                <div class="fluxo-progresso-section">
-                    <p class="fluxo-progresso-titulo">Progresso do chamado</p>
-                    <div class="chamado-progresso-scroll">
-                        <div class="chamado-progresso-linha" id="progressoLinha"></div>
-                    </div>
-                </div>
-                <!-- Sumário de etapas -->
                 <div class="fluxo-sumario-section" id="fluxoSumario"></div>
             </div>
 
+            <!-- ABA: MENSAGENS -->
             <div class="chamado-aba-conteudo active" id="aba-mensagens" role="tabpanel">
                 <div class="chamado-mensagens-lista" id="historyMessages"></div>
             </div>
 
+            <!-- ABA: FORMULÁRIO -->
             <div class="chamado-aba-conteudo" id="aba-formulario" role="tabpanel">
                 <div id="chamadoFormularioContainer"></div>
             </div>
 
+            <!-- ABA: ANEXOS -->
             <div class="chamado-aba-conteudo" id="aba-anexos" role="tabpanel">
                 <div class="chamado-anexos-lista" id="chamadoAnexosLista">
                     <div class="chamado-sem-anexos">
@@ -834,9 +834,9 @@
                 </div>
             </div>
 
-        </div>
+        </div><!-- /chamado-abas-wrapper -->
 
-    </div>
+    </div><!-- /chamado-detalhes-screen -->
 
 
 

@@ -71,28 +71,6 @@
         const campos = _extrairCamposMensagem(msg.numero, msg.dados || {});
         const cardClass = isSub ? 'msg-ticket-card concluida msg-ticket-sub' : 'msg-ticket-card concluida';
 
-        // Banner de agendamento (somente etapa 2)
-        let banner = '';
-        if (msg.numero === 2 && msg.dados && msg.dados.dataAgendamento) {
-            const dataFmt = _fmtData(msg.dados.dataAgendamento);
-            const hora = msg.dados.horaAgendamento ? ' AS ' + msg.dados.horaAgendamento : '';
-            banner = '<div style="margin-top:10px;background:#fff;border:1.5px solid #e5e7eb;border-radius:8px;padding:14px 18px;display:flex;align-items:center;gap:14px;box-shadow:0 1px 3px rgba(0,0,0,0.08);">'
-                + '<div style="width:40px;height:40px;background:#e0f4ff;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'
-                + '<svg viewBox="0 0 24 24" fill="none" stroke="#0095db" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:19px;height:19px;">'
-                + '<rect x="3" y="4" width="18" height="18" rx="2"></rect>'
-                + '<line x1="16" y1="2" x2="16" y2="6"></line>'
-                + '<line x1="8" y1="2" x2="8" y2="6"></line>'
-                + '<line x1="3" y1="10" x2="21" y2="10"></line>'
-                + '</svg>'
-                + '</div>'
-                + '<div style="display:flex;flex-direction:column;gap:2px;">'
-                + '<span style="font-size:11px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px;">Avaliacao agendada para</span>'
-                + '<span style="font-size:15px;font-weight:800;color:#111827;">' + dataFmt + hora + '</span>'
-                + '</div>'
-                + '<div style="margin-left:auto;background:#e0f4ff;color:#0095db;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;white-space:nowrap;flex-shrink:0;">Agendado</div>'
-                + '</div>';
-        }
-
 
         const camposHTML = campos.map(c => '<p class="msg-ticket-conteudo-linha"><strong>' + c.label + ':</strong> ' + c.valor + '</p>').join('');
 
@@ -130,7 +108,6 @@
             + '</div>'
             + '</div>'
             + '</div>'
-            + banner
             + '</div>';
     }
 
@@ -141,14 +118,27 @@
     // =========================================================================
 
     function _bindToggle(wrapper) {
-        wrapper.querySelectorAll('.msg-ticket-toggle').forEach(btn => {
-            btn.addEventListener('click', function () {
-                const card = btn.closest('.msg-ticket-card');
-                const body = card.querySelector('.msg-ticket-body');
-                const chevron = card.querySelector('.msg-ticket-chevron');
+        wrapper.querySelectorAll('.msg-ticket-card').forEach(card => {
+            const body = card.querySelector('.msg-ticket-body');
+            const chevron = card.querySelector('.msg-ticket-chevron');
+            const btn = card.querySelector('.msg-ticket-detalhes-btn');
+            const header = card.querySelector('.msg-ticket-header');
+
+            // Corrige o estado inicial do chevron (body começa collapsed = fechado)
+            if (chevron) chevron.style.transform = 'rotate(0deg)';
+
+            function toggle(e) {
+                e.stopPropagation();
                 const isCollapsed = body.classList.contains('collapsed');
                 body.classList.toggle('collapsed', !isCollapsed);
-                chevron.style.transform = isCollapsed ? 'rotate(180deg)' : 'rotate(0deg)';
+                if (chevron) chevron.style.transform = isCollapsed ? 'rotate(180deg)' : 'rotate(0deg)';
+            }
+
+            // Apenas o botão e o header disparam o toggle (sem duplicar)
+            btn?.addEventListener('click', toggle);
+            header?.addEventListener('click', function (e) {
+                // Só dispara se o clique não veio do botão
+                if (!e.target.closest('.msg-ticket-detalhes-btn')) toggle(e);
             });
         });
     }
@@ -547,10 +537,16 @@
                 );
                 break;
 
+            // ==========================
+            // ETAPA 3 - x
+            // ==========================
             case 3:
                 add('OBSERVACAO', d.observacao);
                 break;
 
+            // ==========================
+            // ETAPA 4 - x
+            // ==========================
             case 4:
                 add('TÉCNICO RESPONSÁVEL', d.tecnicoNome);
 
@@ -564,6 +560,9 @@
                 add('SELECIONADO POR', d.selecionadoPor);
                 break;
 
+            // ==========================
+            // ETAPA 5 - x
+            // ==========================
             case 5:
                 add('OBSERVACAO', d.observacao);
                 break;
@@ -577,6 +576,9 @@
                 add('MATERIAIS NECESSARIOS', d.materiaisNecessarios);
                 break;
 
+            // ==========================
+            // ETAPA 6 - x
+            // ==========================
             case 6:
                 add('OBSERVACAO', d.observacao);
                 break;

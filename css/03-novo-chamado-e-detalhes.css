@@ -85,9 +85,9 @@
 
 /* --- ÁREA DE FORMULÁRIO --- */
 .ticket-form-container {
-    max-width: 1400px;
-    margin: 20px auto;
-    padding: 0 32px;
+    max-width: 1700px; 
+    margin: 20px 5px;
+    padding: 0 5px;
 }
 
 /* Card branco que envolve o formulário */
@@ -107,7 +107,7 @@
 /* Linha com dois campos lado a lado */
 .form-row-2 {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: block;
     gap: 16px;
 }
 
@@ -456,6 +456,7 @@
     justify-content: space-between;
     padding: 12px 28px;
     gap: 16px;
+    background: #ffffff;
 }
 
 /* Esquerda: avatar circular + nome */
@@ -1450,9 +1451,9 @@
 
 /* Coluna direita: cards de métricas */
 .fluxo-col-cards {
-    flex: 0 0 300px;
+    flex: 0 0 500px;
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 10px;
     align-content: start;
     padding: 20px;
@@ -1643,4 +1644,13 @@
     .chamado-detalhes-screen.fullscreen {
         left: var(--sidebar-width) !important;
     }
+}
+
+/* Label padrão de campo */
+.form-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-gray-700);
+    margin-bottom: 6px;
+    display: block;
 }

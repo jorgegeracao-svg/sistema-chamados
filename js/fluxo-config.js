@@ -42,7 +42,8 @@ window.FLUXO_MANUTENCAO = [
 
     // ---- Bloco 5: Aprovação e Fechamento ----
     { num: '11',   label: 'Conferência do Gestor',     categoria: 'GESTOR'         },
-    { num: '12',   label: 'Finalizar o Chamado',       categoria: 'SOLICITANTE'    }
+    { num: '12',   label: 'Finalizar o Chamado',       categoria: 'SOLICITANTE'    }, 
+
 ];
 
 

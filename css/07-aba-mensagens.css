@@ -363,12 +363,12 @@
    VARIANTE: etapa concluída (verde)
    -------------------------------------------------------------------------- */
 .msg-ticket-card.concluida .msg-ticket-header {
-    background: #f0fdf4;
-    border-bottom-color: #bbf7d0;
+    background: #ffffff;
+    border-bottom-color: #ffffff;
 }
 
 .msg-ticket-card.concluida .msg-ticket-header:hover {
-    background: #dcfce7;
+    background: #ffffff;
 }
 
 .msg-ticket-card.concluida .msg-ticket-num {
@@ -381,26 +381,26 @@
 }
 
 .msg-ticket-card.concluida .msg-ticket-titulo {
-    color: #14532d;
+    color: #000000;
 }
 
 .msg-ticket-card.concluida .msg-ticket-detalhes-btn {
-    color: #16a34a;
-    border-color: #bbf7d0;
+    color: #000000;
+    border-color: #a8a8a8;
 }
 
 .msg-ticket-card.concluida .msg-ticket-detalhes-btn:hover {
     background: #dcfce7;
-    border-color: #86efac;
+    border-color: #7c7c7c;
 }
 
 .msg-ticket-card.concluida .msg-ticket-body {
-    background: #cadeff;
-    border-top-color: #bfdbfe;
+    background: #f1f1f1;
+    border-top-color: #b9b9b9;
 }
 
 .msg-ticket-card.concluida .msg-ticket-divider {
-    background: #bfdbfe;
+    background: #caced3;
 }
 
 .msg-ticket-card.concluida .msg-ticket-remetente-nome {
@@ -413,11 +413,11 @@
 }
 
 .msg-ticket-card.concluida .msg-ticket-avatar {
-    background: rgba(0, 149, 219, 0.12);
+    background: rgba(136, 136, 136, 0.12);
 }
 
 .msg-ticket-card.concluida .msg-ticket-avatar svg {
-    stroke: #0095db;
+    stroke: #afafaf;
 }
 
 .msg-ticket-card.concluida .msg-ticket-conteudo-linha {
@@ -495,7 +495,7 @@
 
 .msg-ticket-titulo {
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 500;
     color: #1e3a5f;
     white-space: nowrap;
     overflow: hidden;
