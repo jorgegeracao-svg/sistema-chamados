@@ -342,6 +342,108 @@
    ========================================================================== */
 
 /* Container — começa fora da tela (translateX 100%) e desliza para dentro */
+/* HEADER MOBILE DA TELA DE DETALHES */
+.chamado-detalhes-mobile-header {
+    display: none; /* só aparece no mobile via media query */
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #ffffff;
+    border-bottom: 1px solid var(--color-gray-200);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.chamado-detalhes-mobile-voltar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-primary);
+    padding: 6px 8px 6px 4px;
+    border-radius: var(--radius-md);
+    white-space: nowrap;
+    transition: background 0.15s;
+}
+.chamado-detalhes-mobile-voltar:hover { background: var(--color-primary-light); }
+.chamado-detalhes-mobile-voltar svg {
+    width: 18px;
+    height: 18px;
+    stroke: var(--color-primary);
+    flex-shrink: 0;
+}
+
+.chamado-detalhes-mobile-titulo {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-gray-900);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    text-align: center;
+}
+
+.chamado-detalhes-mobile-menu {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    flex-shrink: 0;
+    transition: background 0.15s;
+}
+.chamado-detalhes-mobile-menu:hover { background: var(--color-gray-100); }
+.chamado-detalhes-mobile-menu svg {
+    width: 22px;
+    height: 22px;
+    stroke: var(--color-gray-700);
+}
+
+@media (max-width: 768px) {
+    .chamado-detalhes-mobile-header { display: flex; }
+}
+
+/* RODAPÉ DA TELA DE DETALHES */
+.chamado-detalhes-rodape {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 24px;
+    background: #ffffff;
+    border-top: 1px solid var(--color-gray-200);
+}
+
+.chamado-detalhes-rodape-sistema {
+    font-size: 12px;
+    color: var(--color-gray-400);
+    font-weight: 500;
+}
+
+.chamado-detalhes-rodape-num {
+    font-size: 12px;
+    color: var(--color-gray-400);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 480px) {
+    .chamado-detalhes-rodape { padding: 8px 16px; }
+    .chamado-detalhes-rodape-sistema { display: none; }
+}
+
 .chamado-detalhes-screen {
     position: fixed;
     top: 0;
@@ -350,12 +452,9 @@
     bottom: 0;
     background: #f4f6f9;
     z-index: 500;
-    display: flex;
+    display: none;
     flex-direction: column;
     overflow: hidden;
-
-    /* Estado inicial: oculto */
-    display: none;
 }
 
 /* Estado ativo: visível imediatamente */
@@ -503,7 +602,6 @@
 .chamado-info-titulo {
     font-size: 14px;
     font-weight: 700;
-    color: var(--color-gray-900);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1653,3 +1751,393 @@
     margin-bottom: 6px;
     display: block;
 }
+
+/* ==========================================================================
+   VALIDAÇÃO DE CAMPOS OBRIGATÓRIOS
+   ========================================================================== */
+
+.campo-erro-msg {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #dc2626;
+    margin-bottom: 5px;
+    animation: erroAppear 0.2s ease;
+}
+
+.campo-erro-msg svg {
+    width: 13px;
+    height: 13px;
+    stroke: #dc2626;
+    flex-shrink: 0;
+}
+
+@keyframes erroAppear {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.campo-invalido,
+input.campo-invalido,
+select.campo-invalido,
+textarea.campo-invalido {
+    border-color: #dc2626 !important;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12) !important;
+}
+
+div.campo-invalido {
+    outline: 1.5px dashed #dc2626;
+    outline-offset: 4px;
+    border-radius: 8px;
+}
+
+/* Solicitante: erro no wrapper sem quebrar o layout do input com lupa */
+.user-search-wrapper.campo-invalido {
+    outline: none !important;
+    box-shadow: none !important;
+}
+.user-search-wrapper.campo-invalido .user-search-input {
+    border-color: #dc2626 !important;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12) !important;
+}
+
+
+/* ==========================================================================
+   RODAPÉ DA TELA DE NOVO CHAMADO
+   Espelho do .ticket-header — sticky no fundo, mesmo visual
+   ========================================================================== */
+
+.ticket-footer {
+    background: white;
+    padding: 16px 24px;
+    border-top: 1px solid var(--color-gray-200);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* Esconde o .form-actions original (botões passam para o rodapé) */
+.form-actions {
+    display: none !important;
+}
+
+@media (max-width: 768px) {
+    .ticket-footer {
+        padding: 12px 16px;
+        gap: 10px;
+    }
+
+    .ticket-footer .btn-cancel,
+    .ticket-footer .btn-submit {
+        flex: 1;
+        padding: 13px;
+        justify-content: center;
+    }
+}
+
+
+/* ==========================================================================
+   TIPO DE CHAMADO NO CABEÇALHO FIXO
+   ========================================================================== */
+
+/* Cabeçalho vira coluna quando tem o campo de tipo */
+.ticket-header:has(.ticket-header-tipo) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding-bottom: 14px;
+}
+
+.ticket-header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Wrapper do campo tipo dentro do header */
+.ticket-header-tipo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ticket-header-tipo .form-group {
+    flex: 1;
+    margin: 0;
+}
+
+.ticket-header-tipo .form-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-gray-500);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.ticket-header-tipo select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-gray-800);
+    background: var(--color-gray-50);
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.ticket-header-tipo select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-focus);
+    background: white;
+}
+
+@media (max-width: 768px) {
+    .ticket-header:has(.ticket-header-tipo) {
+        padding: 12px 16px;
+        gap: 10px;
+    }
+}
+
+
+/* ==========================================================================
+   TEMA AZUL/BRANCO — TELA DE DETALHES DO CHAMADO
+   ========================================================================== */
+
+/* Fundo geral da tela */
+.chamado-detalhes-screen {
+    background: #f0f4f8;
+}
+
+/* ---- INFO BAR (usuário | título | número) ---- */
+.chamado-info-bar {
+    background: #ffffff;
+    border-bottom: none;
+    padding: 14px 28px;
+}
+
+.chamado-info-bar .chamado-voltar-btn {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.15);
+    color: #fff;
+}
+
+.chamado-info-bar .chamado-voltar-btn:hover {
+    background: rgba(255,255,255,0.18);
+}
+
+.chamado-info-bar .chamado-voltar-btn svg {
+    stroke: #fff;
+}
+
+.chamado-info-bar .chamado-info-usuario {
+    color: rgba(255,255,255,0.75);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.chamado-info-bar .chamado-info-titulo {
+    color: #000000;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.chamado-info-bar .chamado-detalhes-numero {
+    color: rgba(255,255,255,0.6);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.chamado-info-bar .chamado-detalhes-badge {
+    background: rgba(59,130,246,0.25);
+    color: #93c5fd;
+    border: 1px solid rgba(59,130,246,0.3);
+}
+
+.chamado-info-bar .chamado-detalhes-badge.finalizado {
+    background: rgba(16,185,129,0.2);
+    color: #6ee7b7;
+    border-color: rgba(16,185,129,0.3);
+}
+
+.chamado-info-bar .chamado-meta-pill {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.7);
+}
+
+.chamado-info-bar .chamado-meta-pill svg { stroke: rgba(255,255,255,0.5); }
+
+/* Botão copiar número */
+.chamado-info-bar #btnCopiarNumero {
+    background: var(--color-gray-100);
+    border-color: var(--color-gray-200);
+    color: var(--color-gray-500);
+}
+.chamado-info-bar #btnCopiarNumero:hover {
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+}
+.chamado-info-bar #btnCopiarNumero svg { stroke: currentColor; }
+
+/* ---- BARRA DE PROGRESSO ---- */
+.chamado-progresso-wrapper {
+    background: #ffffff;
+    border-bottom: none;
+    padding: 14px 28px 16px;
+}
+
+/* Bolinhas pendentes no tema escuro */
+.chamado-progresso-wrapper .progresso-circulo {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.4);
+}
+
+/* Conector entre etapas */
+.chamado-progresso-wrapper .progresso-item:not(:last-child)::after {
+    background: rgba(255,255,255,0.12);
+}
+
+.chamado-progresso-wrapper .progresso-item.concluida:not(:last-child)::after {
+    background: #16a34a;
+}
+
+.chamado-progresso-wrapper .progresso-item.atual:not(:last-child)::after {
+    background: linear-gradient(to right, #0095db, rgba(255,255,255,0.12));
+}
+
+/* Labels das etapas */
+.chamado-progresso-wrapper .progresso-label {
+    color: rgba(255,255,255,0.35);
+}
+
+.chamado-progresso-wrapper .progresso-item.concluida .progresso-label {
+    color: #4ade80;
+}
+
+.chamado-progresso-wrapper .progresso-item.atual .progresso-label {
+    color: #60c8f5;
+}
+
+/* ---- PAINEL ETAPA ATUAL ---- */
+.chamado-etapa-atual-panel {
+    background: linear-gradient(135deg, #0f1f3d 0%, #1a3560 100%);
+    border-bottom: none;
+    padding: 16px 28px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+}
+
+.chamado-etapa-atual-label {
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.8px;
+}
+
+.chamado-etapa-atual-titulo {
+    color: #ffffff;
+    font-size: 16px;
+}
+
+.chamado-etapa-atual-resp {
+    color: rgba(255,255,255,0.55);
+    font-size: 13px;
+}
+
+.chamado-etapa-atual-resp strong {
+    color: #60c8f5;
+    font-weight: 600;
+}
+
+/* Ícone da etapa */
+.chamado-etapa-atual-icone {
+    background: linear-gradient(135deg, #0095db, #0070a8);
+    box-shadow: 0 4px 14px rgba(0,149,219,0.4);
+}
+
+/* Badge "sem permissão" */
+.chamado-etapa-sem-permissao {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.55);
+    font-size: 13px;
+}
+
+/* Botão "Atender Chamado" */
+.chamado-etapa-com-permissao {
+    background: linear-gradient(135deg, #0095db, #0070a8);
+    box-shadow: 0 4px 14px rgba(0,149,219,0.4);
+    padding: 10px 22px;
+    font-size: 14px;
+    border-radius: 10px;
+    letter-spacing: 0.2px;
+}
+
+.chamado-etapa-com-permissao:hover {
+    background: linear-gradient(135deg, #00aaff, #0085c8);
+    box-shadow: 0 6px 18px rgba(0,149,219,0.5);
+    transform: translateY(-1px);
+    transition: all 0.2s;
+}
+
+/* Botão "Voltar Etapa" (se existir) */
+.chamado-etapa-voltar {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.25);
+    color: rgba(255,255,255,0.75);
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.chamado-etapa-voltar:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.4);
+    color: #fff;
+}
+
+/* ---- ABAS ---- */
+.chamado-abas-nav {
+    background: #fff;
+    border-bottom: 2px solid #e5e7eb;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+/* ---- SCROLLBAR da barra de progresso no tema escuro ---- */
+.chamado-progresso-wrapper .chamado-progresso-scroll::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.05);
+}
+.chamado-progresso-wrapper .chamado-progresso-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.15);
+}
+
+@media (max-width: 768px) {
+    .chamado-info-bar { padding: 10px 16px; }
+    .chamado-etapa-atual-panel { padding: 12px 16px; }
+    .chamado-progresso-wrapper { padding: 10px 16px 12px; }
+}
+
+/* Abas crescem e rolam internamente — rodapé fica fixo no fundo */
+.chamado-abas-wrapper {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+/* Botão hambúrguer/menu visível no mobile — não ocultar aqui */

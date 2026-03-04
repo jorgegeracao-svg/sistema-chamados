@@ -53,6 +53,7 @@ class Chamado {
         this._tipoManutencao = tipoManutencao || '';
 
         this.etapas = [];
+        this.historicoEventos = [];
         this._criarEtapa1(observacao, unidade, solicitante, fotos, tipoManutencao, email, contato);
     }
 
@@ -86,7 +87,14 @@ class Chamado {
             usuario: usuario?.nomeCompleto || usuario?.usuario || '—',
             dataHora: new Date()
         };
+        this._registrarEvento('ETAPA_CONCLUIDA', { numero: etapa.numero, titulo: etapa.titulo, categoria: etapa.categoria, dados: { ...etapa.dados } }, usuario);
         return true;
+    }
+
+    /** Registra evento imutável no log do chamado. */
+    _registrarEvento(tipo, dados, usuario) {
+        this.historicoEventos = this.historicoEventos || [];
+        this.historicoEventos.push({ tipo, dados, usuario: usuario?.nomeCompleto || usuario?.usuario || '—', dataHora: new Date() });
     }
 
     /**
@@ -190,14 +198,19 @@ class Chamado {
                 dataHora: new Date()
             });
 
-            // Reabre Et. 2 para remarcar
+            this._registrarEvento('REPROVADO', { numero: 3, titulo: etapa.titulo, categoria: etapa.categoria, motivo }, usuario);
+
+            // Reabre Et. 2 para remarcar e copia histórico para o ADM ver
             const etapa2 = this._getEtapa(2);
             if (etapa2) {
                 etapa2.status = 'EM_ANDAMENTO';
                 etapa2.expandida = true;
                 etapa2.conclusao = null;
+                etapa2.historicoReprovacoes = etapa.historicoReprovacoes;
                 etapa2.dados = { ...etapa2.dados, remarcacao: true };
             }
+
+            this._registrarEvento('REMARCADO', { numero: 2, titulo: 'Agendamento da Avaliação', categoria: 'ADMINISTRATIVO', motivo }, usuario);
 
             // Remove Et. 3 atual para ser recriada após nova Et. 2
             this.etapas = this.etapas.filter(e => e.numero !== 3);
@@ -228,6 +241,7 @@ class Chamado {
         if (!etapa) return;
         etapa.dados = { tecnicoUsuario, tecnicoNome, observacao, selecionadoPor: usuario?.nomeCompleto };
         etapa.status = 'AGUARDANDO_CONFIRMACAO';
+        this._registrarEvento('TECNICO_COMUNICADO', { numero: 4, titulo: etapa.titulo, categoria: etapa.categoria, dados: { tecnicoUsuario, tecnicoNome, observacao } }, usuario);
         // Armazena para que o renderizador saiba exibir o botão de confirmação ao técnico
     }
 
@@ -292,6 +306,7 @@ class Chamado {
         sub.status = 'CONCLUIDA';
         sub.expandida = false;
         sub.conclusao = { usuario: usuario?.nomeCompleto || '—', dataHora: new Date() };
+        this._registrarEvento('ETAPA_CONCLUIDA', { numero: sub.numero, titulo: sub.titulo, categoria: sub.categoria, dados: { ...sub.dados }, isSub: true }, usuario);
         this._criarSubetapa52();
     }
 
@@ -319,13 +334,14 @@ class Chamado {
      * @param {Array}  fotos
      * @param {Object} usuario
      */
-    concluirSubetapa52(dataTermino, horaTermino, diagnostico, materiaisNecessarios, fotos, usuario) {
+    concluirSubetapa52(dataTermino, horaTermino, diagnostico, materiaisNecessarios, observacao, usuario) {
         const sub = this._getEtapa(5.2);
         if (!sub || sub.status === 'CONCLUIDA') return;
-        sub.dados = { dataTermino, horaTermino, diagnostico, materiaisNecessarios, fotos: fotos || [] };
+        sub.dados = { dataTermino, horaTermino, diagnostico, materiaisNecessarios, observacao };
         sub.status = 'CONCLUIDA';
         sub.expandida = false;
         sub.conclusao = { usuario: usuario?.nomeCompleto || '—', dataHora: new Date() };
+        this._registrarEvento('ETAPA_CONCLUIDA', { numero: sub.numero, titulo: sub.titulo, categoria: sub.categoria, dados: { ...sub.dados }, isSub: true }, usuario);
 
         // Conclui a etapa pai 5
         const pai = this._getEtapaPai(5);
@@ -354,11 +370,11 @@ class Chamado {
      * @param {string}  observacao
      * @param {Object}  usuario
      */
-    concluirEtapa6(possuiEstoque, observacao, usuario) {
-        const ok = this._concluirEtapa(6, { possuiEstoque, observacao }, usuario);
+    concluirEtapa6VerificacaoEstoque(temEstoque, observacao, usuario) {
+        const ok = this._concluirEtapa(6, { temEstoque, observacao }, usuario);
         if (!ok) return;
 
-        if (possuiEstoque) {
+        if (temEstoque === true || temEstoque === 'SIM') {
             // Estoque disponível → pula compra e vai direto para programar serviço
             this._criarEtapa9();
         } else {
@@ -409,13 +425,14 @@ class Chamado {
      * @param {string} urgencia      'NORMAL' | 'URGENTE'
      * @param {Object} usuario
      */
-    concluirSubetapa71(itens, justificativa, urgencia, usuario) {
+    concluirSubetapa71(itens, justificativa, urgencia, observacao, usuario) {
         const sub = this._getEtapa(7.1);
         if (!sub || sub.status === 'CONCLUIDA') return;
-        sub.dados = { itens, justificativa, urgencia };
+        sub.dados = { itens, justificativa, urgencia, observacao };
         sub.status = 'CONCLUIDA';
         sub.expandida = false;
         sub.conclusao = { usuario: usuario?.nomeCompleto || '—', dataHora: new Date() };
+        this._registrarEvento('ETAPA_CONCLUIDA', { numero: sub.numero, titulo: sub.titulo, categoria: sub.categoria, dados: { ...sub.dados }, isSub: true }, usuario);
         this._criarSubetapa72();
     }
 
@@ -450,13 +467,14 @@ class Chamado {
      * @param {string} anexo         base64 ou nome do arquivo
      * @param {Object} usuario
      */
-    concluirSubetapa72(numeroPedido, fornecedor, produtos, valorTotal, observacao, anexo, usuario) {
+    concluirSubetapa72(numeroPedido, fornecedor, valorTotal, observacao, anexos, usuario) {
         const sub = this._getEtapa(7.2);
         if (!sub || sub.status === 'CONCLUIDA') return;
-        sub.dados = { numeroPedido, fornecedor, produtos, valorTotal, observacao, anexo };
+        sub.dados = { numeroPedido, fornecedor, valorTotal, observacao, anexos: anexos || [] };
         sub.status = 'CONCLUIDA';
         sub.expandida = false;
         sub.conclusao = { usuario: usuario?.nomeCompleto || '—', dataHora: new Date() };
+        this._registrarEvento('ETAPA_CONCLUIDA', { numero: sub.numero, titulo: sub.titulo, categoria: sub.categoria, dados: { ...sub.dados }, isSub: true }, usuario);
         this._criarSubetapa73();
     }
 
@@ -490,6 +508,7 @@ class Chamado {
         sub.status = 'CONCLUIDA';
         sub.expandida = false;
         sub.conclusao = { usuario: usuario?.nomeCompleto || '—', dataHora: new Date() };
+        this._registrarEvento('ETAPA_CONCLUIDA', { numero: sub.numero, titulo: sub.titulo, categoria: sub.categoria, dados: { ...sub.dados }, isSub: true }, usuario);
 
         // Conclui etapa pai 7
         const pai = this._getEtapaPai(7);
@@ -596,6 +615,7 @@ class Chamado {
         sub.status = 'CONCLUIDA';
         sub.expandida = false;
         sub.conclusao = { usuario: usuario?.nomeCompleto || '—', dataHora: new Date() };
+        this._registrarEvento('ETAPA_CONCLUIDA', { numero: sub.numero, titulo: sub.titulo, categoria: sub.categoria, dados: { ...sub.dados }, isSub: true }, usuario);
         this._criarSubetapa102();
     }
 
@@ -623,13 +643,14 @@ class Chamado {
      * @param {Array}  fotosDepois       fotos após o serviço
      * @param {Object} usuario
      */
-    concluirSubetapa102(dataTermino, horaTermino, descricaoServico, materiaisUsados, fotosDepois, usuario) {
+    concluirSubetapa102(dataTermino, horaTermino, descricaoServico, materiaisUsados, fotosDepois, observacao, usuario) {
         const sub = this._getEtapa(10.2);
         if (!sub || sub.status === 'CONCLUIDA') return;
-        sub.dados = { dataTermino, horaTermino, descricaoServico, materiaisUsados, fotosDepois: fotosDepois || [] };
+        sub.dados = { dataTermino, horaTermino, descricaoServico, materiaisUsados, fotosDepois: fotosDepois || [], observacao };
         sub.status = 'CONCLUIDA';
         sub.expandida = false;
         sub.conclusao = { usuario: usuario?.nomeCompleto || '—', dataHora: new Date() };
+        this._registrarEvento('ETAPA_CONCLUIDA', { numero: sub.numero, titulo: sub.titulo, categoria: sub.categoria, dados: { ...sub.dados }, isSub: true }, usuario);
 
         // Conclui etapa pai 10
         const pai = this._getEtapaPai(10);

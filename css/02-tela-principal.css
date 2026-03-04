@@ -323,8 +323,10 @@ body {
     padding: 16px 20px;
     background: white;
     border-bottom: 1px solid var(--color-gray-200);
-    position: sticky;
+    position: fixed;           /* Fixed para funcionar dentro de pai com overflow:hidden */
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 100;
 }
 
@@ -932,7 +934,8 @@ body {
     .main-content { margin-left: 0; }
     .mobile-header { display: flex; }
 
-    .content { padding: 20px 16px; }
+    /* padding-top compensa a altura do mobile-header fixo (~57px) */
+    .content { padding: 20px 16px; padding-top: 77px; }
     .page-title { font-size: 24px; }
     .table-container { padding: 16px; }
 
@@ -985,7 +988,8 @@ body {
     .mobile-header { padding: 12px 16px; }
     .mobile-header-title { font-size: 16px; }
     .menu-toggle { width: 36px; height: 36px; }
-    .content { padding: 16px 12px; }
+    /* Reajusta padding-top para o header menor (12px*2 + ~20px texto = ~44px) */
+    .content { padding: 16px 12px; padding-top: 64px; }
     .page-title { font-size: 22px; }
     .new-ticket-btn { font-size: 14px; padding: 11px 18px; }
     .nav-item { font-size: 13px; }

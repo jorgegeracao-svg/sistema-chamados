@@ -254,11 +254,13 @@ document.addEventListener('DOMContentLoaded', function () {
             if (targetPageId === 'caixaLogPage') renderTickets('log');
             if (targetPageId === 'caixaSaidaPage') renderTickets('saida');
             if (targetPageId === 'perfilPage') renderPerfilPage();
+            if (targetPageId === 'usuariosPage' && typeof window.renderUsuariosPage === 'function') window.renderUsuariosPage();
             if (window.innerWidth <= 768) closeSidebar();
 
             // Fechar tela de detalhes se estiver aberta ao navegar pela sidebar
             if (ticketDetailsScreen?.classList.contains('active')) {
                 ticketDetailsScreen.classList.remove('active', 'fullscreen');
+                document.querySelector('.mobile-header').style.display = '';
                 currentTicketId = null;
             }
         });
@@ -279,6 +281,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (window.innerWidth <= 768) closeSidebar();
         if (ticketDetailsScreen?.classList.contains('active')) {
             ticketDetailsScreen.classList.remove('active', 'fullscreen');
+            document.querySelector('.mobile-header').style.display = '';
             currentTicketId = null;
         }
     });
@@ -312,6 +315,33 @@ document.addEventListener('DOMContentLoaded', function () {
     // =========================================================================
     // TELA DE NOVO CHAMADO
     // =========================================================================
+
+
+    // Mover o campo "Tipo de Chamado" para o cabecalho fixo
+    const ticketHeader = newTicketScreen?.querySelector(".ticket-header");
+    const tipoFieldOriginal = ticketTypeSelect?.closest(".form-group");
+    if (ticketHeader && tipoFieldOriginal && !ticketHeader.querySelector(".ticket-header-tipo")) {
+        const tipoWrapper = document.createElement("div");
+        tipoWrapper.className = "ticket-header-tipo";
+        tipoWrapper.appendChild(tipoFieldOriginal);
+        ticketHeader.appendChild(tipoWrapper);
+    }
+
+    // Injetar rodapé na tela de novo chamado (espelho do cabeçalho)
+    if (newTicketScreen && !newTicketScreen.querySelector('.ticket-footer')) {
+        const footer = document.createElement('div');
+        footer.className = 'ticket-footer';
+        footer.innerHTML = `
+            <button type="button" class="btn-cancel" id="btnCancelarFooter">Cancelar</button>
+            <button type="submit" form="newTicketForm" class="btn-submit">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Enviar Chamado
+            </button>`;
+        newTicketScreen.appendChild(footer);
+        footer.querySelector('#btnCancelarFooter')?.addEventListener('click', () => closeTicketScreen());
+    }
 
     btnNovoChamado?.addEventListener('click', () => {
         newTicketScreen.classList.add('active');
@@ -382,34 +412,184 @@ document.addEventListener('DOMContentLoaded', function () {
     // SUBMETER FORMULÁRIO DE NOVO CHAMADO
     // =========================================================================
 
+    // =========================================================================
+    // VALIDAÇÃO VISUAL — exibe/remove mensagem de erro em cima do campo
+    // =========================================================================
+
+    /**
+     * Marca um campo como inválido: adiciona borda vermelha e
+     * insere uma mensagem de erro logo acima do elemento.
+     * @param {HTMLElement} el     - O campo (input, select, textarea, ou container)
+     * @param {string}      msg    - Texto do erro exibido acima do campo
+     */
+    function marcarErro(el, msg) {
+        if (!el) return;
+        el.classList.add('campo-invalido');
+
+        // Evita duplicar a mensagem se já existir
+        const jaExiste = el.parentElement?.querySelector('.campo-erro-msg');
+        if (jaExiste) return;
+
+        const span = document.createElement('span');
+        span.className = 'campo-erro-msg';
+        span.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>${msg}`;
+        el.parentElement?.insertBefore(span, el);
+
+        // Remove o erro automaticamente ao interagir com o campo
+        const limpar = () => { limparErro(el); el.removeEventListener('input', limpar); el.removeEventListener('change', limpar); };
+        el.addEventListener('input', limpar);
+        el.addEventListener('change', limpar);
+    }
+
+    /** Remove a marcação de erro de um campo */
+    function limparErro(el) {
+        if (!el) return;
+        el.classList.remove('campo-invalido');
+        el.parentElement?.querySelector('.campo-erro-msg')?.remove();
+    }
+
+    /** Limpa todos os erros do formulário */
+    function limparTodosErros() {
+        document.querySelectorAll('.campo-invalido').forEach(el => el.classList.remove('campo-invalido'));
+        document.querySelectorAll('.campo-erro-msg').forEach(el => el.remove());
+    }
+
     newTicketForm?.addEventListener('submit', (e) => {
         e.preventDefault();
+        limparTodosErros();
 
         const selectedType = ticketTypeSelect?.value;
-        if (!selectedType) { alert('Selecione o tipo de chamado'); return; }
+        if (!selectedType) {
+            marcarErro(ticketTypeSelect, 'Selecione o tipo de chamado');
+            ticketTypeSelect?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
 
         if (selectedType === 'manutencao') {
-            const unidade = document.getElementById('unidade')?.value;
-            const local = localSelect?.value;
-            const titulo = document.getElementById('tituloManutencao')?.value.trim();
-            const observacao = document.getElementById('observacaoManutencao')?.value.trim();
-            const email = document.getElementById('emailSolicitante')?.value.trim();
-            const contato = document.getElementById('telefoneSolicitante')?.value.trim();
+            const unidadeEl    = document.getElementById('unidade');
+            const tituloEl     = document.getElementById('tituloManutencao');
+            const observacaoEl = document.getElementById('observacaoManutencao');
+            const localOutroEl = document.getElementById('localOutro');
+            const tipoOutroEl  = document.getElementById('tipoManutencaoOutro');
+
+            const unidade    = unidadeEl?.value;
+            const local      = localSelect?.value;
+            const titulo     = tituloEl?.value.trim();
+            const observacao = observacaoEl?.value.trim();
+            const email      = document.getElementById('emailSolicitante')?.value.trim();
+            const contato    = document.getElementById('telefoneSolicitante')?.value.trim();
 
             const tiposManutencao = Array.from(
                 document.querySelectorAll('input[name="tipoManutencao"]:checked')
             ).map(cb => cb.value);
 
-            // Validações
-            if (!unidade || !local || !titulo || !observacao || tiposManutencao.length === 0) {
-                alert('Preencha todos os campos obrigatórios de Manutenção');
+            // Validações visuais — acumula todos os erros antes de retornar
+            let temErro = false;
+            let primeiroErro = null;
+
+            if (!unidade) {
+                marcarErro(unidadeEl, 'Selecione a unidade');
+                primeiroErro = primeiroErro || unidadeEl;
+                temErro = true;
+            }
+            if (!local) {
+                marcarErro(localSelect, 'Selecione o local');
+                primeiroErro = primeiroErro || localSelect;
+                temErro = true;
+            }
+            if (local === 'OUTRO' && !localOutroEl?.value.trim()) {
+                marcarErro(localOutroEl, 'Especifique o local');
+                primeiroErro = primeiroErro || localOutroEl;
+                temErro = true;
+            }
+            if (tiposManutencao.length === 0) {
+                // Para checkboxes, marca o container pai
+                const checkboxContainer = document.querySelector('.tipo-manutencao-grid') || document.querySelector('[name="tipoManutencao"]')?.closest('.form-group');
+                if (checkboxContainer) {
+                    checkboxContainer.classList.add('campo-invalido');
+                    const jaExiste = checkboxContainer.parentElement?.querySelector('.campo-erro-msg');
+                    if (!jaExiste) {
+                        const span = document.createElement('span');
+                        span.className = 'campo-erro-msg';
+                        span.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>Selecione pelo menos um tipo`;
+                        checkboxContainer.parentElement?.insertBefore(span, checkboxContainer);
+                        document.querySelectorAll('input[name="tipoManutencao"]').forEach(cb => {
+                            const limpar = () => { checkboxContainer.classList.remove('campo-invalido'); span.remove(); };
+                            cb.addEventListener('change', limpar, { once: true });
+                        });
+                    }
+                    primeiroErro = primeiroErro || checkboxContainer;
+                }
+                temErro = true;
+            }
+            if (tiposManutencao.includes('OUTRO') && !tipoOutroEl?.value.trim()) {
+                marcarErro(tipoOutroEl, 'Especifique o tipo de manutenção');
+                primeiroErro = primeiroErro || tipoOutroEl;
+                temErro = true;
+            }
+            if (!titulo) {
+                marcarErro(tituloEl, 'Preencha o título do chamado');
+                primeiroErro = primeiroErro || tituloEl;
+                temErro = true;
+            }
+            if (!observacao) {
+                marcarErro(observacaoEl, 'Descreva o problema');
+                primeiroErro = primeiroErro || observacaoEl;
+                temErro = true;
+            }
+
+            // Solicitante (chip de busca de usuário)
+            // A estrutura é: .form-group > .user-search-wrapper > .user-search-input-wrapper > input
+            // A mensagem deve ser inserida antes do .user-search-wrapper, não antes do input
+            const solicitanteId = document.getElementById('solicitanteId')?.value;
+            const solicitanteInput = document.getElementById('solicitanteSearch');
+            if (!solicitanteId) {
+                const userSearchWrapper = solicitanteInput?.closest('.user-search-wrapper');
+                if (userSearchWrapper) {
+                    // Remove erro anterior se existir
+                    userSearchWrapper.parentElement?.querySelector('.campo-erro-msg')?.remove();
+                    userSearchWrapper.classList.add('campo-invalido');
+
+                    const span = document.createElement('span');
+                    span.className = 'campo-erro-msg';
+                    span.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>Selecione o solicitante`;
+                    userSearchWrapper.parentElement?.insertBefore(span, userSearchWrapper);
+
+                    // Remove ao selecionar usuário (mudança no campo oculto) ou ao digitar
+                    const limpar = () => {
+                        userSearchWrapper.classList.remove('campo-invalido');
+                        span.remove();
+                    };
+                    solicitanteInput.addEventListener('input', limpar, { once: true });
+                    document.getElementById('solicitanteId')?.addEventListener('change', limpar, { once: true });
+                    // Observa o chip se tornar visível
+                    const chipRemove = document.getElementById('solicitanteChip');
+                    if (chipRemove) {
+                        const obs = new MutationObserver(() => { if (chipRemove.classList.contains('visible')) { limpar(); obs.disconnect(); } });
+                        obs.observe(chipRemove, { attributes: true, attributeFilter: ['class'] });
+                    }
+                    primeiroErro = primeiroErro || userSearchWrapper;
+                }
+                temErro = true;
+            }
+
+            const emailEl    = document.getElementById('emailSolicitante');
+            const telefoneEl = document.getElementById('telefoneSolicitante');
+
+            if (!email) {
+                marcarErro(emailEl, 'Preencha o e-mail');
+                primeiroErro = primeiroErro || emailEl;
+                temErro = true;
+            }
+            if (!contato) {
+                marcarErro(telefoneEl, 'Preencha o telefone');
+                primeiroErro = primeiroErro || telefoneEl;
+                temErro = true;
+            }
+
+            if (temErro) {
+                primeiroErro?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return;
-            }
-            if (local === 'OUTRO' && !document.getElementById('localOutro')?.value.trim()) {
-                alert('Especifique o local'); return;
-            }
-            if (tiposManutencao.includes('OUTRO') && !document.getElementById('tipoManutencaoOutro')?.value.trim()) {
-                alert('Especifique o tipo de manutenção'); return;
             }
 
             const localFinal = local === 'OUTRO'
@@ -423,24 +603,37 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert('Erro: gerenciador de chamados não carregado.'); return;
             }
 
-            // Criar chamado — nova assinatura com email, contato e tipoManutencao
-            const novoChamado = window.gerenciadorChamados.criarChamado(
-                titulo,
-                observacao,
-                `${unidade} — ${localFinal} (${tiposFinais.join(', ')})`,
-                usuarioAtual,
-                [],                           // fotos
-                tiposFinais.join(', '),        // tipoManutencao
-                email,
-                contato
-            );
+            // Ler fotos em base64 antes de criar o chamado
+            const _criarComFotos = (fotos) => {
+                const novoChamado = window.gerenciadorChamados.criarChamado(
+                    titulo,
+                    observacao,
+                    `${unidade} — ${localFinal} (${tiposFinais.join(', ')})`,
+                    usuarioAtual,
+                    fotos,
+                    tiposFinais.join(', '),        // tipoManutencao
+                    email,
+                    contato
+                );
 
-            novoChamado._solicitanteUsuario = usuarioAtual.usuario;
-            novoChamado._numero = gerarNumeroChamado();
-            window.gerenciadorChamados.atualizarChamado(novoChamado);
+                novoChamado._solicitanteUsuario = usuarioAtual.usuario;
+                novoChamado._numero = gerarNumeroChamado();
+                window.gerenciadorChamados.atualizarChamado(novoChamado);
 
-            const numFormatado = String(novoChamado._numero).padStart(8, '0');
-            alert(`Chamado ${numFormatado} criado com sucesso!\nAguardando agendamento da visita pela Administração de Manutenção (Etapa 2).`);
+                const numFormatado = String(novoChamado._numero).padStart(8, '0');
+                alert(`Chamado ${numFormatado} criado com sucesso!\nAguardando agendamento da visita pela Administração de Manutenção (Etapa 2).`);
+
+                closeTicketScreen();
+                renderTickets('entrada');
+                renderTickets('log');
+            };
+
+            if (typeof window.lerArquivosBase64 === 'function' && fotoUpload?.files?.length > 0) {
+                window.lerArquivosBase64(fotoUpload).then(_criarComFotos);
+            } else {
+                _criarComFotos([]);
+            }
+            return; // evita o closeTicketScreen abaixo (já está dentro do callback)
 
         } else {
             alert('Tipo registrado. O fluxo completo de etapas está disponível apenas para Manutenção Canteiros.');
@@ -554,6 +747,14 @@ document.addEventListener('DOMContentLoaded', function () {
         if (numEl) numEl.textContent = '#' + String(numero).padStart(8, '0');
         if (titleEl) titleEl.textContent = chamado.titulo;
 
+        // Rodapé
+        const rodapeNum = document.getElementById('rodapeNumeroChamado');
+        if (rodapeNum) rodapeNum.textContent = 'Chamado #' + String(numero).padStart(8, '0');
+
+        // Header mobile
+        const mobileTitulo = document.getElementById('detailsMobileTitulo');
+        if (mobileTitulo) mobileTitulo.textContent = '#' + String(numero).padStart(8, '0');
+
         const abertoPorEl = document.getElementById('detailsAbertoPor');
         if (abertoPorEl) abertoPorEl.textContent = chamado.etapas?.[0]?.conclusao?.usuario || '-';
 
@@ -608,6 +809,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Abrir tela
         ticketDetailsScreen.classList.add('active');
+        // Esconde o header mobile das telas de lista ao entrar nos detalhes
+        const mobileHeader = document.querySelector('.mobile-header');
+        if (mobileHeader) mobileHeader.style.display = 'none';
         if (sidebar?.classList.contains('sidebar-hidden')) {
             ticketDetailsScreen.classList.add('fullscreen');
         } else {
@@ -627,7 +831,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const etapasConfig = window.FLUXO_MANUTENCAO || [];
 
-        // Montar mapa { num: status } — inclui etapas condicionais ausentes
+        // Mapa { num: status }
         const etapasMap = {};
         (chamado.etapas || []).forEach(e => {
             etapasMap[String(e.numero)] = e.status;
@@ -635,49 +839,51 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         etapasConfig.forEach(cfg => {
-            // Etapas condicionais ausentes (ex: Et.7 quando estoque=SIM): ocultar
-            const existeNoFluxo = cfg.num in etapasMap ||
-                !cfg.condicional ||
-                chamado.status === 'FINALIZADO';
-
-            const status = etapasMap[cfg.num];
+            const status    = etapasMap[String(cfg.num)];
             const concluida = status === 'CONCLUIDA';
-            const atual = status === 'EM_ANDAMENTO' || status === 'AGUARDANDO_CONFIRMACAO';
+            const atual     = status === 'EM_ANDAMENTO' || status === 'AGUARDANDO_CONFIRMACAO';
+
+            // Ocultar condicionais que não existem no fluxo deste chamado
+            if (cfg.condicional && !status && chamado.status !== 'FINALIZADO') return;
+
+            const estadoCls = concluida ? 'concluida' : atual ? 'atual' : 'pendente';
 
             const item = document.createElement('div');
             item.className = [
                 'progresso-item',
                 cfg.sub ? 'subetapa' : '',
-                concluida ? 'concluida' : '',
-                atual ? 'atual' : '',
-                !status ? 'pendente' : '',
-                cfg.condicional && !status ? 'condicional' : ''
+                estadoCls
             ].filter(Boolean).join(' ');
 
+            // Círculo: check se concluída, número se não
             const circulo = document.createElement('div');
             circulo.className = 'progresso-circulo';
-            circulo.innerHTML = concluida
-                ? `<svg class="progresso-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>`
-                : '';
+            if (concluida) {
+                circulo.innerHTML = `<svg class="progresso-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+            } else {
+                circulo.textContent = String(cfg.num);
+            }
 
+            // Label com nome completo da etapa
             const label = document.createElement('div');
             label.className = 'progresso-label';
-            label.textContent = cfg.sub ? `Sub ${cfg.num}` : `Etapa ${cfg.num}`;
+            label.textContent = cfg.label || (cfg.sub ? `Sub ${cfg.num}` : `Etapa ${cfg.num}`);
 
             item.appendChild(circulo);
             item.appendChild(label);
             container.appendChild(item);
-        }); // forEach fecha aqui
+        });
 
-        // Bolinha visual "Finalizado" — fora do forEach
+        // Bolinha "Finalizado"
+        const finalizado = chamado.status === 'FINALIZADO';
         const itemFinal = document.createElement('div');
-        itemFinal.className = 'progresso-item ' + (chamado.status === 'FINALIZADO' ? 'concluida' : 'pendente condicional');
+        itemFinal.className = 'progresso-item ' + (finalizado ? 'concluida' : 'pendente');
 
         const circuloFinal = document.createElement('div');
         circuloFinal.className = 'progresso-circulo';
-        circuloFinal.innerHTML = chamado.status === 'FINALIZADO'
-            ? `<svg class="progresso-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg><span class="progresso-num">✓</span>`
-            : `✓`;
+        circuloFinal.innerHTML = finalizado
+            ? `<svg class="progresso-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`
+            : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;opacity:0.5"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
 
         const labelFinal = document.createElement('div');
         labelFinal.className = 'progresso-label';
@@ -686,7 +892,7 @@ document.addEventListener('DOMContentLoaded', function () {
         itemFinal.appendChild(circuloFinal);
         itemFinal.appendChild(labelFinal);
         container.appendChild(itemFinal);
-    } // função fecha aqui
+    }
 
 
 
@@ -908,43 +1114,75 @@ document.addEventListener('DOMContentLoaded', function () {
 
             arquivos.forEach(arq => {
                 const isImagem = arq.tipo && arq.tipo.startsWith('image/');
+                const tamanhoStr = arq.tamanho ? (arq.tamanho / 1024).toFixed(1) + ' KB' : '';
+                const nomeStr = arq.nome || (isImagem ? 'Imagem' : 'Arquivo');
+
                 const card = document.createElement('div');
                 card.className = 'anexo-card';
 
-                if (isImagem && arq.dados) {
-                    card.innerHTML = `
-                        <div class="anexo-thumb" style="background-image:url('${arq.dados}')"></div>
-                        <div class="anexo-info">
-                            <span class="anexo-nome">${arq.nome || 'Imagem'}</span>
-                            <span class="anexo-tamanho">${arq.tamanho ? (arq.tamanho / 1024).toFixed(1) + ' KB' : ''}</span>
-                        </div>`;
-                    card.style.cursor = 'pointer';
-                    card.addEventListener('click', () => {
-                        const win = window.open();
-                        win.document.write(`<img src="${arq.dados}" style="max-width:100%;display:block;margin:auto;">`);
-                    });
-                } else {
-                    card.innerHTML = `
-                        <div class="anexo-thumb anexo-thumb-file">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                const iconeHtml = isImagem
+                    ? `<div class="anexo-icon anexo-icon-img" style="background-image:url('${arq.dados}')"></div>`
+                    : `<div class="anexo-icon anexo-icon-file">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                                 <polyline points="14 2 14 8 20 8"></polyline>
                             </svg>
-                        </div>
-                        <div class="anexo-info">
-                            <span class="anexo-nome">${arq.nome || 'Arquivo'}</span>
-                            <span class="anexo-tamanho">${arq.tamanho ? (arq.tamanho / 1024).toFixed(1) + ' KB' : ''}</span>
-                        </div>`;
-                    if (arq.dados) {
-                        card.style.cursor = 'pointer';
-                        card.addEventListener('click', () => {
-                            const a = document.createElement('a');
-                            a.href = arq.dados;
-                            a.download = arq.nome || 'arquivo';
-                            a.click();
+                       </div>`;
+
+                card.innerHTML = `
+                    ${iconeHtml}
+                    <div class="anexo-info">
+                        <span class="anexo-nome">${nomeStr}</span>
+                        <span class="anexo-tamanho">${tamanhoStr}</span>
+                    </div>
+                    <div class="anexo-acoes">
+                        ${isImagem && arq.dados ? `
+                        <button class="anexo-btn anexo-btn-ver" title="Visualizar">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>` : ''}
+                        ${arq.dados ? `
+                        <button class="anexo-btn anexo-btn-download" title="Download">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                        </button>` : ''}
+                    </div>
+                `;
+
+                // Botão visualizar — abre preview inline
+                card.querySelector('.anexo-btn-ver')?.addEventListener('click', () => {
+                    const jaAberto = card.nextElementSibling?.classList.contains('anexo-preview-inline');
+                    document.querySelectorAll('.anexo-preview-inline').forEach(el => el.remove());
+                    document.querySelectorAll('.anexo-card').forEach(c => c.classList.remove('ativo'));
+                    if (!jaAberto) {
+                        card.classList.add('ativo');
+                        const preview = document.createElement('div');
+                        preview.className = 'anexo-preview-inline';
+                        preview.innerHTML = `<img src="${arq.dados}" alt="${nomeStr}">
+                            <button class="anexo-preview-fechar" title="Fechar">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            </button>`;
+                        preview.querySelector('.anexo-preview-fechar').addEventListener('click', () => {
+                            preview.remove();
+                            card.classList.remove('ativo');
                         });
+                        card.after(preview);
                     }
-                }
+                });
+
+                // Botão download
+                card.querySelector('.anexo-btn-download')?.addEventListener('click', () => {
+                    const a = document.createElement('a');
+                    a.href = arq.dados;
+                    a.download = nomeStr;
+                    a.click();
+                });
+
                 grid.appendChild(card);
             });
 
@@ -1050,10 +1288,28 @@ document.addEventListener('DOMContentLoaded', function () {
 
     btnVoltarDetalhes?.addEventListener('click', () => {
         ticketDetailsScreen.classList.remove('active', 'fullscreen');
+        document.querySelector('.mobile-header').style.display = '';
         currentTicketId = null;
         renderTickets('entrada');
         renderTickets('log');
         renderTickets('saida');
+    });
+
+    // Botões do header mobile da tela de detalhes
+    document.getElementById('btnVoltarDetalhesMobile')?.addEventListener('click', () => {
+        ticketDetailsScreen.classList.remove('active', 'fullscreen');
+        document.querySelector('.mobile-header').style.display = '';
+        currentTicketId = null;
+        renderTickets('entrada');
+        renderTickets('log');
+        renderTickets('saida');
+    });
+
+    document.getElementById('btnMenuDetalhesMobile')?.addEventListener('click', () => {
+        // Abre a sidebar (mesmo comportamento do hamburguer do mobile-header)
+        document.getElementById('sidebar')?.classList.add('open');
+        document.getElementById('sidebarOverlay')?.classList.add('active');
+        document.body.style.overflow = 'hidden';
     });
 
 
@@ -1067,6 +1323,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (newTicketScreen?.classList.contains('active')) closeTicketScreen();
         if (ticketDetailsScreen?.classList.contains('active')) {
             ticketDetailsScreen.classList.remove('active', 'fullscreen');
+            document.querySelector('.mobile-header').style.display = '';
             currentTicketId = null;
         }
     });
@@ -1344,5 +1601,10 @@ document.addEventListener('DOMContentLoaded', function () {
     renderTickets('entrada');
     renderTickets('log');
     renderTickets('saida');
+
+    // Garante visibilidade dos itens de menu por perfil após tudo estar montado
+    if (typeof showElementsByPermission === 'function') {
+        showElementsByPermission();
+    }
 
 });

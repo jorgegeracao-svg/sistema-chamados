@@ -131,6 +131,13 @@ function showElementsByPermission() {
     if (navConfigItem) {
         navConfigItem.style.display = ['ADMIN'].includes(user.perfil) ? '' : 'none';
     }
+    // Botão Usuários — esconde para quem não é ADMIN
+    const navUsuariosItem = document.getElementById('navUsuarios');
+    if (navUsuariosItem) {
+        if (!['ADMIN'].includes(user.perfil)) {
+            navUsuariosItem.style.display = 'none';
+        }
+    }
     // Garante que nav-settings (container) seja sempre visível
     const navSettings = document.querySelector('.nav-settings');
     if (navSettings) navSettings.style.display = 'block';

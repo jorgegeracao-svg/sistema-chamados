@@ -1,0 +1,372 @@
+/* =============================================================================
+   08-USUARIOS.CSS — Tela de Gerenciamento de Usuários (apenas ADMIN)
+   ============================================================================= */
+
+
+/* -----------------------------------------------------------------------------
+   CABEÇALHO DA PÁGINA
+   ----------------------------------------------------------------------------- */
+#usuariosPage .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+#btnNovoUsuario {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: var(--color-primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+#btnNovoUsuario:hover  { background: var(--color-primary-dark); }
+#btnNovoUsuario:active { transform: scale(0.97); }
+#btnNovoUsuario svg    { flex-shrink: 0; }
+
+
+/* -----------------------------------------------------------------------------
+   CARDS DE RESUMO
+   ----------------------------------------------------------------------------- */
+.usuarios-resumo {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.usuarios-resumo-card {
+    background: #fff;
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-lg);
+    padding: 16px 24px;
+    flex: 1;
+    min-width: 140px;
+}
+
+.usuarios-resumo-card .resumo-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.usuarios-resumo-card .resumo-valor {
+    font-size: 30px;
+    font-weight: 800;
+    color: var(--color-gray-900);
+    line-height: 1;
+}
+
+.usuarios-resumo-card.card-ativos   .resumo-valor { color: #16a34a; }
+.usuarios-resumo-card.card-inativos .resumo-valor { color: var(--color-danger-dark); }
+
+
+/* -----------------------------------------------------------------------------
+   BARRA DE FILTROS
+   ----------------------------------------------------------------------------- */
+.usuarios-filtros {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.usuarios-filtros .filtro-busca {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+}
+
+.usuarios-filtros .filtro-busca svg {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    stroke: var(--color-gray-400);
+    fill: none;
+    stroke-width: 2;
+    pointer-events: none;
+}
+
+.usuarios-filtros input,
+.usuarios-filtros select {
+    padding: 9px 14px;
+    border: 1px solid var(--color-gray-300);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-family: inherit;
+    background: #fff;
+    color: var(--color-gray-900);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    height: 40px;
+}
+
+.usuarios-filtros .filtro-busca input {
+    width: 100%;
+    padding-left: 36px;
+}
+
+.usuarios-filtros input:focus,
+.usuarios-filtros select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-focus);
+}
+
+
+/* -----------------------------------------------------------------------------
+   TABELA DE USUÁRIOS
+   ----------------------------------------------------------------------------- */
+.usuarios-tabela-wrapper {
+    background: #fff;
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.usuarios-tabela-header {
+    display: grid;
+    grid-template-columns: 1fr 160px 100px 110px 120px;
+    gap: 0;
+    padding: 10px 20px;
+    background: var(--color-gray-50);
+    border-bottom: 2px solid var(--color-gray-100);
+}
+
+.usuarios-tabela-header span {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.usuarios-tabela-header span:last-child {
+    text-align: right;
+}
+
+.usuarios-tabela-row {
+    display: grid;
+    grid-template-columns: 1fr 160px 100px 110px 120px;
+    align-items: center;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--color-gray-100);
+    transition: background 0.15s;
+}
+
+.usuarios-tabela-row:last-child  { border-bottom: none; }
+.usuarios-tabela-row:nth-child(even) { background: var(--color-gray-50); }
+.usuarios-tabela-row:hover { background: var(--color-primary-light) !important; }
+
+/* Coluna: Usuário (avatar + nome) */
+.usuario-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.usuario-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-mid));
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.usuario-info .usuario-nome {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-gray-900);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.usuario-info .usuario-login {
+    font-size: 12px;
+    color: var(--color-gray-500);
+}
+
+/* Colunas de texto simples */
+.usuarios-tabela-row .col-perfil,
+.usuarios-tabela-row .col-re {
+    font-size: 13px;
+    color: var(--color-gray-700);
+}
+
+/* Badge de status */
+.status-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+}
+
+.status-badge.ativo     { background: #dcfce7; color: #16a34a;  border: 1px solid #86efac; }
+.status-badge.inativo   { background: #fef9c3; color: #a16207;  border: 1px solid #fde047; }
+.status-badge.desligado { background: #fee2e2; color: #dc2626;  border: 1px solid #fca5a5; }
+
+/* Coluna de ações */
+.col-acoes {
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
+}
+
+.btn-acao {
+    width: 32px;
+    height: 32px;
+    background: none;
+    border: 1px solid var(--color-gray-300);
+    border-radius: 7px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+}
+
+.btn-acao:hover { background: var(--color-gray-100); }
+
+.btn-acao.editar:hover        { background: #eff6ff; border-color: #93c5fd; }
+.btn-acao.senha:hover         { background: #fffbeb; border-color: #fcd34d; }
+.btn-acao.desativar:hover     { background: #fef2f2; border-color: #fca5a5; }
+.btn-acao.reativar:hover      { background: #f0fdf4; border-color: #86efac; }
+
+.btn-acao svg {
+    width: 14px;
+    height: 14px;
+    stroke: var(--color-gray-700);
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    pointer-events: none;
+}
+
+.btn-acao.desativar svg { stroke: var(--color-danger-dark); }
+.btn-acao.reativar  svg { stroke: #16a34a; }
+
+/* Estado vazio */
+.usuarios-empty {
+    padding: 48px;
+    text-align: center;
+    color: var(--color-gray-400);
+    font-style: italic;
+    font-size: 14px;
+}
+
+
+/* -----------------------------------------------------------------------------
+   MODAL DE USUÁRIO (criar / editar / redefinir senha)
+   ----------------------------------------------------------------------------- */
+#modalUsuario .modal-content,
+#modalRedefinirSenha .modal-content {
+    max-width: 540px;
+    width: 100%;
+}
+
+.modal-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    max-height: 65vh;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.modal-form-grid .form-group.full {
+    grid-column: 1 / -1;
+}
+
+.modal-erro {
+    display: none;
+    background: var(--color-danger-light);
+    border: 1px solid #fca5a5;
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--color-danger-dark);
+    grid-column: 1 / -1;
+}
+
+
+/* -----------------------------------------------------------------------------
+   TOAST DE CONFIRMAÇÃO
+   ----------------------------------------------------------------------------- */
+#toastGerUsuarios {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(12px);
+    background: #1f2937;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 20px;
+    box-shadow: var(--shadow-md);
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+    z-index: 9999;
+    white-space: nowrap;
+}
+
+
+/* -----------------------------------------------------------------------------
+   RESPONSIVO — MOBILE
+   ----------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+    .usuarios-tabela-header,
+    .usuarios-tabela-row {
+        grid-template-columns: 1fr 90px 90px;
+    }
+
+    /* Esconder colunas RE e Perfil no mobile */
+    .usuarios-tabela-header span:nth-child(2),
+    .usuarios-tabela-header span:nth-child(3),
+    .usuarios-tabela-row .col-perfil,
+    .usuarios-tabela-row .col-re {
+        display: none;
+    }
+
+    .modal-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-form-grid .form-group.full {
+        grid-column: 1;
+    }
+
+    .usuarios-filtros {
+        flex-direction: column;
+    }
+
+    .usuarios-filtros select {
+        width: 100%;
+    }
+}

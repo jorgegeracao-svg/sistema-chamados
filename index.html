@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="css/05-progresso-etapas.css">
     <link rel="stylesheet" href="css/06-user-search.css">
     <link rel="stylesheet" href="css/07-aba-mensagens.css">
+    <link rel="stylesheet" href="css/08-usuarios.css">
 
     <!-- Auth: verifica sessão antes de renderizar a página -->
     <script src="js/auth-integration.js"></script>
@@ -135,6 +136,18 @@
                         </svg>
                     </span>
                     <span>Meu Perfil</span>
+                </div>
+                <!-- Usuários — visível apenas para ADMIN -->
+                <div class="nav-item" data-page="usuariosPage" id="navUsuarios" role="button" tabindex="0">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </span>
+                    <span>Usuários</span>
                 </div>
                 <div class="nav-item" data-page="configPage" role="button" tabindex="0">
                     <span class="nav-icon">
@@ -370,6 +383,18 @@
                     <h1 class="page-title">Meu Perfil</h1>
                 </div>
                 <div id="perfilContainer"></div>
+            </div>
+
+            <!-- Gerenciamento de Usuários (apenas ADMIN) -->
+            <div id="usuariosPage" class="page-content">
+                <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+                    <h1 class="page-title">Usuários</h1>
+                    <button id="btnNovoUsuario" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:var(--color-primary);color:#fff;border:none;border-radius:var(--radius-md);font-size:14px;font-weight:600;cursor:pointer;transition:background .2s;" onmouseenter="this.style.background='var(--color-primary-dark)'" onmouseleave="this.style.background='var(--color-primary)'">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Novo Usuário
+                    </button>
+                </div>
+                <div class="table-container" id="usuariosContainer"></div>
             </div>
 
         </div>
@@ -717,7 +742,25 @@
     ====================================================================== -->
     <div class="chamado-detalhes-screen" id="ticketDetailsScreen">
 
-        <!-- Info bar: usuário | título | número -->
+        <!-- Header mobile — só aparece em telas pequenas -->
+        <div class="chamado-detalhes-mobile-header">
+            <button class="chamado-detalhes-mobile-voltar" id="btnVoltarDetalhesMobile" aria-label="Voltar para a lista">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                Voltar
+            </button>
+            <span class="chamado-detalhes-mobile-titulo" id="detailsMobileTitulo">Chamado</span>
+            <button class="chamado-detalhes-mobile-menu" id="btnMenuDetalhesMobile" aria-label="Abrir menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+        </div>
         <div class="chamado-progresso-wrapper">
             <div class="chamado-info-bar">
 
@@ -836,6 +879,12 @@
 
         </div><!-- /chamado-abas-wrapper -->
 
+        <!-- RODAPÉ DA TELA DE DETALHES -->
+        <footer class="chamado-detalhes-rodape">
+            <span class="chamado-detalhes-rodape-sistema"></span>
+            <span class="chamado-detalhes-rodape-num" ></span>
+        </footer>
+
     </div><!-- /chamado-detalhes-screen -->
 
 
@@ -872,6 +921,7 @@
     <script src="js/card-lista.js"></script>
     <script src="js/card-quadrado.js"></script>
     <script src="js/aba-mensagens.js"></script>
+    <script src="js/gerenciador-usuarios.js"></script>
     <script src="js/script.js"></script>
 
     <!-- Máscara de telefone para o campo de contato -->

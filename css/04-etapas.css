@@ -1560,3 +1560,170 @@
     .perfil-stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
     .perfil-stat-valor { font-size: 22px; }
 }
+/* Observações com quebra de linha preservada */
+.dado-valor {
+    white-space: pre-line;
+    word-break: break-word;
+}
+
+
+/* ==========================================================================
+   ANEXOS — LAYOUT EM LISTA (substituição do grid de miniaturas)
+   ========================================================================== */
+
+.anexos-grid {
+    display: flex !important;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.anexo-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: #fff;
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    transition: box-shadow 0.2s, border-color 0.2s;
+    overflow: visible;
+}
+
+.anexo-card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border-color: var(--color-gray-300);
+    transform: none;
+}
+
+.anexo-card.ativo {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(0,149,219,0.1);
+}
+
+/* Ícone à esquerda — thumbnail ou ícone de arquivo */
+.anexo-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    flex-shrink: 0;
+}
+
+.anexo-icon-img {
+    background-size: cover;
+    background-position: center;
+    background-color: var(--color-gray-100);
+}
+
+.anexo-icon-file {
+    background: var(--color-gray-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.anexo-icon-file svg {
+    width: 20px;
+    height: 20px;
+    stroke: var(--color-gray-400);
+}
+
+/* Info: nome + tamanho */
+.anexo-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 0;
+}
+
+.anexo-nome {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-gray-800);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.anexo-tamanho {
+    font-size: 11px;
+    color: var(--color-gray-400);
+}
+
+/* Botões de ação */
+.anexo-acoes {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.anexo-btn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--color-gray-200);
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.anexo-btn svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+}
+
+.anexo-btn-ver svg { stroke: var(--color-primary); }
+.anexo-btn-download svg { stroke: var(--color-gray-600); }
+
+.anexo-btn-ver:hover {
+    background: rgba(0,149,219,0.08);
+    border-color: var(--color-primary);
+}
+
+.anexo-btn-download:hover {
+    background: var(--color-gray-100);
+    border-color: var(--color-gray-300);
+}
+
+/* Preview inline abaixo do card */
+.anexo-preview-inline {
+    position: relative;
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--color-gray-50);
+}
+
+.anexo-preview-inline img {
+    display: block;
+    max-width: 100%;
+    max-height: 360px;
+    object-fit: contain;
+    margin: 0 auto;
+}
+
+.anexo-preview-fechar {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    background: rgba(0,0,0,0.5);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.anexo-preview-fechar svg {
+    width: 14px;
+    height: 14px;
+    stroke: #fff;
+}
