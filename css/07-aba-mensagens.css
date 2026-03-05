@@ -16,7 +16,7 @@
 .chamado-mensagens-lista {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 0;
     width: 100%;
 }
 
@@ -393,6 +393,14 @@
 .msg-ticket-card.concluida .msg-ticket-body            { background: #f1f1f1; border-top-color: #b9b9b9; }
 .msg-ticket-card.concluida .msg-ticket-divider         { background: #caced3; }
 .msg-ticket-card.concluida .msg-ticket-remetente-nome  { color: #1e3a5f; }
+
+/* Card aguardando — laranja */
+.msg-ticket-card.aguardando                            { border-color: #fed7aa; }
+.msg-ticket-card.aguardando .msg-ticket-header         { background: #fff7ed; border-bottom-color: #fed7aa; }
+.msg-ticket-card.aguardando .msg-ticket-header:hover   { background: #ffedd5; }
+.msg-ticket-card.aguardando .msg-ticket-num            { background: #f97316; box-shadow: 0 2px 6px rgba(249,115,22,0.3); }
+.msg-ticket-card.aguardando .msg-ticket-titulo         { color: #9a3412; }
+.msg-ticket-card.aguardando .msg-ticket-subtexto       { color: #ea580c; }
 .msg-ticket-card.concluida .msg-ticket-remetente-unidade,
 .msg-ticket-card.concluida .msg-ticket-data-rodape     { color: #5b80a0; }
 .msg-ticket-card.concluida .msg-ticket-avatar          { background: rgba(136,136,136,0.12); }
@@ -631,7 +639,7 @@
     border-radius: 10px;
     overflow: hidden;
     border: 1px solid var(--color-gray-200, #e5e7eb);
-    margin-bottom: 16px;
+    margin-bottom: 0;
     box-shadow: 0 1px 4px rgba(0,0,0,0.05);
 }
 

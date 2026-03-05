@@ -544,12 +544,17 @@
             '<p class="msg-ticket-conteudo-linha"><strong>' + c.label + ':</strong> ' + c.valor + '</p>'
         ).join('');
 
+        const fotoEvUsuario = (typeof getFotoUsuario === 'function') ? getFotoUsuario(ev.usuario) : null;
+        const iniciaisEvUsuario = (ev.usuario || '?').trim().split(' ').filter(Boolean)
+            .reduce((acc, p, i, arr) => i === 0 || i === arr.length - 1 ? acc + p[0] : acc, '').toUpperCase().slice(0, 2);
+        const avatarEvHTML = fotoEvUsuario
+            ? '<img src="' + fotoEvUsuario + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
+            : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>';
+
         body.innerHTML =
             '<div class="msg-ticket-remetente">'
-            +   '<div class="msg-ticket-avatar">'
-            +     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">'
-            +       '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle>'
-            +     '</svg>'
+            +   '<div class="msg-ticket-avatar" style="' + (fotoEvUsuario ? 'padding:0;overflow:hidden;' : '') + '">'
+            +     avatarEvHTML
             +   '</div>'
             +   '<div class="msg-ticket-remetente-info">'
             +     '<span class="msg-ticket-remetente-nome">' + ev.usuario + '</span>'
@@ -663,11 +668,20 @@
                   +   '</button>'
                   + '</div>';
 
+            const fotoAtual = (typeof getFotoUsuario === 'function') ? getFotoUsuario(window.usuarioAtual?.usuario) : null;
+            const iniciaisAtual = (window.usuarioAtual?.nomeCompleto || window.usuarioAtual?.usuario || '?')
+                .trim().split(' ').filter(Boolean)
+                .reduce((acc, p, i, arr) => i === 0 || i === arr.length - 1 ? acc + p[0] : acc, '').toUpperCase().slice(0, 2);
+            const avatarAtualHTML = fotoAtual
+                ? '<img src="' + fotoAtual + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
+                : iniciaisAtual;
+            const avatarAtualStyle = fotoAtual ? 'padding:0;overflow:hidden;font-size:0;' : '';
+
             wrapper.innerHTML =
                 '<div class="msg-ticket-card" id="cardFormularioInline">'
                 + '<div class="msg-ticket-header"' + (semCollapse ? ' style="cursor:default;"' : ' id="areaAtenderBtn"') + '>'
                 +   '<div class="msg-ticket-header-esq">'
-                +     '<div class="msg-ticket-num">' + etapa.numero + '</div>'
+                +     '<div class="msg-ticket-num" style="' + avatarAtualStyle + '">' + avatarAtualHTML + '</div>'
                 +     '<div class="msg-ticket-header-info">'
                 +       '<span class="msg-ticket-subtexto">' + subtexto + '</span>'
                 +       '<span class="msg-ticket-titulo">ETAPA ' + etapa.numero + ' — ' + etapa.titulo.toUpperCase() + '</span>'
@@ -710,7 +724,7 @@
 
         } else {
             wrapper.innerHTML =
-                '<div class="msg-ticket-card">'
+                '<div class="msg-ticket-card aguardando">'
                 + '<div class="msg-ticket-header" style="cursor:default;">'
                 +   '<div class="msg-ticket-header-esq">'
                 +     '<div class="msg-ticket-num">' + etapa.numero + '</div>'

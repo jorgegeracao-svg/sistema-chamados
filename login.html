@@ -126,6 +126,7 @@
                 <!-- Rodapé da tela -->
                 <div class="login-footer">
                     <p class="footer-text">© 2024 NDS. Todos os direitos reservados.</p>
+                    <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
                     <button type="button" class="btn-limpar-chamados" id="btnLimparChamados">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="3 6 5 6 21 6"></polyline>
@@ -136,6 +137,16 @@
                         </svg>
                         Limpar chamados
                     </button>
+                    <button type="button" class="btn-limpar-chamados" id="btnResetarUsuarios" style="border-color:#fbbf24; color:#d97706;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        Resetar usuários
+                    </button>
+                    </div>
                 </div>
 
                 <!-- Modal de confirmação -->
@@ -156,6 +167,46 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Modal de confirmação — Resetar Usuários -->
+                <div class="modal-overlay" id="modalResetarUsuarios" role="dialog" aria-modal="true">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3 class="modal-title">Resetar usuários?</h3>
+                            <button type="button" class="modal-close" id="fecharModalReset">
+                                <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            </button>
+                        </div>
+                        <p class="modal-description" style="color:#d97706;">
+                            Isso irá <strong>apagar todos os usuários cadastrados</strong> e recriar apenas os padrão do sistema (admin, felipe.jorge, etc). Use se o login parou de funcionar corretamente.
+                        </p>
+                        <div class="modal-actions">
+                            <button type="button" class="btn-cancel" id="cancelarReset">Cancelar</button>
+                            <button type="button" class="btn-submit" id="confirmarReset" style="background:#d97706;">Sim, resetar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    document.getElementById('btnResetarUsuarios').addEventListener('click', () => {
+                        document.getElementById('modalResetarUsuarios').classList.add('active');
+                    });
+                    document.getElementById('fecharModalReset').addEventListener('click', () => {
+                        document.getElementById('modalResetarUsuarios').classList.remove('active');
+                    });
+                    document.getElementById('cancelarReset').addEventListener('click', () => {
+                        document.getElementById('modalResetarUsuarios').classList.remove('active');
+                    });
+                    document.getElementById('confirmarReset').addEventListener('click', () => {
+                        localStorage.removeItem('usuarios');
+                        localStorage.removeItem('currentUser');
+                        document.getElementById('modalResetarUsuarios').classList.remove('active');
+                        const btn = document.getElementById('btnResetarUsuarios');
+                        btn.textContent = '✓ Usuários resetados';
+                        btn.disabled = true;
+                        setTimeout(() => { location.reload(); }, 1500);
+                    });
+                </script>
 
                 <script>
                     document.getElementById('btnLimparChamados').addEventListener('click', () => {

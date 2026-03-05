@@ -115,14 +115,20 @@ function showElementsByPermission() {
     const userEmailEl = document.getElementById('userEmail');
     if (userEmailEl) userEmailEl.textContent = perfilNomes[user.perfil] || user.perfil;
 
-    // --- Iniciais no avatar ---
+    // --- Avatar: foto ou iniciais ---
     const userAvatarEl = document.getElementById('userAvatar');
     if (userAvatarEl) {
         const partes = user.nomeCompleto.trim().split(' ');
         const iniciais = partes.length >= 2
             ? partes[0][0] + partes[partes.length - 1][0]
             : partes[0].substring(0, 2);
-        userAvatarEl.textContent = iniciais.toUpperCase();
+        if (user.foto) {
+            userAvatarEl.innerHTML = `<img src="${user.foto}" alt="${user.nomeCompleto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+            userAvatarEl.style.padding = '0';
+        } else {
+            userAvatarEl.textContent = iniciais.toUpperCase();
+            userAvatarEl.style.padding = '';
+        }
     }
 
     // --- Ocultar "Configurações" para perfis sem acesso administrativo ---
@@ -231,3 +237,19 @@ window.getUserProfile         = getUserProfile;
 window.hasPermission          = hasPermission;
 window.logout                 = logout;
 window.showElementsByPermission = showElementsByPermission;
+
+/**
+ * Retorna a foto (base64) de um usuário pelo nomeCompleto ou usuario (login).
+ * Usado pelos cards e pela tela de perfil.
+ * @param {string} identificador - nomeCompleto ou login do usuário
+ * @returns {string|null}
+ */
+function getFotoUsuario(identificador) {
+    if (!identificador) return null;
+    const usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
+    const user = usuarios.find(u =>
+        u.nomeCompleto === identificador || u.usuario === identificador
+    );
+    return user?.foto || null;
+}
+window.getFotoUsuario = getFotoUsuario;

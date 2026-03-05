@@ -316,17 +316,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // TELA DE NOVO CHAMADO
     // =========================================================================
 
-
-    // Mover o campo "Tipo de Chamado" para o cabecalho fixo
-    const ticketHeader = newTicketScreen?.querySelector(".ticket-header");
-    const tipoFieldOriginal = ticketTypeSelect?.closest(".form-group");
-    if (ticketHeader && tipoFieldOriginal && !ticketHeader.querySelector(".ticket-header-tipo")) {
-        const tipoWrapper = document.createElement("div");
-        tipoWrapper.className = "ticket-header-tipo";
-        tipoWrapper.appendChild(tipoFieldOriginal);
-        ticketHeader.appendChild(tipoWrapper);
-    }
-
     // Injetar rodapé na tela de novo chamado (espelho do cabeçalho)
     if (newTicketScreen && !newTicketScreen.querySelector('.ticket-footer')) {
         const footer = document.createElement('div');
@@ -371,7 +360,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function _hideAllTicketFields() {
-        manutencaoFields?.classList.add('hidden');
+        manutencaoFields?.classList.remove('hidden');
         pedidoAnualFields?.classList.add('hidden');
         pedidoAvulsoFields?.classList.add('hidden');
     }
@@ -755,8 +744,56 @@ document.addEventListener('DOMContentLoaded', function () {
         const mobileTitulo = document.getElementById('detailsMobileTitulo');
         if (mobileTitulo) mobileTitulo.textContent = '#' + String(numero).padStart(8, '0');
 
+        const abertoPorUsuario = chamado.etapas?.[0]?.conclusao?.usuario || chamado._solicitanteUsuario || '';
+        const abertoPorNome = chamado.etapas?.[0]?.conclusao?.nomeCompleto || abertoPorUsuario;
         const abertoPorEl = document.getElementById('detailsAbertoPor');
-        if (abertoPorEl) abertoPorEl.textContent = chamado.etapas?.[0]?.conclusao?.usuario || '-';
+        if (abertoPorEl) abertoPorEl.textContent = abertoPorNome || '-';
+
+        // Avatar: foto ou iniciais
+        const avatarEl = document.getElementById('detailsUsuarioAvatar');
+        if (avatarEl) {
+            const fotoAbertura = (typeof getFotoUsuario === 'function') ? getFotoUsuario(abertoPorUsuario) : null;
+            if (fotoAbertura) {
+                avatarEl.innerHTML = '<img src="' + fotoAbertura + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+                avatarEl.style.padding = '0';
+            } else {
+                const iniciais = (abertoPorNome || abertoPorUsuario || '?')
+                    .trim().split(' ').filter(Boolean)
+                    .reduce((acc, p, i, arr) => i === 0 || i === arr.length - 1 ? acc + p[0] : acc, '')
+                    .toUpperCase().slice(0, 2);
+                avatarEl.textContent = iniciais;
+                avatarEl.style.padding = '';
+            }
+        }
+
+        // Pills: unidade, local, data
+        const localRaw = chamado._local || chamado.etapas?.[0]?.dados?.unidade || '';
+        const localMatch = localRaw.match(/^(.+?)\s*(?:—|-)\s*(.+?)\s*\((.+)\)$/) || [];
+        const localUnidade = localMatch[1] || localRaw;
+        const localSala    = localMatch[2] || '';
+
+        const pillTipo    = document.getElementById('detailsPillTipo');
+        const pillUnidade = document.getElementById('detailsPillUnidade');
+        const pillLocal   = document.getElementById('detailsPillLocal');
+        const pillData    = document.getElementById('detailsPillData');
+
+        if (chamado._tipoManutencao && pillTipo) {
+            document.getElementById('detailsPillTipoText').textContent = chamado._tipoManutencao;
+            pillTipo.style.display = 'inline-flex';
+        }
+
+        if (localUnidade && pillUnidade) {
+            document.getElementById('detailsPillUnidadeText').textContent = localUnidade;
+            pillUnidade.style.display = 'inline-flex';
+        }
+        if (localSala && pillLocal) {
+            document.getElementById('detailsPillLocalText').textContent = localSala;
+            pillLocal.style.display = 'inline-flex';
+        }
+        if (chamado.dataCriacao && pillData) {
+            document.getElementById('detailsPillDataText').textContent = formatarDataHora(chamado.dataCriacao);
+            pillData.style.display = 'inline-flex';
+        }
 
         // Badge de status
         const badge = document.getElementById('detailsStatusBadge');
@@ -942,8 +979,9 @@ document.addEventListener('DOMContentLoaded', function () {
             ? Math.floor((dataFim - dataAbertura) / 86400000)
             : diasAberto;
 
-        const etapasConcluidas = (chamado.etapas || []).filter(e => e.status === 'CONCLUIDA').length;
-        const totalEtapas = (chamado.etapas || []).length;
+        const etapasRaiz = (chamado.etapas || []).filter(e => !String(e.numero).includes('.'));
+        const etapasConcluidas = etapasRaiz.filter(e => e.status === 'CONCLUIDA').length;
+        const totalEtapas = 12;
 
         // Cards de métricas
         const metricas = [
@@ -1244,12 +1282,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (!podeAtenderEtapa(etapa, usuarioAtual.perfil)) {
-            const responsavel = (window.CATEGORIA_LABEL || {})[etapa.categoria] || etapa.categoria;
-            const aviso = document.createElement('div');
-            aviso.className = 'formulario-aguardando';
-            aviso.innerHTML = `<p>Aguardando ação de: <strong>${responsavel}</strong></p>
-                <span class="formulario-etapa-nome">${etapa.titulo}</span>`;
-            container.appendChild(aviso);
             return;
         }
 

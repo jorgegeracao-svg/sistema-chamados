@@ -33,6 +33,7 @@ function createCardLista(chamado, openTicketDetails) {
     const solicitanteNome = chamado.etapas?.[0]?.conclusao?.usuario
                          || chamado._solicitanteUsuario
                          || '-';
+    const fotoSolicitante = (typeof getFotoUsuario === 'function') ? getFotoUsuario(solicitanteNome) : null;
     const unidade         = chamado._local || chamado.etapas?.[0]?.dados?.unidade || '';
 
     // Separar "CANTEIRO ZONA OESTE — SALA (ELÉTRICA)" em unidade e tipo
@@ -59,10 +60,12 @@ function createCardLista(chamado, openTicketDetails) {
 
         <div class="tc-base">
             <div class="tc-base-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                ${fotoSolicitante
+                    ? `<img src="${fotoSolicitante}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;flex-shrink:0;">`
+                    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                     <circle cx="12" cy="7" r="4"></circle>
-                </svg>
+                </svg>`}
                 <span class="tc-lbl">Aberto por:</span><strong>${solicitanteNome}</strong>
             </div>
 

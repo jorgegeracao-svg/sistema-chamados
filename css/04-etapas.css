@@ -1407,6 +1407,50 @@
     letter-spacing: 1px;
 }
 
+/* Wrapper para posicionar o botão de câmera sobre o avatar */
+.perfil-avatar-wrapper {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+}
+
+.perfil-avatar-wrapper .perfil-avatar,
+.perfil-avatar-wrapper .perfil-avatar-foto {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: block;
+    object-fit: cover;
+}
+
+/* Botão de câmera sobreposto ao avatar */
+.perfil-avatar-upload-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 24px;
+    height: 24px;
+    background: var(--color-primary);
+    border: 2px solid #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    z-index: 2;
+}
+
+.perfil-avatar-upload-btn:hover {
+    background: var(--color-primary-dark);
+    transform: scale(1.1);
+}
+
+.perfil-avatar-upload-btn svg {
+    stroke: #fff;
+}
+
 .perfil-header-info {
     display: flex;
     flex-direction: column;
