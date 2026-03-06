@@ -1392,7 +1392,15 @@ document.addEventListener('DOMContentLoaded', function () {
             <div class="perfil-wrapper">
 
                 <div class="perfil-header-card">
-                    <div class="perfil-avatar">${iniciais}</div>
+                    <div id="perfilAvatarWrapper" title="Clique para alterar a foto" style="position:relative;cursor:pointer;display:inline-block;flex-shrink:0;">
+                        <div class="perfil-avatar" id="perfilAvatarEl" style="${u.foto ? 'padding:0;overflow:hidden;' : ''}">
+                            ${u.foto ? '<img src="' + u.foto + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">' : iniciais}
+                        </div>
+                        <div style="position:absolute;bottom:0;right:0;width:26px;height:26px;background:#0095db;border-radius:50%;border:2px solid #fff;display:flex;align-items:center;justify-content:center;pointer-events:none;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                        </div>
+                        <input type="file" id="inputFotoPerfil" accept="image/*" style="display:none;">
+                    </div>
                     <div class="perfil-header-info">
                         <h2 class="perfil-nome">${u.nomeCompleto || u.usuario}</h2>
                         <span class="perfil-cargo">${perfilLabel}</span>
@@ -1568,6 +1576,31 @@ document.addEventListener('DOMContentLoaded', function () {
                 clearTimeout(toast._timeout);
                 toast._timeout = setTimeout(() => { toast.style.opacity = '0'; }, 2500);
             });
+        });
+
+        // ── Foto de perfil ────────────────────────────────────────────────────
+        document.getElementById('perfilAvatarWrapper')?.addEventListener('click', () => {
+            document.getElementById('inputFotoPerfil')?.click();
+        });
+
+        document.getElementById('inputFotoPerfil')?.addEventListener('change', function () {
+            const file = this.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (ev) {
+                const base64 = ev.target.result;
+                const usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
+                const idx = usuarios.findIndex(x => x.usuario === u.usuario);
+                if (idx >= 0) {
+                    usuarios[idx].foto = base64;
+                    localStorage.setItem('usuarios', JSON.stringify(usuarios));
+                }
+                usuarioAtual.foto = base64;
+                u.foto = base64;
+                if (typeof showElementsByPermission === 'function') showElementsByPermission();
+                renderPerfilPage();
+            };
+            reader.readAsDataURL(file);
         });
     }
 

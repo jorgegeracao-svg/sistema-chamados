@@ -51,8 +51,6 @@
         4: {
             campos: [
                 { id: 'inlineTecnico',         tipo: 'select-fn', label: 'Técnico Responsável',  obrigatorio: true, opcoesFn: _opcoesListaTecnicos },
-                { id: 'inlineDataAvaliacao',   tipo: 'date',      label: 'Data da Avaliação',    obrigatorio: true  },
-                { id: 'inlineHoraAvaliacao',   tipo: 'time',      label: 'Horário',              obrigatorio: true  },
                 { id: 'inlineObservacao',       tipo: 'textarea',  label: 'Mensagem ao Técnico'  },
             ],
             botoes: [
@@ -61,13 +59,7 @@
         },
 
         // ── Etapa 4 (aguardando confirmação do técnico) ───────────────────────
-        '4_aguardando': {
-            intro: 'Você foi designado como técnico para este chamado. Confirme o recebimento para prosseguir.',
-            campos: [],
-            botoes: [
-                { id: 'btnInlineConfirmarTecnico', label: 'Confirmar recebimento', estilo: 'submit', acao: 'confirmarTecnicoEtapa4' },
-            ],
-        },
+        '4_aguardando': { _custom: true, _customKey: '4_aguardando' },
 
         // ── Etapa 6: Verificação de Estoque ──────────────────────────────────
         6: {
@@ -133,16 +125,12 @@
             const sel        = wrapper.querySelector('#inlineTecnico');
             const tecUsuario = sel?.value;
             const tecNome    = sel?.options[sel.selectedIndex]?.dataset.nome || '';
-            const data       = _val(wrapper, '#inlineDataAvaliacao');
-            const hora       = _val(wrapper, '#inlineHoraAvaliacao');
             const obs        = _val(wrapper, '#inlineObservacao');
-            if (_exigir(wrapper, '#inlineTecnico',       !tecUsuario)) return;
-            if (_exigir(wrapper, '#inlineDataAvaliacao', !data))       return;
-            if (_exigir(wrapper, '#inlineHoraAvaliacao', !hora))       return;
+            if (_exigir(wrapper, '#inlineTecnico', !tecUsuario)) return;
             _commitChamado(chamado, c => {
                 c.selecionarTecnicoEtapa4(tecUsuario, tecNome, obs, window.usuarioAtual);
                 const etapaObj = c._getEtapa(4);
-                if (etapaObj) { etapaObj.dados.dataAvaliacao = data; etapaObj.dados.horaAvaliacao = hora; }
+
             });
         },
 
@@ -196,6 +184,7 @@
         // Etapas com renderização totalmente customizada
         if (cfg._custom) {
             if (etapa.numero === 3) return _buildEtapa3HTML(chamado);
+            if (cfg._customKey === '4_aguardando') return _buildEtapa4TecnicoHTML(chamado);
         }
 
         let html = '';
@@ -240,6 +229,59 @@
     // Mostra data/hora agendada + botões Aprovar/Reprovar.
     // Campos de reprovação aparecem só ao clicar Reprovar.
     // =========================================================================
+
+    // =========================================================================
+    // ETAPA 4 AGUARDANDO — CARD MOBILE-FIRST PARA O TÉCNICO
+    // =========================================================================
+
+    function _buildEtapa4TecnicoHTML(chamado) {
+        const etapa4 = (chamado.etapas || []).find(e => e.numero === 4);
+        const obs     = etapa4?.dados?.observacao || '';
+        const etapa2  = (chamado.etapas || []).find(e => e.numero === 2);
+        const dataRaw = etapa2?.dados?.dataAgendamento || '';
+        const hora    = etapa2?.dados?.horaAgendamento || '';
+        const dataFmt = dataRaw ? _fmtData(dataRaw) : '';
+        const dataHoraStr = dataFmt ? (dataFmt + (hora ? ' às ' + hora : '')) : '';
+
+        return (
+            '<div class="tecnico-chamado-card">'
+
+            // Título do chamado
+            + '<div class="tecnico-chamado-titulo">' + (chamado.titulo || '') + '</div>'
+
+            // Data agendada (se existir)
+            + (dataHoraStr
+                ? '<div class="tecnico-chamado-info-row">'
+                  +   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'
+                  +   '<div><span class="tecnico-chamado-info-label">Data da avaliação</span><span class="tecnico-chamado-info-valor">' + dataHoraStr + '</span></div>'
+                  + '</div>'
+                : '')
+
+            // Local
+            + (chamado._local
+                ? '<div class="tecnico-chamado-info-row">'
+                  +   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'
+                  +   '<div><span class="tecnico-chamado-info-label">Local</span><span class="tecnico-chamado-info-valor">' + chamado._local + '</span></div>'
+                  + '</div>'
+                : '')
+
+            // Mensagem do ADM (se houver)
+            + (obs
+                ? '<div class="tecnico-chamado-obs">'
+                  +   '<span class="tecnico-chamado-obs-label">💬 Mensagem do administrativo</span>'
+                  +   '<span class="tecnico-chamado-obs-texto">' + obs + '</span>'
+                  + '</div>'
+                : '')
+
+            // Botão confirmar — grande e fácil de tocar
+            + '<button id="btnInlineConfirmarTecnico" class="tecnico-chamado-btn-confirmar">'
+            +   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+            +   'Confirmar recebimento'
+            + '</button>'
+
+            + '</div>'
+        );
+    }
 
     const MOTIVOS_REPROVACAO = [
         'Data não me atende',
@@ -421,7 +463,8 @@
 
         // ── Fonte de verdade: historicoEventos (imutável, acumula tudo)
         // Fallback para chamados antigos: monta eventos a partir das etapas concluídas
-        const eventos = _resolverEventos(chamado);
+        // Remove eventos REMARCADO — a informação já está no card REPROVADO
+        const eventos = _resolverEventos(chamado).filter(ev => ev.tipo !== 'REMARCADO');
 
         const badgeEl = document.getElementById('badgeMensagens');
         if (badgeEl) badgeEl.textContent = eventos.length;
@@ -450,7 +493,20 @@
 
     function _resolverEventos(chamado) {
         if (chamado.historicoEventos && chamado.historicoEventos.length) {
-            return chamado.historicoEventos;
+            const eventos = chamado.historicoEventos;
+            const temEtapa1 = eventos.some(ev => ev.tipo === 'ETAPA_CONCLUIDA' && ev.dados?.numero === 1);
+            if (!temEtapa1) {
+                const et1 = (chamado.etapas || []).find(e => e.numero === 1);
+                if (et1 && et1.conclusao) {
+                    eventos.unshift({
+                        tipo: 'ETAPA_CONCLUIDA',
+                        dados: { numero: 1, titulo: et1.titulo, categoria: et1.categoria, dados: et1.dados || {} },
+                        usuario: et1.conclusao.usuario,
+                        dataHora: et1.conclusao.dataHora
+                    });
+                }
+            }
+            return eventos;
         }
 
         // Fallback: etapas e subetapas concluídas → evento sintético ETAPA_CONCLUIDA
@@ -507,9 +563,9 @@
         if (ev.tipo === 'ETAPA_CONCLUIDA') {
             titulo = 'ETAPA ' + d.numero + ' — ' + (d.titulo || '').toUpperCase();
         } else if (ev.tipo === 'REPROVADO') {
-            titulo = '⚠️ ETAPA ' + d.numero + ' — REPROVADO PELO SOLICITANTE';
+            titulo = ' ETAPA ' + d.numero + ' — REPROVADO PELO SOLICITANTE';
         } else if (ev.tipo === 'REMARCADO') {
-            titulo = '🔄 ETAPA ' + d.numero + ' — REMARCADO PARA NOVO AGENDAMENTO';
+            titulo = ' ETAPA ' + d.numero + ' — REMARCADO PARA NOVO AGENDAMENTO';
         } else if (ev.tipo === 'TECNICO_COMUNICADO') {
             titulo = 'ETAPA ' + d.numero + ' — ' + (d.titulo || '').toUpperCase() + ' (AGUARDANDO CONFIRMAÇÃO)';
         }
@@ -601,7 +657,7 @@
         const dd = d.dados || {};
 
         if (ev.tipo === 'REPROVADO' || ev.tipo === 'REMARCADO') {
-            add('MOTIVO', d.motivo);
+            add('OBSERVAÇÃO', d.observacao);
             return campos;
         }
 
@@ -647,12 +703,11 @@
         wrapper.className = 'msg-ticket-wrapper';
 
         if (pode) {
-            // Etapa 3 (confirmação de data): sem collapse — data e botões já visíveis
-            const semCollapse = etapa.numero === 3;
+            const semCollapse = false;
 
             const isRemarcacao = !!blocoReprovacoes;
             const badgeRemarcacao = isRemarcacao
-                ? '<span style="font-size:10px;font-weight:700;color:#dc2626;background:#fef2f2;border:1px solid #fca5a5;border-radius:4px;padding:2px 7px;white-space:nowrap;">⚠️ REMARCAÇÃO</span>'
+                ? '<span style="font-size:10px;font-weight:700;color:#dc2626;background:#fef2f2;border:1px solid #fca5a5;border-radius:4px;padding:2px 7px;white-space:nowrap;"> REMARCAÇÃO</span>'
                 : '';
             const subtexto = isRemarcacao
                 ? 'Reprovado pelo solicitante — reagende'
@@ -668,20 +723,13 @@
                   +   '</button>'
                   + '</div>';
 
-            const fotoAtual = (typeof getFotoUsuario === 'function') ? getFotoUsuario(window.usuarioAtual?.usuario) : null;
-            const iniciaisAtual = (window.usuarioAtual?.nomeCompleto || window.usuarioAtual?.usuario || '?')
-                .trim().split(' ').filter(Boolean)
-                .reduce((acc, p, i, arr) => i === 0 || i === arr.length - 1 ? acc + p[0] : acc, '').toUpperCase().slice(0, 2);
-            const avatarAtualHTML = fotoAtual
-                ? '<img src="' + fotoAtual + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
-                : iniciaisAtual;
-            const avatarAtualStyle = fotoAtual ? 'padding:0;overflow:hidden;font-size:0;' : '';
-
             wrapper.innerHTML =
                 '<div class="msg-ticket-card" id="cardFormularioInline">'
                 + '<div class="msg-ticket-header"' + (semCollapse ? ' style="cursor:default;"' : ' id="areaAtenderBtn"') + '>'
                 +   '<div class="msg-ticket-header-esq">'
-                +     '<div class="msg-ticket-num" style="' + avatarAtualStyle + '">' + avatarAtualHTML + '</div>'
+                +     '<div class="msg-ticket-num" style="background:#0095db;color:#fff;display:flex;align-items:center;justify-content:center;padding:0;">'
+                +       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'
+                +     '</div>'
                 +     '<div class="msg-ticket-header-info">'
                 +       '<span class="msg-ticket-subtexto">' + subtexto + '</span>'
                 +       '<span class="msg-ticket-titulo">ETAPA ' + etapa.numero + ' — ' + etapa.titulo.toUpperCase() + '</span>'
@@ -761,7 +809,6 @@
             + reps.map(function(r, i) {
                 return '<div style="' + (i > 0 ? 'margin-top:8px;padding-top:8px;border-top:1px solid #fecaca;' : '') + '">'
                     + '<span style="font-size:13px;font-weight:600;color:#7f1d1d;display:block;">' + r.motivo + '</span>'
-                    + '<span style="font-size:11px;color:#9ca3af;">' + r.usuario + ' · ' + formatarDataHora(r.dataHora) + '</span>'
                     + '</div>';
             }).join('')
             + '</div>';
@@ -901,4 +948,4 @@
     // =========================================================================
     window.renderMensagens = renderMensagens;
 
-})();
+})(); 

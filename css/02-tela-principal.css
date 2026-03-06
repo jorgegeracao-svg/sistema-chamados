@@ -654,7 +654,7 @@ body {
 /* ---- BASE: metadados em grid 2 colunas ---- */
 .tc-base {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 10px 24px;
     padding: 14px 16px;
     background: var(--color-gray-50);

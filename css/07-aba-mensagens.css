@@ -956,3 +956,109 @@
     .msg-sl-name             { font-size: 12px; }
     .msg-sl-btn              { padding: 3px 8px; font-size: 10px; }
 }
+
+/* ==========================================================================
+   CARD MOBILE-FIRST — TÉCNICO RECEBE CHAMADO (etapa 4 aguardando)
+   ========================================================================== */
+
+.tecnico-chamado-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 4px 0 8px;
+}
+
+.tecnico-chamado-titulo {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--color-gray-900, #111);
+    line-height: 1.3;
+}
+
+.tecnico-chamado-info-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.tecnico-chamado-info-row svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    stroke: var(--color-primary, #0095db);
+    margin-top: 2px;
+}
+
+.tecnico-chamado-info-row > div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.tecnico-chamado-info-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-gray-400, #9ca3af);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tecnico-chamado-info-valor {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-gray-800, #1f2937);
+}
+
+.tecnico-chamado-obs {
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.tecnico-chamado-obs-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #0369a1;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.tecnico-chamado-obs-texto {
+    font-size: 14px;
+    color: var(--color-gray-700, #374151);
+    line-height: 1.5;
+}
+
+.tecnico-chamado-btn-confirmar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 16px;
+    background: #16a34a;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+    margin-top: 4px;
+    min-height: 54px;
+    font-family: inherit;
+}
+
+.tecnico-chamado-btn-confirmar:hover {
+    background: #15803d;
+}
+
+.tecnico-chamado-btn-confirmar svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}  

@@ -118,7 +118,7 @@ function showElementsByPermission() {
     // --- Avatar: foto ou iniciais ---
     const userAvatarEl = document.getElementById('userAvatar');
     if (userAvatarEl) {
-        const partes = user.nomeCompleto.trim().split(' ');
+        const partes = (user.nomeCompleto || user.usuario || 'US').trim().split(' ');
         const iniciais = partes.length >= 2
             ? partes[0][0] + partes[partes.length - 1][0]
             : partes[0].substring(0, 2);
@@ -252,4 +252,4 @@ function getFotoUsuario(identificador) {
     );
     return user?.foto || null;
 }
-window.getFotoUsuario = getFotoUsuario;
+window.getFotoUsuario = getFotoUsuario; 

@@ -128,18 +128,20 @@ class Chamado {
     // =========================================================================
 
     _criarEtapa1(observacao, unidade, solicitante, fotos, tipoManutencao, email, contato) {
+        const dadosEtapa1 = { observacao, unidade, tipoManutencao, email, contato, fotos: fotos || [] };
         this.etapas.push({
             numero: 1,
             titulo: 'Abertura do Chamado',
             categoria: 'SOLICITANTE',
             status: 'CONCLUIDA',
             expandida: false,
-            dados: { observacao, unidade, tipoManutencao, email, contato, fotos: fotos || [] },
+            dados: dadosEtapa1,
             conclusao: {
                 usuario: solicitante?.nomeCompleto || solicitante?.usuario || '—',
                 dataHora: new Date()
             }
         });
+        this._registrarEvento('ETAPA_CONCLUIDA', { numero: 1, titulo: 'Abertura do Chamado', categoria: 'SOLICITANTE', dados: dadosEtapa1 }, solicitante);
         this._criarEtapa2();
     }
 

@@ -247,7 +247,8 @@ document.addEventListener('DOMContentLoaded', function () {
             showAlert('Login realizado com sucesso!', 'success');
 
             // Redirecionar após breve pausa (para o alerta ser visível)
-            setTimeout(() => { window.location.href = 'index.html'; }, 1000);
+            const destino = user.perfil === 'TECNICO' ? 'tecnico.html' : 'index.html';
+            setTimeout(() => { window.location.href = destino; }, 1000);
         });
     }
 
