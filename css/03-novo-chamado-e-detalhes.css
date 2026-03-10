@@ -1017,11 +1017,81 @@
     display: none;
     flex: 1;
     overflow-y: auto;
-    padding: 24px 28px;
+    padding: 12px 14px;
     min-height: 0;
 }
 
 .chamado-aba-conteudo.active { display: block; }
+
+/* Card branco atrás dos cards de mensagem */
+#aba-mensagens.active {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid var(--color-gray-200, #e5e7eb);
+    box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+    padding: 10px 12px;
+    margin: 0 16px 16px;
+}
+
+/* Barra de etapa aguardando — entre bolinhas e abas */
+#etapaAguardandoPanel:not(:empty) {
+    padding: 0 28px 0;
+}
+
+.etapa-aguardando-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 10px 16px;
+    margin-bottom: 0;
+}
+
+.etapa-aguardando-bar-esq {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.etapa-aguardando-bar-num {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #f3f4f6;
+    color: #9ca3af;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.etapa-aguardando-bar-titulo {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-gray-700, #374151);
+}
+
+.etapa-aguardando-bar-resp {
+    font-size: 11px;
+    color: var(--color-gray-400, #9ca3af);
+    margin-top: 1px;
+}
+
+.etapa-aguardando-bar-badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #9ca3af;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
 
 /* Container da aba de formulário (largura limitada) */
 #chamadoFormularioContainer { max-width: 640px; }

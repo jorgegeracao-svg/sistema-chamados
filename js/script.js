@@ -875,6 +875,16 @@ document.addEventListener('DOMContentLoaded', function () {
             (e.subetapas || []).forEach(s => { etapasMap[String(s.numero)] = s.status; });
         });
 
+        // 4.1 não é subetapa real — status derivado da Et.4:
+        // CONCLUIDA → técnico confirmou (4.1 concluída)
+        // AGUARDANDO_CONFIRMACAO → técnico ainda não confirmou (4.1 atual)
+        // ATIVO/EM_ANDAMENTO → ADM ainda não comunicou (4.1 pendente)
+        const etapa4 = (chamado.etapas || []).find(e => e.numero === 4);
+        if (etapa4) {
+            if (etapa4.status === 'CONCLUIDA') etapasMap['4.1'] = 'CONCLUIDA';
+            else if (etapa4.status === 'AGUARDANDO_CONFIRMACAO') etapasMap['4.1'] = 'AGUARDANDO_CONFIRMACAO';
+        }
+
         etapasConfig.forEach(cfg => {
             const status    = etapasMap[String(cfg.num)];
             const concluida = status === 'CONCLUIDA';

@@ -203,7 +203,33 @@ class RenderizadorEtapas {
             return div;
         }
 
-        div.innerHTML = `
+        // Histórico de reprovações — exibido quando a Et.2 foi reaberta após reprovação na Et.3
+        if (etapa.dados?.remarcacao && etapa.historicoReprovacoes?.length) {
+            const historicoHtml = etapa.historicoReprovacoes.map((r, i) => `
+                <div class="reprovacao-item">
+                    <div class="reprovacao-cabecalho">
+                        <span class="reprovacao-badge">Tentativa ${i + 1}</span>
+                        <span class="reprovacao-meta">${r.usuario} • ${this.fmtDH(r.dataHora)}</span>
+                    </div>
+
+                    ${etapa.dados?.dataAgendamento && i === etapa.historicoReprovacoes.length - 1 ? `
+                        <div class="reprovacao-agendamento">
+                            <span>📅 Agendamento reprovado: <strong>${this.fmtD(etapa.dados.dataAgendamento)}</strong> às <strong>${etapa.dados.horaAgendamento || '—'}</strong></span>
+                        </div>` : ''}
+                </div>`).join('');
+
+            const historicoBloco = document.createElement('div');
+            historicoBloco.className = 'historico-reprovacoes';
+            historicoBloco.innerHTML = `
+                <div class="historico-reprovacoes-titulo">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    Histórico de Reprovações (${etapa.historicoReprovacoes.length})
+                </div>
+                ${historicoHtml}`;
+            div.appendChild(historicoBloco);
+        }
+
+        div.innerHTML += `
             <form class="etapa-form" id="form-et2">
                 <div class="etapa-form-row2">
                     <div class="form-group-etapa">
@@ -1243,15 +1269,36 @@ class RenderizadorEtapas {
         ]));
 
         const et4 = etapas.find(e => e.numero === 4);
-        if (et4 && (et4.status === 'CONCLUIDA' || et4.status === 'AGUARDANDO_CONFIRMACAO')) blocos.push(bloco(4, 'Técnico Designado', [
-            campo('Técnico', et4.dados.tecnicoNome),
-            campo('Data da Avaliação', this.fmtD(et4.dados.dataAvaliacao)),
-            campo('Horário', et4.dados.horaAvaliacao),
-        ]));
+        const et5 = etapas.find(e => e.numero === 5);
+        const sub51 = et5?.subetapas?.find(s => s.numero === 5.1);
+        const sub52 = et5?.subetapas?.find(s => s.numero === 5.2);
+        if (et4 && (et4.status === 'CONCLUIDA' || et4.status === 'AGUARDANDO_CONFIRMACAO')) {
+            // Nome do técnico: cascata de fallbacks
+            const _tecUsuario = et4.dados?.tecnicoUsuario || '';
+            const _usuariosLS = JSON.parse(localStorage.getItem('usuarios') || '[]');
+            const _tecObj = _tecUsuario ? _usuariosLS.find(u => u.usuario === _tecUsuario) : null;
+            const nomeTecnico = et4.dados?.tecnicoNome
+                || sub51?.dados?.tecnicoNome
+                || sub52?.dados?.tecnicoNome
+                || _tecObj?.nomeCompleto
+                || (this.chamado?.historicoEventos || []).find(ev => ev.tipo === 'TECNICO_COMUNICADO')?.dados?.dados?.tecnicoNome
+                || _tecUsuario
+                || '—';
+            blocos.push(bloco(4, 'Técnico Designado', [
+                campo('Técnico', nomeTecnico),
+            ]));
+        }
+        if (et5 && et5.status === 'CONCLUIDA') {
+            blocos.push(bloco(5, 'Avaliação Técnica', [
+                sub51?.dados?.dataInicio  ? campo('Início da Avaliação',  this.fmtD(sub51.dados.dataInicio)  + ' às ' + sub51.dados.horaInicio)  : null,
+                sub52?.dados?.dataTermino ? campo('Término da Avaliação', this.fmtD(sub52.dados.dataTermino) + ' às ' + sub52.dados.horaTermino) : null,
+                sub52?.dados?.diagnostico ? campo('Diagnóstico', sub52.dados.diagnostico) : null,
+            ].filter(Boolean)));
+        }
 
         const et6 = etapas.find(e => e.numero === 6);
-        if (et6?.status === 'CONCLUIDA') blocos.push(bloco(6, 'Verificação de Estoque', [
-            campo('Resultado', et6.dados.temEstoque === 'SIM' ? '✓ Tem estoque' : '✗ Sem estoque — compra necessária'),
+        if (et6?.status === 'CONCLUIDA' && (et6.dados.temEstoque === true || et6.dados.temEstoque === 'SIM')) blocos.push(bloco(6, 'Verificação de Estoque', [
+            campo('Resultado', '✓ Tem estoque'),
         ]));
 
         const et9 = etapas.find(e => e.numero === 9);

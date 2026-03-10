@@ -1771,3 +1771,90 @@
     height: 14px;
     stroke: #fff;
 }
+
+/* =============================================================================
+   HISTÓRICO DE REPROVAÇÕES — Etapa 2 em remarcação
+   ============================================================================= */
+
+.historico-reprovacoes {
+    background: #fff8f0;
+    border: 1px solid #fed7aa;
+    border-left: 4px solid #f97316;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+}
+
+.historico-reprovacoes-titulo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #c2410c;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 12px;
+}
+
+.historico-reprovacoes-titulo svg {
+    stroke: #c2410c;
+    flex-shrink: 0;
+}
+
+.reprovacao-item {
+    background: #fff;
+    border: 1px solid #fed7aa;
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+}
+
+.reprovacao-item:last-child {
+    margin-bottom: 0;
+}
+
+.reprovacao-cabecalho {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+
+.reprovacao-badge {
+    font-size: 11px;
+    font-weight: 700;
+    color: #ea580c;
+    background: #ffedd5;
+    border-radius: 4px;
+    padding: 2px 8px;
+    white-space: nowrap;
+}
+
+.reprovacao-meta {
+    font-size: 11px;
+    color: #9ca3af;
+}
+
+.reprovacao-motivo {
+    font-size: 13px;
+    color: #374151;
+    font-style: italic;
+    padding: 4px 0 2px;
+    border-left: 3px solid #fed7aa;
+    padding-left: 10px;
+    margin-top: 4px;
+}
+
+.reprovacao-agendamento {
+    font-size: 12px;
+    color: #6b7280;
+    background: #f9fafb;
+    border-radius: 4px;
+    padding: 6px 10px;
+    margin-top: 8px;
+}
+
+.reprovacao-agendamento strong {
+    color: #374151;
+}

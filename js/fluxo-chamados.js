@@ -251,11 +251,11 @@ class Chamado {
      * Técnico confirma o recebimento da comunicação.
      * @param {Object} usuario  usuário logado (TECNICO)
      */
-    tecnicoConfirmarEtapa4(usuario) {
+    tecnicoConfirmarEtapa4(usuario, observacao) {
         const etapa = this._getEtapa(4);
         if (!etapa) return;
         etapa.tecnicoConfirmou = true;
-        this._concluirEtapa(4, { confirmadoPor: usuario?.nomeCompleto, dataConfirmacao: new Date() }, usuario);
+        this._concluirEtapa(4, { confirmadoPor: usuario?.nomeCompleto, dataConfirmacao: new Date(), observacaoTecnico: observacao || '' }, usuario);
         this._criarEtapa5();
     }
 

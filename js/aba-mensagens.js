@@ -33,9 +33,10 @@
         // ── Etapa 2: Agendamento da Avaliação ────────────────────────────────
         2: {
             campos: [
-                { id: 'inlineDataAgendamento', tipo: 'date',     label: 'Data do Agendamento',       obrigatorio: true  },
-                { id: 'inlineHoraAgendamento', tipo: 'time',     label: 'Horário',                   obrigatorio: true  },
-                { id: 'inlineObservacao',       tipo: 'textarea', label: 'Mensagem ao Solicitante',   placeholder: 'Instruções ou observações para o solicitante confirmar o agendamento...' },
+                { id: 'inlineDataAgendamento', tipo: 'date',      label: 'Data do Agendamento',      obrigatorio: true  },
+                { id: 'inlineHoraAgendamento', tipo: 'time',      label: 'Horário',                  obrigatorio: true  },
+                { id: '_sep1',                 tipo: 'separador'                                                        },
+                { id: 'inlineObservacao',      tipo: 'textarea',  label: 'Mensagem ao Solicitante',  placeholder: 'Instruções ou observações para o solicitante confirmar o agendamento...' },
             ],
             botoes: [
                 { id: 'btnInlineAvancar', label: 'Confirmar Agendamento', estilo: 'submit', acao: 'concluirEtapa2' },
@@ -135,7 +136,8 @@
         },
 
         confirmarTecnicoEtapa4(wrapper, chamado) {
-            _commitChamado(chamado, c => c.tecnicoConfirmarEtapa4(window.usuarioAtual));
+            const obs = _val(wrapper, '#inlineObsTecnico');
+            _commitChamado(chamado, c => c.tecnicoConfirmarEtapa4(window.usuarioAtual, obs));
         },
 
         estoqueSim(wrapper, chamado) {
@@ -194,6 +196,11 @@
         }
 
         cfg.campos.forEach(campo => {
+            if (campo.tipo === 'separador') {
+                html += '<div style="border-top:1px solid var(--color-gray-200,#e5e7eb);margin:4px 0 16px;"></div>';
+                return;
+            }
+
             html += '<div class="form-group" style="margin-bottom:14px;">';
             html += '<label class="form-label">' + campo.label + '</label>';
 
@@ -235,50 +242,57 @@
     // =========================================================================
 
     function _buildEtapa4TecnicoHTML(chamado) {
-        const etapa4 = (chamado.etapas || []).find(e => e.numero === 4);
-        const obs     = etapa4?.dados?.observacao || '';
-        const etapa2  = (chamado.etapas || []).find(e => e.numero === 2);
-        const dataRaw = etapa2?.dados?.dataAgendamento || '';
-        const hora    = etapa2?.dados?.horaAgendamento || '';
-        const dataFmt = dataRaw ? _fmtData(dataRaw) : '';
+        const etapa4      = (chamado.etapas || []).find(e => e.numero === 4);
+        const obs         = etapa4?.dados?.observacao || '';
+        const etapa2      = (chamado.etapas || []).find(e => e.numero === 2);
+        const dataRaw     = etapa2?.dados?.dataAgendamento || '';
+        const hora        = etapa2?.dados?.horaAgendamento || '';
+        const dataFmt     = dataRaw ? _fmtData(dataRaw) : '';
         const dataHoraStr = dataFmt ? (dataFmt + (hora ? ' às ' + hora : '')) : '';
 
+        const sep = '<div style="border-top:1px solid #e5e7eb;margin:4px 0 16px;"></div>';
+
+        let infoHTML = '';
+
+        if (dataHoraStr) {
+            infoHTML +=
+                '<div style="display:flex;align-items:center;gap:10px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:11px 14px;margin-bottom:12px;">'
+                + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0095db" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'
+                + '<div>'
+                +   '<span style="font-size:10px;font-weight:700;color:#3b82f6;text-transform:uppercase;letter-spacing:.5px;">Data da avaliação</span>'
+                +   '<div style="font-size:15px;font-weight:700;color:#1e3a5f;">' + dataHoraStr + '</div>'
+                + '</div>'
+                + '</div>';
+        }
+
+        if (chamado._local) {
+            infoHTML +=
+                '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">'
+                + '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'
+                + '<span style="font-size:13px;color:#374151;">' + chamado._local + '</span>'
+                + '</div>';
+        }
+
+        if (obs) {
+            infoHTML +=
+                '<div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:11px 14px;margin-bottom:12px;">'
+                + '<span style="font-size:10px;font-weight:700;color:#0369a1;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:5px;">💬 Mensagem do administrativo</span>'
+                + '<span style="font-size:13px;color:#374151;line-height:1.5;">' + obs + '</span>'
+                + '</div>';
+        }
+
         return (
-            '<div class="tecnico-chamado-card">'
-
-            // Título do chamado
-            + '<div class="tecnico-chamado-titulo">' + (chamado.titulo || '') + '</div>'
-
-            // Data agendada (se existir)
-            + (dataHoraStr
-                ? '<div class="tecnico-chamado-info-row">'
-                  +   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'
-                  +   '<div><span class="tecnico-chamado-info-label">Data da avaliação</span><span class="tecnico-chamado-info-valor">' + dataHoraStr + '</span></div>'
-                  + '</div>'
-                : '')
-
-            // Local
-            + (chamado._local
-                ? '<div class="tecnico-chamado-info-row">'
-                  +   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'
-                  +   '<div><span class="tecnico-chamado-info-label">Local</span><span class="tecnico-chamado-info-valor">' + chamado._local + '</span></div>'
-                  + '</div>'
-                : '')
-
-            // Mensagem do ADM (se houver)
-            + (obs
-                ? '<div class="tecnico-chamado-obs">'
-                  +   '<span class="tecnico-chamado-obs-label">💬 Mensagem do administrativo</span>'
-                  +   '<span class="tecnico-chamado-obs-texto">' + obs + '</span>'
-                  + '</div>'
-                : '')
-
-            // Botão confirmar — grande e fácil de tocar
-            + '<button id="btnInlineConfirmarTecnico" class="tecnico-chamado-btn-confirmar">'
-            +   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
-            +   'Confirmar recebimento'
-            + '</button>'
-
+            infoHTML
+            + sep
+            + '<div class="form-group" style="margin-bottom:14px;">'
+            +   '<label class="form-label">Observação</label>'
+            +   '<textarea id="inlineObsTecnico" class="form-textarea" rows="3" placeholder="Descreva alguma observação antes de confirmar o recebimento..."></textarea>'
+            + '</div>'
+            + '<div style="display:flex;justify-content:flex-end;">'
+            +   '<button id="btnInlineConfirmarTecnico" class="btn-confirmar-tecnico">'
+            +     '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+            +     'Confirmar Recebimento'
+            +   '</button>'
             + '</div>'
         );
     }
@@ -401,7 +415,19 @@
             return;
         }
 
+        // Etapa 4 aguardando técnico — bind do botão confirmar
+        if (etapa.numero === 4 && etapa.status === 'AGUARDANDO_CONFIRMACAO') {
+            const btnConfirmar = wrapper.querySelector('#btnInlineConfirmarTecnico');
+            if (btnConfirmar) {
+                btnConfirmar.addEventListener('click', () => {
+                    ACOES_ETAPA.confirmarTecnicoEtapa4(wrapper, chamado);
+                });
+            }
+            return;
+        }
+
         const cfg = _resolverConfig(etapa);
+        if (!cfg || !cfg.botoes) return;
         cfg.botoes.forEach(btn => {
             const el = wrapper.querySelector('#' + btn.id);
             if (!el) return;
@@ -476,6 +502,17 @@
             container.appendChild(vazio);
         }
 
+        // Enriquecer eventos sem usuário identificado com o técnico da Et.4
+        const tecnicoNomeEt4 = (chamado.etapas || []).find(e => e.numero === 4)?.dados?.tecnicoNome || '';
+        eventos.forEach(ev => {
+            // 1. Sanitizar: converter undefined/null/string-'undefined' em '—'
+            if (!ev.usuario || ev.usuario === 'undefined') ev.usuario = '—';
+            // 2. Fallback: eventos TECNICO sem nome → usar técnico da Et.4
+            if (ev.usuario === '—' && tecnicoNomeEt4 && ev.dados?.categoria === 'TECNICO') {
+                ev.usuario = tecnicoNomeEt4;
+            }
+        });
+
         const slWrapper = document.createElement('div');
         slWrapper.className = 'msg-sl-list';
 
@@ -493,19 +530,49 @@
 
     function _resolverEventos(chamado) {
         if (chamado.historicoEventos && chamado.historicoEventos.length) {
-            const eventos = chamado.historicoEventos;
+            let eventos = chamado.historicoEventos;
             const temEtapa1 = eventos.some(ev => ev.tipo === 'ETAPA_CONCLUIDA' && ev.dados?.numero === 1);
             if (!temEtapa1) {
                 const et1 = (chamado.etapas || []).find(e => e.numero === 1);
                 if (et1 && et1.conclusao) {
-                    eventos.unshift({
+                    eventos = [{
                         tipo: 'ETAPA_CONCLUIDA',
                         dados: { numero: 1, titulo: et1.titulo, categoria: et1.categoria, dados: et1.dados || {} },
                         usuario: et1.conclusao.usuario,
                         dataHora: et1.conclusao.dataHora
-                    });
+                    }, ...eventos];
                 }
             }
+            // Se existe TECNICO_CONFIRMOU, o ETAPA_CONCLUIDA(4) é duplicata — remover
+            const temConfirmouLegado = eventos.some(ev => ev.tipo === 'TECNICO_CONFIRMOU');
+            if (temConfirmouLegado) {
+                eventos = eventos.filter(ev => !(ev.tipo === 'ETAPA_CONCLUIDA' && ev.dados?.numero === 4));
+            }
+
+            // Injetar evento do card pai (5, 7, 10) se a etapa estiver concluída mas não tiver evento
+            [5, 7, 10].forEach(numeroPai => {
+                const temEvento = eventos.some(ev => ev.tipo === 'ETAPA_CONCLUIDA' && ev.dados?.numero === numeroPai);
+                if (!temEvento) {
+                    const etapaPai = (chamado.etapas || []).find(e => e.numero === numeroPai);
+                    if (etapaPai && etapaPai.status === 'CONCLUIDA') {
+                        // Usa dataHora da conclusao do pai, ou pega do último evento de subetapa
+                        const dataHora = etapaPai.conclusao?.dataHora
+                            || eventos.filter(ev => ev.dados?.numero && String(ev.dados.numero).startsWith(String(numeroPai) + '.')).slice(-1)[0]?.dataHora
+                            || new Date();
+                        const usuario = etapaPai.conclusao?.usuario || '—';
+                        eventos.push({
+                            tipo: 'ETAPA_CONCLUIDA',
+                            dados: { numero: etapaPai.numero, titulo: etapaPai.titulo, categoria: etapaPai.categoria, dados: {} },
+                            usuario,
+                            dataHora
+                        });
+                    }
+                }
+            });
+
+            // Reordenar após injeções
+            eventos.sort((a, b) => new Date(a.dataHora) - new Date(b.dataHora));
+
             return eventos;
         }
 
@@ -546,28 +613,38 @@
         ETAPA_CONCLUIDA:  { cor: '#16a34a', icone: 'check',    prefixo: 'ETAPA' },
         REPROVADO:        { cor: '#ef4444', icone: 'x',        prefixo: 'REPROVADO' },
         REMARCADO:        { cor: '#f59e0b', icone: 'clock',    prefixo: 'REMARCADO' },
-        TECNICO_COMUNICADO: { cor: '#0095db', icone: 'user',   prefixo: 'COMUNICADO' },
+        TECNICO_COMUNICADO: { cor: '#16a34a', icone: 'check',  prefixo: 'COMUNICADO' },
+        TECNICO_CONFIRMOU:  { cor: '#16a34a', icone: 'check',  prefixo: 'CONFIRMADO' },
     };
 
     function _buildEventoItem(ev) {
         const cfg      = _TIPO_CONFIG[ev.tipo] || _TIPO_CONFIG.ETAPA_CONCLUIDA;
         const d        = ev.dados || {};
+
+        // ── Normalização: ETAPA_CONCLUIDA numero 4 e TECNICO_CONFIRMOU → tratados como 4.1
+        const isConfirmacaoTecnico = (ev.tipo === 'ETAPA_CONCLUIDA' && d.numero === 4)
+                                  || ev.tipo === 'TECNICO_CONFIRMOU';
+
         const label    = (window.CATEGORIA_LABEL || {})[d.categoria] || d.categoria || '';
         const badgeClass = _badgeClasses[d.categoria] || 'badge-admin';
-        const isSub    = !!d.isSub;
+        const isSub    = !!d.isSub || isConfirmacaoTecnico;
         const campos   = _extrairCamposEvento(ev);
         const uid      = 'ev-' + String(Math.random()).slice(2, 8);
 
         // Título do card
         let titulo = '';
-        if (ev.tipo === 'ETAPA_CONCLUIDA') {
+        if (isConfirmacaoTecnico) {
+            titulo = 'ETAPA 4.1 — CONFIRMAÇÃO DO TÉCNICO';
+        } else if (ev.tipo === 'ETAPA_CONCLUIDA') {
             titulo = 'ETAPA ' + d.numero + ' — ' + (d.titulo || '').toUpperCase();
         } else if (ev.tipo === 'REPROVADO') {
             titulo = ' ETAPA ' + d.numero + ' — REPROVADO PELO SOLICITANTE';
         } else if (ev.tipo === 'REMARCADO') {
             titulo = ' ETAPA ' + d.numero + ' — REMARCADO PARA NOVO AGENDAMENTO';
         } else if (ev.tipo === 'TECNICO_COMUNICADO') {
-            titulo = 'ETAPA ' + d.numero + ' — ' + (d.titulo || '').toUpperCase() + ' (AGUARDANDO CONFIRMAÇÃO)';
+            titulo = 'ETAPA 4 — COMUNICAR O TÉCNICO';
+        } else if (ev.tipo === 'TECNICO_CONFIRMOU') {
+            titulo = 'ETAPA 4.1 — CONFIRMAÇÃO DO TÉCNICO';
         }
 
         const item = document.createElement('div');
@@ -596,13 +673,24 @@
         body.className = 'msg-sl-body collapsed';
         body.id = uid;
 
-        const camposHTML = campos.map(c =>
-            '<p class="msg-ticket-conteudo-linha"><strong>' + c.label + ':</strong> ' + c.valor + '</p>'
-        ).join('');
+        const camposHTML = campos.map(c => {
+            if (c.isData) {
+                return '<div style="display:inline-flex;align-items:center;gap:6px;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:6px;padding:5px 10px;margin-top:6px;">'
+                    + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'
+                    + '<span style="font-size:12px;font-weight:600;color:#6b7280;">' + c.valor + '</span>'
+                    + '</div>';
+            }
+            return '<p class="msg-ticket-conteudo-linha"><strong>' + c.label + ':</strong> ' + c.valor + '</p>';
+        }).join('');
 
-        const fotoEvUsuario = (typeof getFotoUsuario === 'function') ? getFotoUsuario(ev.usuario) : null;
-        const iniciaisEvUsuario = (ev.usuario || '?').trim().split(' ').filter(Boolean)
-            .reduce((acc, p, i, arr) => i === 0 || i === arr.length - 1 ? acc + p[0] : acc, '').toUpperCase().slice(0, 2);
+        // Fallback de nome: se o evento foi salvo sem usuário identificado,
+        // tenta recuperar de campos conhecidos dos dados ou da conclusão da etapa
+        const _usuarioRaw = ev.usuario;
+        const nomeExibido = (_usuarioRaw && _usuarioRaw !== '—' && _usuarioRaw !== 'undefined')
+            ? _usuarioRaw
+            : (d.dados?.tecnicoNome || d.dados?.tecnicoResponsavel || d.dados?.confirmadoPor || '—');
+
+        const fotoEvUsuario = (typeof getFotoUsuario === 'function') ? getFotoUsuario(nomeExibido) : null;
         const avatarEvHTML = fotoEvUsuario
             ? '<img src="' + fotoEvUsuario + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
             : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>';
@@ -613,7 +701,7 @@
             +     avatarEvHTML
             +   '</div>'
             +   '<div class="msg-ticket-remetente-info">'
-            +     '<span class="msg-ticket-remetente-nome">' + ev.usuario + '</span>'
+            +     '<span class="msg-ticket-remetente-nome">' + nomeExibido + '</span>'
             +     '<span class="msg-ticket-remetente-unidade">' + label + '</span>'
             +   '</div>'
             +   (label ? '<span class="msg-ticket-perfil-badge ' + badgeClass + '">' + label.toUpperCase() + '</span>' : '')
@@ -657,13 +745,26 @@
         const dd = d.dados || {};
 
         if (ev.tipo === 'REPROVADO' || ev.tipo === 'REMARCADO') {
-            add('OBSERVAÇÃO', d.observacao);
+            add('OBSERVAÇÃO', d.motivo || d.observacao);
             return campos;
         }
 
         if (ev.tipo === 'TECNICO_COMUNICADO') {
             add('TÉCNICO', d.dados?.tecnicoNome || d.dados?.tecnicoUsuario);
             add('MENSAGEM', d.dados?.observacao);
+            return campos;
+        }
+
+        if (ev.tipo === 'TECNICO_CONFIRMOU') {
+            add('CONFIRMAÇÃO', '✅ Confirmado');
+            add('OBSERVAÇÃO', d.dados?.observacaoTecnico);
+            return campos;
+        }
+
+        // ETAPA_CONCLUIDA numero 4 = confirmação do técnico (4.1)
+        if (ev.tipo === 'ETAPA_CONCLUIDA' && d.numero === 4) {
+            add('CONFIRMAÇÃO', '✅ Confirmado');
+            add('OBSERVAÇÃO', dd.observacaoTecnico);
             return campos;
         }
 
@@ -690,6 +791,10 @@
     // =========================================================================
 
     function _renderFormularioInline(chamado, container) {
+        // Sempre limpar o painel aguardando antes de renderizar
+        const painelAguardando = document.getElementById('etapaAguardandoPanel');
+        if (painelAguardando) painelAguardando.innerHTML = '';
+
         const etapa = window.getEtapaAtiva(chamado);
         if (!etapa || chamado.status === 'FINALIZADO') return;
 
@@ -705,6 +810,8 @@
         if (pode) {
             const semCollapse = false;
 
+            const isEtapa4Confirmacao = etapa.numero === 4 && etapa.status === 'AGUARDANDO_CONFIRMACAO';
+
             const isRemarcacao = !!blocoReprovacoes;
             const badgeRemarcacao = isRemarcacao
                 ? '<span style="font-size:10px;font-weight:700;color:#dc2626;background:#fef2f2;border:1px solid #fca5a5;border-radius:4px;padding:2px 7px;white-space:nowrap;"> REMARCAÇÃO</span>'
@@ -712,6 +819,15 @@
             const subtexto = isRemarcacao
                 ? 'Reprovado pelo solicitante — reagende'
                 : 'Sua ação é necessária';
+
+            // Título e ícone do card — diferenciado para Et.4.1
+            const cardTitulo = isEtapa4Confirmacao
+                ? 'ETAPA 4.1 — CONFIRMAÇÃO DO TÉCNICO'
+                : 'ETAPA ' + etapa.numero + ' — ' + etapa.titulo.toUpperCase();
+
+            const cardIconeSvg = isEtapa4Confirmacao
+                ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><polyline points="20 6 9 17 4 12"/></svg>'
+                : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
 
             const headerAcao = semCollapse
                 ? ''   // sem botão "Atender" — conteúdo já expandido
@@ -728,16 +844,15 @@
                 + '<div class="msg-ticket-header"' + (semCollapse ? ' style="cursor:default;"' : ' id="areaAtenderBtn"') + '>'
                 +   '<div class="msg-ticket-header-esq">'
                 +     '<div class="msg-ticket-num" style="background:#0095db;color:#fff;display:flex;align-items:center;justify-content:center;padding:0;">'
-                +       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'
+                +       cardIconeSvg
                 +     '</div>'
                 +     '<div class="msg-ticket-header-info">'
                 +       '<span class="msg-ticket-subtexto">' + subtexto + '</span>'
-                +       '<span class="msg-ticket-titulo">ETAPA ' + etapa.numero + ' — ' + etapa.titulo.toUpperCase() + '</span>'
+                +       '<span class="msg-ticket-titulo">' + cardTitulo + '</span>'
                 +     '</div>'
                 +   '</div>'
                 +   headerAcao
                 + '</div>'
-                + (blocoReprovacoes ? '<div style="padding:12px 16px 0;">' + blocoReprovacoes + '</div>' : '')
                 + '<div class="msg-ticket-body' + (semCollapse ? '' : ' collapsed') + '" id="areaFormularioAtender">'
                 +   '<div style="padding:16px;">'
                 +     _buildFormularioInlineHTML(etapa, chamado)
@@ -771,24 +886,23 @@
             _bindFormularioInlineEvents(wrapper, chamado, etapa);
 
         } else {
-            wrapper.innerHTML =
-                '<div class="msg-ticket-card aguardando">'
-                + '<div class="msg-ticket-header" style="cursor:default;">'
-                +   '<div class="msg-ticket-header-esq">'
-                +     '<div class="msg-ticket-num">' + etapa.numero + '</div>'
-                +     '<div class="msg-ticket-header-info">'
-                +       '<span class="msg-ticket-titulo">Etapa ' + etapa.numero + ' — ' + etapa.titulo + '</span>'
-                +       '<span class="msg-ticket-subtexto">Responsável: ' + responsavel + '</span>'
-                +     '</div>'
-                +   '</div>'
-                +   '<span style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--color-gray-400);flex-shrink:0;white-space:nowrap;">'
-                +     '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'
-                +     'Aguardando'
-                +   '</span>'
-                + '</div>'
-                + (blocoReprovacoes ? '<div style="padding:0 16px 12px;">' + blocoReprovacoes + '</div>' : '')
-                + '</div>';
-            container.appendChild(wrapper);
+            const painelAguardando = document.getElementById('etapaAguardandoPanel');
+            if (painelAguardando) {
+                painelAguardando.innerHTML =
+                    '<div class="etapa-aguardando-bar">'
+                    + '<div class="etapa-aguardando-bar-esq">'
+                    +   '<div class="etapa-aguardando-bar-num">' + etapa.numero + '</div>'
+                    +   '<div>'
+                    +     '<div class="etapa-aguardando-bar-titulo">Etapa ' + etapa.numero + ' — ' + etapa.titulo + '</div>'
+                    +     '<div class="etapa-aguardando-bar-resp">Responsável: ' + responsavel + '</div>'
+                    +   '</div>'
+                    + '</div>'
+                    + '<span class="etapa-aguardando-bar-badge">'
+                    +   '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'
+                    +   'Aguardando'
+                    + '</span>'
+                    + '</div>';
+            }
         }
     }
 
@@ -801,16 +915,8 @@
     function _buildBlocoReprovacoes(etapa) {
         const reps = etapa.historicoReprovacoes;
         if (!reps || !reps.length) return '';
-
-        return '<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:12px 14px;margin-bottom:4px;">'
-            + '<p style="font-size:11px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:.5px;margin:0 0 8px 0;">'
-            +   '⚠️ ' + (reps.length === 1 ? 'Reprovado pelo solicitante' : reps.length + 'x reprovado pelo solicitante')
-            + '</p>'
-            + reps.map(function(r, i) {
-                return '<div style="' + (i > 0 ? 'margin-top:8px;padding-top:8px;border-top:1px solid #fecaca;' : '') + '">'
-                    + '<span style="font-size:13px;font-weight:600;color:#7f1d1d;display:block;">' + r.motivo + '</span>'
-                    + '</div>';
-            }).join('')
+        return '<div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px;margin-bottom:4px;">'
+            + '<p style="font-size:12px;color:#6b7280;margin:0;">Aguardando uma nova data de agendamento.</p>'
             + '</div>';
     }
 
@@ -854,26 +960,27 @@
 
     function _extrairCamposMensagem(numeroEtapa, d, msgObj) {
         const campos = [];
-        const add = (label, valor) => { if (valor) campos.push({ label, valor }); };
+        const add     = (label, valor) => { if (valor) campos.push({ label, valor }); };
+        const addData = (label, valor) => { if (valor) campos.push({ label, valor, isData: true }); };
 
         switch (numeroEtapa) {
             case 1:   add('OBSERVAÇÃO', d.observacao); break;
             case 2:
-                if (d.dataAgendamento) add('OBSERVAÇÃO', d.observacao);
-                add('DATA AGENDADA', _fmtData(d.dataAgendamento) + (d.horaAgendamento ? ' às ' + d.horaAgendamento : ''));
+                add('MENSAGEM', d.observacao);
+                if (d.dataAgendamento) addData('DATA SUGERIDA', _fmtData(d.dataAgendamento) + (d.horaAgendamento ? ' às ' + d.horaAgendamento : ''));
                 break;
             case 3:
                 add('DECISÃO', d.decisao === 'APROVADO' ? '✅ Aprovado' : d.decisao || '');
                 break;
             case 4:
                 add('TÉCNICO RESPONSÁVEL', d.tecnicoNome);
-                if (d.dataAvaliacao) add('DATA DA AVALIAÇÃO', _fmtData(d.dataAvaliacao) + (d.horaAvaliacao ? ' às ' + d.horaAvaliacao : ''));
+                if (d.dataAvaliacao) addData('DATA DA AVALIAÇÃO', _fmtData(d.dataAvaliacao) + (d.horaAvaliacao ? ' às ' + d.horaAvaliacao : ''));
                 add('MENSAGEM AO TÉCNICO', d.observacao);
                 add('SELECIONADO POR', d.selecionadoPor);
                 break;
             case 5:    add('OBSERVAÇÃO', d.observacao); break;
             case 5.1:
-                if (d.dataInicio) add('INÍCIO', _fmtData(d.dataInicio) + (d.horaInicio ? ' às ' + d.horaInicio : ''));
+                if (d.dataInicio) addData('INÍCIO', _fmtData(d.dataInicio) + (d.horaInicio ? ' às ' + d.horaInicio : ''));
                 add('OBSERVAÇÃO', d.observacao);
                 break;
             case 5.2:
@@ -897,22 +1004,22 @@
                 add('OBSERVAÇÃO', d.observacao);
                 break;
             case 7.3:
-                if (d.dataEntrega) add('ENTREGA PREVISTA', _fmtData(d.dataEntrega) + (d.horaEntrega ? ' às ' + d.horaEntrega : ''));
+                if (d.dataEntrega) addData('ENTREGA PREVISTA', _fmtData(d.dataEntrega) + (d.horaEntrega ? ' às ' + d.horaEntrega : ''));
                 add('LOCAL DE ENTREGA', d.localEntrega);
                 add('OBSERVAÇÃO', d.observacao);
                 break;
             case 8:
-                if (d.dataRecebimento) add('DATA DE RECEBIMENTO', _fmtData(d.dataRecebimento));
+                if (d.dataRecebimento) addData('DATA DE RECEBIMENTO', _fmtData(d.dataRecebimento));
                 add('Nº DA NOTA FISCAL', d.numeroNF);
                 add('OBSERVAÇÃO', d.observacao);
                 break;
             case 9:
-                if (d.dataServico) add('DATA DO SERVIÇO', _fmtData(d.dataServico) + (d.horaServico ? ' às ' + d.horaServico : ''));
+                if (d.dataServico) addData('DATA DO SERVIÇO', _fmtData(d.dataServico) + (d.horaServico ? ' às ' + d.horaServico : ''));
                 add('TÉCNICO RESPONSÁVEL', d.tecnicoResponsavel);
                 add('OBSERVAÇÃO', d.observacao);
                 break;
             case 10.1:
-                if (d.dataInicio) add('INÍCIO DO SERVIÇO', _fmtData(d.dataInicio) + (d.horaInicio ? ' às ' + d.horaInicio : ''));
+                if (d.dataInicio) addData('INÍCIO DO SERVIÇO', _fmtData(d.dataInicio) + (d.horaInicio ? ' às ' + d.horaInicio : ''));
                 add('OBSERVAÇÃO', d.observacao);
                 break;
             case 10.2:
@@ -948,4 +1055,4 @@
     // =========================================================================
     window.renderMensagens = renderMensagens;
 
-})(); 
+})();

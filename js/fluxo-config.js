@@ -22,6 +22,7 @@ window.FLUXO_MANUTENCAO = [
 
     // ---- Bloco 2: Atribuição e Avaliação Técnica ----
     { num: '4',    label: 'Comunicar o Técnico',       categoria: 'ADMINISTRATIVO' },
+    { num: '4.1',  label: 'Confirmação do Técnico',    categoria: 'TECNICO',        sub: true },
     { num: '5',    label: 'Avaliação Técnica',         categoria: 'TECNICO'        },
     { num: '5.1',  label: 'Início da Avaliação',       categoria: 'TECNICO',        sub: true },
     { num: '5.2',  label: 'Término da Avaliação',      categoria: 'TECNICO',        sub: true },
