@@ -125,7 +125,15 @@
         selecionarTecnicoEtapa4(wrapper, chamado) {
             const sel        = wrapper.querySelector('#inlineTecnico');
             const tecUsuario = sel?.value;
-            const tecNome    = sel?.options[sel.selectedIndex]?.dataset.nome || '';
+            const _tecOpt    = sel?.options[sel.selectedIndex];
+            const _tecNomeDN = _tecOpt?.dataset?.nome || _tecOpt?.getAttribute('data-nome') || '';
+            const _tecNomeLs = (() => {
+                try {
+                    const u = JSON.parse(localStorage.getItem('usuarios') || '[]').find(x => x.usuario === tecUsuario);
+                    return u ? (u.nomeCompleto || u.nome || u.name || '') : '';
+                } catch(e) { return ''; }
+            })();
+            const tecNome = _tecNomeDN || _tecNomeLs || tecUsuario;
             const obs        = _val(wrapper, '#inlineObservacao');
             if (_exigir(wrapper, '#inlineTecnico', !tecUsuario)) return;
             _commitChamado(chamado, c => {
@@ -191,6 +199,17 @@
 
         let html = '';
 
+        // Cabeçalho estilo msg-ticket-header — acima do form body
+        html += '<div class="msg-ticket-header" style="cursor:default;border-radius:10px 10px 0 0;">'
+              + '<div class="msg-ticket-header-esq">'
+              + '<div class="msg-ticket-num">' + etapa.numero + '</div>'
+              + '<div class="msg-ticket-header-info">'
+              + '<span class="msg-ticket-subtexto">Você está atendendo</span>'
+              + '<span class="msg-ticket-titulo">Etapa ' + etapa.numero + ' — ' + etapa.titulo + '</span>'
+              + '</div>'
+              + '</div>'
+              + '</div>';
+
         if (cfg.intro) {
             html += '<p style="font-size:13px;color:var(--color-gray-700);margin-bottom:12px;">' + cfg.intro + '</p>';
         }
@@ -220,7 +239,8 @@
             html += '</div>';
         });
 
-        html += '<div style="display:flex;gap:10px;justify-content:flex-end;">';
+        html += '<div style="display:flex;gap:10px;justify-content:flex-end;align-items:center;">';
+        html += '<button type="button" class="btn-fechar-form" id="btnFecharFormulario">Fechar</button>';
         cfg.botoes.forEach(btn => {
             const cls = btn.estilo === 'cancel' ? 'btn-cancel' : 'btn-submit';
             html += '<button id="' + btn.id + '" class="' + cls + '">' + btn.label + '</button>';
@@ -409,6 +429,15 @@
     // =========================================================================
 
     function _bindFormularioInlineEvents(wrapper, chamado, etapa) {
+        // Botão Fechar — só colapsa o formulário, mantém o painel de atender
+        const btnFechar = wrapper.querySelector('#btnFecharFormulario');
+        if (btnFechar) {
+            btnFechar.addEventListener('click', function () {
+                const areaForm = wrapper.querySelector('#areaFormularioAtender');
+                if (areaForm) areaForm.classList.add('collapsed');
+            });
+        }
+
         // Etapas com bind totalmente customizado
         if (etapa.numero === 3) {
             _bindEtapa3Events(wrapper, chamado);
@@ -470,11 +499,12 @@
         return todos
             .filter(u => u.status !== 'Desligado' && u.status !== 'Inativo'
                       && (u.perfil === 'TECNICO' || u.perfil === 'ADMIN'))
-            .map(t =>
-                '<option value="' + t.usuario + '" data-nome="' + t.nomeCompleto + '">'
-                + t.nomeCompleto + ' (' + t.usuario + ')'
-                + '</option>'
-            ).join('');
+            .map(t => {
+                const nome = t.nomeCompleto || t.nome || t.name || t.usuario;
+                return '<option value="' + t.usuario + '" data-nome="' + nome + '">'
+                     + nome + ' (' + t.usuario + ')'
+                     + '</option>';
+            }).join('');
     }
 
 
@@ -680,6 +710,12 @@
                     + '<span style="font-size:12px;font-weight:600;color:#6b7280;">' + c.valor + '</span>'
                     + '</div>';
             }
+            if (c.isTecnico) {
+                return '<div style="display:inline-flex;align-items:center;gap:6px;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:6px;padding:5px 10px;margin-top:6px;">'
+                    + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'
+                    + '<span style="font-size:12px;font-weight:600;color:#6b7280;">' + c.valor + '</span>'
+                    + '</div>';
+            }
             return '<p class="msg-ticket-conteudo-linha"><strong>' + c.label + ':</strong> ' + c.valor + '</p>';
         }).join('');
 
@@ -750,8 +786,9 @@
         }
 
         if (ev.tipo === 'TECNICO_COMUNICADO') {
-            add('TÉCNICO', d.dados?.tecnicoNome || d.dados?.tecnicoUsuario);
+            const addTecnicoLocal = (label, valor) => { if (valor) campos.push({ label, valor, isTecnico: true }); };
             add('MENSAGEM', d.dados?.observacao);
+            addTecnicoLocal('TÉCNICO RESPONSÁVEL', d.dados?.tecnicoNome || d.dados?.tecnicoUsuario);
             return campos;
         }
 
@@ -799,7 +836,11 @@
         if (!etapa || chamado.status === 'FINALIZADO') return;
 
         const pode        = window.podeAtenderEtapa(etapa, window.usuarioAtual.perfil);
-        const responsavel = (window.CATEGORIA_LABEL || {})[etapa.categoria] || etapa.categoria;
+        const _catLabel   = (window.CATEGORIA_LABEL || {})[etapa.categoria] || etapa.categoria;
+        const _et4conf    = etapa.numero === 4 && etapa.status === 'AGUARDANDO_CONFIRMACAO';
+        const responsavel = (_et4conf && etapa.dados?.tecnicoNome) ? etapa.dados.tecnicoNome : _catLabel;
+        const etapaNumDisplay   = _et4conf ? '4.1' : etapa.numero;
+        const etapaTituloDisplay = _et4conf ? 'Confirmação do Técnico' : etapa.titulo;
 
         // Bloco de reprovações — visível para TODOS os perfis
         const blocoReprovacoes = _buildBlocoReprovacoes(etapa);
@@ -808,10 +849,7 @@
         wrapper.className = 'msg-ticket-wrapper';
 
         if (pode) {
-            const semCollapse = false;
-
             const isEtapa4Confirmacao = etapa.numero === 4 && etapa.status === 'AGUARDANDO_CONFIRMACAO';
-
             const isRemarcacao = !!blocoReprovacoes;
             const badgeRemarcacao = isRemarcacao
                 ? '<span style="font-size:10px;font-weight:700;color:#dc2626;background:#fef2f2;border:1px solid #fca5a5;border-radius:4px;padding:2px 7px;white-space:nowrap;"> REMARCAÇÃO</span>'
@@ -819,71 +857,58 @@
             const subtexto = isRemarcacao
                 ? 'Reprovado pelo solicitante — reagende'
                 : 'Sua ação é necessária';
-
-            // Título e ícone do card — diferenciado para Et.4.1
             const cardTitulo = isEtapa4Confirmacao
                 ? 'ETAPA 4.1 — CONFIRMAÇÃO DO TÉCNICO'
                 : 'ETAPA ' + etapa.numero + ' — ' + etapa.titulo.toUpperCase();
 
-            const cardIconeSvg = isEtapa4Confirmacao
-                ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><polyline points="20 6 9 17 4 12"/></svg>'
-                : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
-
-            const headerAcao = semCollapse
-                ? ''   // sem botão "Atender" — conteúdo já expandido
-                : '<div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">'
-                  +   badgeRemarcacao
-                  +   '<button class="msg-ticket-detalhes-btn" id="btnAtenderChamado">'
-                  +     'Atender'
-                  +     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="msg-ticket-chevron"><polyline points="6 9 12 15 18 9"/></svg>'
-                  +   '</button>'
-                  + '</div>';
-
-            wrapper.innerHTML =
-                '<div class="msg-ticket-card" id="cardFormularioInline">'
-                + '<div class="msg-ticket-header"' + (semCollapse ? ' style="cursor:default;"' : ' id="areaAtenderBtn"') + '>'
-                +   '<div class="msg-ticket-header-esq">'
-                +     '<div class="msg-ticket-num" style="background:#0095db;color:#fff;display:flex;align-items:center;justify-content:center;padding:0;">'
-                +       cardIconeSvg
-                +     '</div>'
-                +     '<div class="msg-ticket-header-info">'
-                +       '<span class="msg-ticket-subtexto">' + subtexto + '</span>'
-                +       '<span class="msg-ticket-titulo">' + cardTitulo + '</span>'
-                +     '</div>'
-                +   '</div>'
-                +   headerAcao
-                + '</div>'
-                + '<div class="msg-ticket-body' + (semCollapse ? '' : ' collapsed') + '" id="areaFormularioAtender">'
-                +   '<div style="padding:16px;">'
-                +     _buildFormularioInlineHTML(etapa, chamado)
-                +   '</div>'
-                + '</div>'
-                + '</div>';
-
-            container.appendChild(wrapper);
-
-            if (!semCollapse) {
-                const btnAtender = wrapper.querySelector('#btnAtenderChamado');
-                const areaForm   = wrapper.querySelector('#areaFormularioAtender');
-
-                btnAtender.addEventListener('click', function () {
-                    const aberto = !areaForm.classList.contains('collapsed');
-                    if (aberto) {
-                        areaForm.classList.add('collapsed');
-                        btnAtender.innerHTML = 'Atender <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="msg-ticket-chevron"><polyline points="6 9 12 15 18 9"/></svg>';
-                    } else {
-                        areaForm.classList.remove('collapsed');
-                        btnAtender.innerHTML = 'Fechar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="msg-ticket-chevron" style="transform:rotate(180deg)"><polyline points="6 9 12 15 18 9"/></svg>';
-                        areaForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                        setTimeout(function () {
-                            const primeiro = areaForm.querySelector('textarea, input, select');
-                            if (primeiro) primeiro.focus();
-                        }, 300);
-                    }
-                });
+            // ── PAINEL SUPERIOR — label da etapa + botão Atender ──
+            const painelAguardando = document.getElementById('etapaAguardandoPanel');
+            if (painelAguardando) {
+                painelAguardando.innerHTML =
+                    '<div class="etapa-aguardando-bar etapa-atender-bar">'
+                    + '<div class="etapa-aguardando-bar-esq">'
+                    +   '<div class="etapa-aguardando-bar-num">' + etapa.numero + '</div>'
+                    +   '<div>'
+                    +     '<div class="etapa-aguardando-bar-subtexto">' + subtexto + '</div>'
+                    +     '<div class="etapa-aguardando-bar-titulo">' + cardTitulo + '</div>'
+                    +   '</div>'
+                    + '</div>'
+                    + '<div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">'
+                    +   (badgeRemarcacao ? badgeRemarcacao : '')
+                    +   '<button class="etapa-atender-btn" id="btnAtenderChamado">'
+                    +     'Atender'
+                    +     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><polyline points="6 9 12 15 18 9"/></svg>'
+                    +   '</button>'
+                    + '</div>'
+                    + '</div>';
             }
 
-            _bindFormularioInlineEvents(wrapper, chamado, etapa);
+            // ── BODY DO FORMULÁRIO — header fora, body colapsado ──
+            const bodyWrapper = document.createElement('div');
+            bodyWrapper.className = 'msg-ticket-wrapper';
+            bodyWrapper.innerHTML =
+                '<div class="msg-ticket-card" id="cardFormularioInline">'
+                +   '<div class="etapa-form-body collapsed" id="areaFormularioAtender">'
+                +     '<div style="padding:16px;">'
+                +       _buildFormularioInlineHTML(etapa, chamado)
+                +     '</div>'
+                +   '</div>'
+                + '</div>';
+            container.appendChild(bodyWrapper);
+
+            // Toggle Atender
+            const btnAtender = painelAguardando.querySelector('#btnAtenderChamado');
+            const areaForm   = bodyWrapper.querySelector('#areaFormularioAtender');
+            btnAtender.addEventListener('click', function () {
+                areaForm.classList.remove('collapsed');
+                areaForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                setTimeout(function () {
+                    const primeiro = areaForm.querySelector('textarea, input, select');
+                    if (primeiro) primeiro.focus();
+                }, 300);
+            });
+
+            _bindFormularioInlineEvents(bodyWrapper, chamado, etapa);
 
         } else {
             const painelAguardando = document.getElementById('etapaAguardandoPanel');
@@ -891,10 +916,11 @@
                 painelAguardando.innerHTML =
                     '<div class="etapa-aguardando-bar">'
                     + '<div class="etapa-aguardando-bar-esq">'
-                    +   '<div class="etapa-aguardando-bar-num">' + etapa.numero + '</div>'
+                    +   '<div class="etapa-aguardando-bar-num">' + etapaNumDisplay + '</div>'
                     +   '<div>'
-                    +     '<div class="etapa-aguardando-bar-titulo">Etapa ' + etapa.numero + ' — ' + etapa.titulo + '</div>'
-                    +     '<div class="etapa-aguardando-bar-resp">Responsável: ' + responsavel + '</div>'
+                    +     '<span class="etapa-aguardando-bar-label-atual">ETAPA ATUAL</span>'
+                    +     '<div class="etapa-aguardando-bar-titulo">Etapa ' + etapaNumDisplay + ' — ' + etapaTituloDisplay + '</div>'
+                    +     '<div class="etapa-aguardando-bar-resp">Aguardando: <strong>' + responsavel + '</strong></div>'
                     +   '</div>'
                     + '</div>'
                     + '<span class="etapa-aguardando-bar-badge">'
@@ -961,7 +987,8 @@
     function _extrairCamposMensagem(numeroEtapa, d, msgObj) {
         const campos = [];
         const add     = (label, valor) => { if (valor) campos.push({ label, valor }); };
-        const addData = (label, valor) => { if (valor) campos.push({ label, valor, isData: true }); };
+        const addData    = (label, valor) => { if (valor) campos.push({ label, valor, isData: true }); };
+        const addTecnico = (label, valor) => { if (valor) campos.push({ label, valor, isTecnico: true }); };
 
         switch (numeroEtapa) {
             case 1:   add('OBSERVAÇÃO', d.observacao); break;
@@ -973,9 +1000,9 @@
                 add('DECISÃO', d.decisao === 'APROVADO' ? '✅ Aprovado' : d.decisao || '');
                 break;
             case 4:
-                add('TÉCNICO RESPONSÁVEL', d.tecnicoNome);
-                if (d.dataAvaliacao) addData('DATA DA AVALIAÇÃO', _fmtData(d.dataAvaliacao) + (d.horaAvaliacao ? ' às ' + d.horaAvaliacao : ''));
                 add('MENSAGEM AO TÉCNICO', d.observacao);
+                if (d.tecnicoNome) addTecnico('TÉCNICO RESPONSÁVEL', d.tecnicoNome);
+                if (d.dataAvaliacao) addData('DATA DA AVALIAÇÃO', _fmtData(d.dataAvaliacao) + (d.horaAvaliacao ? ' às ' + d.horaAvaliacao : ''));
                 add('SELECIONADO POR', d.selecionadoPor);
                 break;
             case 5:    add('OBSERVAÇÃO', d.observacao); break;

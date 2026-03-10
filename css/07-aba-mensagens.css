@@ -353,6 +353,10 @@
 
 .msg-ticket-wrapper {
     margin-bottom: 12px;
+    max-width: 920px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
 }
 
 .msg-ticket-card {
